@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* 랜딩페이지 전용 브랜드 토큰 — 글래스모피즘. 배경은 실사 이미지(공부 책상 씬,
+     public/landing/bg-study.jpg)를 고정 배치하고, 그 위에 반투명 글래스 패널을 얹는
+     방식이라 팔레트 자체는 사진의 어두운 톤에 맞춰 다크로 되돌림(라이트 배경으로는
+     사진 위에 흰 텍스트/유리가 뜨지 않음). */
+  --color-sb-bg: #12100c;
+  --color-sb-bg-soft: #1a1712;
+  --color-sb-surface: rgba(255, 255, 255, 0.08);
+  --color-sb-surface-strong: rgba(255, 255, 255, 0.14);
+  --color-sb-border: rgba(255, 255, 255, 0.18);
+  --color-sb-text: #f6f3ec;
+  --color-sb-mute: rgba(246, 243, 236, 0.68);
+  --color-sb-accent: #cbff4d;
+  --color-sb-accent-deep: #cbff4d;
+  --color-sb-accent-ink: #142108;
+  --font-display: var(--font-do-hyeon);
+  --font-body-kr: var(--font-gothic-a1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* "한입 베어문" 시그니처 — Logo.tsx가 로고 우상단에 원을 도려내는 것과 동일한
+   자리(우상단)를 카드/이미지 프레임에도 반복 적용하는 구조적 장치. mask-image의
+   radial-gradient hard-stop으로 우상단 모서리에서 반지름만큼을 투명 처리(=도려냄)한다. */
+.bite-corner {
+  --bite-radius: 28px;
+  -webkit-mask-image: radial-gradient(
+    circle at 100% 0%,
+    transparent 0,
+    transparent var(--bite-radius),
+    #000 var(--bite-radius)
+  );
+  mask-image: radial-gradient(
+    circle at 100% 0%,
+    transparent 0,
+    transparent var(--bite-radius),
+    #000 var(--bite-radius)
+  );
+}
+
+/* 프로스티드 글래스 패널 — backdrop-blur만으로는 얕아 보여서, 위쪽 1px 하이라이트와
+   바깥 그림자를 더해 유리 모서리에 빛이 걸리는 느낌을 낸다(taste-skill 글래스모피즘 가이드). */
+.glass {
+  background: var(--color-sb-surface);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--color-sb-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* 투명도 최소화 접근성 설정에서는 블러 대신 불투명한 서피스로 대체 */
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: #211d16;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* 히어로 텍스트 카드 전용 — 뒤에 있는 크롬 오브젝트가 텍스트보다 시각적으로 튀지 않도록
+   .glass보다 훨씬 진하게 불투명도/블러를 올림(오브젝트는 카드 바깥 가장자리에서만 또렷하게
+   보이고, 카드 안쪽은 은은한 빛 번짐 정도로만 스며들게). */
+.hero-card {
+  background: rgba(10, 9, 6, 0.86);
+  -webkit-backdrop-filter: blur(40px) saturate(120%);
+  backdrop-filter: blur(40px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 70px rgba(0, 0, 0, 0.45);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .hero-card {
+    background: #17140e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* 히어로 중앙의 리퀴드 크롬 오브젝트 — 아주 느리게 떠다니는 부유 애니메이션.
+   위아래 이동 ~10px, 회전 ~1.4deg, 확대·축소 ~1.5%만 줘서 텍스트 가독성을 방해하지 않는다. */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.4deg) scale(1.015);
+  }
+}
+.hero-orb {
+  animation: hero-float 11s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-orb {
+    animation: none;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(git --version)",
+      "Bash(ant auth *)",
+      "Bash(where python *)",
+      "Bash(py --version)",
+      "Bash(pip --version)",
+      "Bash(npx prisma *)",
+      "Bash(npx next *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/reset-password -H \"Content-Type: application/json\" -d '{\"token\":\"invalid-token-xyz\",\"password\":\"newpassword123\"}' -w \"\\\\ncode=%{http_code}\\\\n\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/reset-password -H \"Content-Type: application/json\" -d '{\"token\":\"invalid-token-xyz\",\"password\":\"short\"}' -w \"\\\\ncode=%{http_code}\\\\n\")",
+      "Read(//c/Users/boril/.claude/**)",
+      "Read(//c/Users/boril/.claude/plugins/**)",
+      "Bash(npx tsx *)",
+      "Bash(rm scratch_check_alpha.ts)"
+    ]
+  }
+}

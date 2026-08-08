@@ -1,0 +1,51 @@
+{
+  "name": "study-helper-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.112.1",
+    "@hyzyla/pdfium": "^2.1.13",
+    "@phosphor-icons/react": "^2.1.10",
+    "@prisma/client": "^6.19.3",
+    "@react-pdf/renderer": "^4.5.1",
+    "@supabase/supabase-js": "^2.111.0",
+    "@tosspayments/tosspayments-sdk": "^2.7.1",
+    "bcryptjs": "^3.0.3",
+    "fastest-levenshtein": "^1.0.16",
+    "mammoth": "^1.12.0",
+    "next": "16.2.10",
+    "next-auth": "^4.24.15",
+    "nodemailer": "^7.0.13",
+    "pdf-lib": "^1.17.1",
+    "prisma": "^6.19.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tesseract.js": "^7.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "prisma@6.19.3": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
+  }
+}

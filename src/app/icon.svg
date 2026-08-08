@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <mask id="studybite-favicon-bite">
+    <rect width="64" height="64" fill="white" />
+    <circle cx="52" cy="17" r="10" fill="black" />
+  </mask>
+  <path fill="#111111" d="M8,20 L31,10 L31,54 L8,44 Z" />
+  <path fill="#111111" mask="url(#studybite-favicon-bite)" d="M33,10 L56,20 L56,44 L33,54 Z" />
+</svg>

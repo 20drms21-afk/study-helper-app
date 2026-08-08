@@ -1,0 +1,434 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String?
+  name         String?
+  createdAt    DateTime      @default(now())
+
+  plan               String    @default("free") // "free" | "pro"
+  subscriptionStatus String? // null | "active" | "past_due" | "canceled" | "suspended"
+  tossCustomerKey    String?   @unique
+  tossBillingKey     String?   @unique
+  currentPeriodEnd   DateTime?
+  nextChargeAt       DateTime? // 다음 청구 시도 예정 시각(갱신 또는 재시도). null이면 청구 안 함
+  canceledAt         DateTime?
+  suspendedAt        DateTime?
+
+  charges      SubscriptionCharge[]
+  files        UploadedFile[]
+  summaries    SummaryNote[]
+  examConfigs  ExamConfig[]
+  examPapers   ExamPaper[]
+  attempts     ExamAttempt[]
+  chatMessages ChatMessage[]
+  usageEvents  UsageEvent[]
+  inquiries    Inquiry[]
+
+  subjects              Subject[]
+  calendarEvents        CalendarEvent[]
+  studySessions         StudySession[]
+  reviewItems           ReviewItem[]
+  timerRoomsHosted      TimerRoom[]
+  timerRoomParticipants TimerRoomParticipant[]
+
+  studentProfile StudentProfile?
+  passwordResetTokens PasswordResetToken[]
+  pdfTranslations PdfTranslation[]
+}
+
+model SubscriptionCharge {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  periodKey     String // 연장 대상 currentPeriodEnd의 ISO 문자열
+  attemptSeq    Int // 1 = 정기 갱신, 2 = 유일하게 허용된 재시도
+  status        String // "pending" | "succeeded" | "failed"
+  orderId       String   @unique
+  amount        Int
+  failureReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, periodKey, attemptSeq])
+}
+
+model UsageEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat"
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Inquiry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String
+  status    String   @default("open") // "open" | "answered" | "closed"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model UploadedFile {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId     String?
+  subject       Subject?      @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  originalName  String
+  storedPath    String
+  mimeType      String
+  fileKind      String // "pdf" | "docx" | "image"
+  sizeBytes     Int
+  extractedText String?
+  needsVision   Boolean       @default(false)
+  purpose       String        @default("note") // "note" | "exam_reference" | "exam_past_exam"
+  createdAt     DateTime      @default(now())
+
+  summaries     SummaryNote[]
+  chatMessages  ChatMessage[]
+
+  @@index([userId])
+  @@index([userId, purpose])
+  @@index([subjectId])
+}
+
+model SummaryNote {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceFileId String?
+  sourceFile   UploadedFile? @relation(fields: [sourceFileId], references: [id])
+  title        String
+  type         String // "summary" | "explanation"
+  contentJson  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([sourceFileId, type])
+}
+
+model ExamConfig {
+  id                String      @id @default(cuid())
+  userId            String
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId         String
+  subject           Subject     @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+  title             String
+  mcqCount          Int         @default(0)
+  shortCount        Int         @default(0)
+  essayCount        Int         @default(0)
+  timeLimitMinutes  Int
+  professorNotes    String?
+  sourceFileIdsJson String
+  pastExamFileId    String?
+  pastExamWeight    Int?
+  createdAt         DateTime    @default(now())
+
+  examPaper         ExamPaper?
+
+  @@index([userId])
+  @@index([subjectId])
+}
+
+model ChatMessage {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileId    String
+  file      UploadedFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  role      String // "user" | "assistant"
+  content   String
+  createdAt DateTime     @default(now())
+
+  @@index([fileId])
+  @@index([userId])
+}
+
+model ExamPaper {
+  id          String         @id @default(cuid())
+  configId    String         @unique
+  config      ExamConfig     @relation(fields: [configId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  totalPoints Int
+  createdAt   DateTime       @default(now())
+
+  questions   ExamQuestion[]
+  attempts    ExamAttempt[]
+
+  @@index([userId])
+}
+
+model ExamQuestion {
+  id            String       @id @default(cuid())
+  examPaperId   String
+  examPaper     ExamPaper    @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  order         Int
+  type          String // "mcq" | "short" | "essay"
+  prompt        String
+  choicesJson   String?
+  correctAnswer String?
+  modelAnswer   String?
+  points        Int
+  topicTag      String
+  explanation   String?
+
+  answers       ExamAnswer[]
+  reviewItems   ReviewItem[]
+
+  @@index([examPaperId])
+}
+
+model ExamAttempt {
+  id            String       @id @default(cuid())
+  examPaperId   String
+  examPaper     ExamPaper    @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt     DateTime     @default(now())
+  submittedAt   DateTime?
+  totalScore    Int?
+  totalPossible Int?
+
+  answers       ExamAnswer[]
+
+  @@index([examPaperId])
+  @@index([userId])
+}
+
+model ExamAnswer {
+  id                  String       @id @default(cuid())
+  attemptId           String
+  attempt             ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId          String
+  question            ExamQuestion @relation(fields: [questionId], references: [id])
+  studentAnswer       String
+  isCorrect           Boolean?
+  score               Int?
+  maxScore            Int
+  feedback            String?
+  gradedBy            String // "auto" | "claude" | "manual"
+  autoGradeConfidence Float?
+
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model Subject {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  color     String   @default("#6b7280")
+  isDefault Boolean  @default(false) // 마이그레이션 백필용 "미분류"만 true
+  createdAt DateTime @default(now())
+
+  examConfigs    ExamConfig[]
+  calendarEvents CalendarEvent[]
+  studySessions  StudySession[]
+  reviewItems    ReviewItem[]
+  timerRooms     TimerRoom[]
+  files          UploadedFile[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  kind      String // "exam" | "assignment"
+  title     String
+  date      String // "YYYY-MM-DD"
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+  @@index([subjectId, kind, date])
+}
+
+model StudySession {
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId       String?
+  subject         Subject?   @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  roomId          String?
+  room            TimerRoom? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  mode            String // "simple" | "immersive"
+  date            String // "YYYY-MM-DD" (캘린더 집계 기준 날짜)
+  durationSeconds Int
+  startedAt       DateTime
+  endedAt         DateTime
+  createdAt       DateTime   @default(now())
+
+  @@index([userId, date])
+  @@index([subjectId])
+}
+
+model TimerRoom {
+  id           String    @id @default(cuid())
+  code         String    @unique
+  hostUserId   String
+  host         User      @relation(fields: [hostUserId], references: [id], onDelete: Cascade)
+  subjectId    String?
+  subject      Subject?  @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  mode         String // "simple" | "immersive"
+  status       String    @default("waiting") // "waiting" | "running" | "ended"
+  studyMinutes Int       @default(50)
+  breakMinutes Int       @default(10)
+  startedAt    DateTime? // null이면 대기실(lobby), 호스트가 시작 누르면 세팅
+  createdAt    DateTime  @default(now())
+  endedAt      DateTime?
+
+  participants  TimerRoomParticipant[]
+  studySessions StudySession[]
+
+  @@index([hostUserId])
+}
+
+model TimerRoomParticipant {
+  id              String    @id @default(cuid())
+  roomId          String
+  room            TimerRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt        DateTime  @default(now())
+  lastHeartbeatAt DateTime  @default(now())
+  elapsedSeconds  Int       @default(0)
+  completedSets   Int       @default(0)
+  status          String    @default("active") // "active" | "left"
+
+  @@unique([roomId, userId])
+  @@index([roomId])
+}
+
+model ReviewItem {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId      String
+  subject        Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questionId     String
+  question       ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  lastAttemptId  String?
+  wrongCount     Int          @default(1)
+  lastAnsweredAt DateTime     @default(now())
+  resolvedAt     DateTime? // null = 큐에 활성 상태
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, questionId])
+  @@index([userId, subjectId, resolvedAt])
+  @@index([questionId])
+}
+
+model StudentProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  region        String? // 거주 지역 (시/도)
+  major         String? // 전공/학과
+  gradeLevel    Int? // 학년
+  incomeBracket Int? // 소득분위 (0~10, 0 = 해당없음/모름)
+  gpa           Float? // 직전 학기 평균 학점 (4.5 만점 기준) — 장학금 매칭에 사용
+  interests     String? // 관심분야 (자유 텍스트, 쉼표 구분) — 대외활동/공모전 매칭에 사용
+  updatedAt     DateTime @updatedAt
+}
+
+model ScholarshipListing {
+  id              String   @id @default(cuid())
+  externalId      String   @unique // 원본 API의 레코드 식별자 (중복 방지)
+  provider        String // 운영기관명
+  name            String // 상품명
+  kind            String? // 상품구분
+  amountText      String? // 지원금액 (조건부 금액이 많아 원문 텍스트로 저장)
+  eligibilityText String // 신청대상/소득기준/지역거주여부/학과구분 상세내용을 합친 원문
+  applyPeriodText String? // 신청기간 원문
+  applyUrl        String?
+  fetchedAt       DateTime @default(now())
+
+  @@index([fetchedAt])
+}
+
+model ActivityListing {
+  id               String   @id @default(cuid())
+  title            String
+  organizer        String?
+  category         String // "contest" | "activity"
+  fieldTags        String // 관련 분야 (쉼표 구분, 매칭용)
+  targetInfo       String? // 지원 자격/대상 요약
+  deadlineText     String? // 마감일 원문
+  deadlineDate     String? // "YYYY-MM-DD" 파싱 성공 시만 (정렬/만료 판정용)
+  sourceUrl        String // 주 출처 링크
+  crossCheckedWith String? // 교차 확인된 추가 출처 URL
+  fetchedAt        DateTime @default(now())
+
+  @@unique([title, organizer])
+  @@index([deadlineDate])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PdfTranslation {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectName         String // 사용자가 직접 입력한 과목명(자유 텍스트) — 번역 프롬프트 컨텍스트로 사용
+  originalFileName    String
+  originalStoredPath  String
+  pageCount           Int // 원본 PDF 전체 페이지 수
+  translatedPageCount Int // 실제로 변환된 페이지 수(무료/Pro 상한 반영)
+  status              String   @default("processing") // "processing" | "done" | "failed"
+  errorMessage        String?
+  createdAt           DateTime @default(now())
+
+  pages PdfTranslationPage[]
+
+  @@index([userId])
+}
+
+model PdfTranslationPage {
+  id                  String         @id @default(cuid())
+  translationId       String
+  translation         PdfTranslation @relation(fields: [translationId], references: [id], onDelete: Cascade)
+  pageNumber          Int
+  translatedImagePath String
+
+  @@unique([translationId, pageNumber])
+  @@index([translationId])
+}
