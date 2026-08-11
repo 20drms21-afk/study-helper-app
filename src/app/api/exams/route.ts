@@ -203,7 +203,7 @@ export async function POST(request: Request) {
   let blueprint: ExamBlueprintItem[];
   try {
     const blueprintMessage = await anthropic.messages.parse({
-      model: CLAUDE_MODEL,
+      model: CLAUDE_BLUEPRINT_MODEL,
       max_tokens: 4096, // 문제 최대치(mcq 30 + short 30 + essay 15 = 75개)에서도 항목별 JSON이 다 들어가게 여유를 둠
       system: [
         {
@@ -239,6 +239,7 @@ export async function POST(request: Request) {
       plan: quota.plan,
       feature: AiUsageFeature.EXAM_BLUEPRINT,
       operationId,
+      model: CLAUDE_BLUEPRINT_MODEL,
       usage: blueprintMessage.usage,
       metadata: examMetadata,
     });
@@ -255,6 +256,7 @@ export async function POST(request: Request) {
       plan: quota.plan,
       feature: AiUsageFeature.EXAM_BLUEPRINT,
       operationId,
+      model: CLAUDE_BLUEPRINT_MODEL,
       status: AiUsageStatus.FAILED,
       metadata: { ...examMetadata, ...summarizeAiError(error) },
     });
