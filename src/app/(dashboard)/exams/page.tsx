@@ -21,18 +21,18 @@ export default async function ExamsPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">예상 시험</h1>
+        <h1 className="text-xl font-bold">예상시험문제</h1>
         <Link
           href="/exams/new"
           className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
         >
-          새 예상 시험 만들기
+          새 예상시험문제 만들기
         </Link>
       </div>
 
       {papers.length === 0 ? (
         <p className="mt-8 text-sm text-gray-600">
-          아직 생성한 예상 시험이 없습니다. 먼저 노트를 업로드하고 요약을 만든 뒤 시험을 생성해보세요.
+          아직 생성한 예상시험문제가 없습니다. 먼저 노트를 업로드하고 요약을 만든 뒤 시험을 생성해보세요.
         </p>
       ) : (
         <ul className="mt-6 divide-y divide-gray-200 rounded-md border border-gray-200">

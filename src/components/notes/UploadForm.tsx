@@ -51,11 +51,11 @@ export function UploadForm({ subjects: initialSubjects }: { subjects: SubjectRef
 
       <div>
         <label className="mb-1 block text-sm font-medium">
-          노트 파일 (PDF, DOCX, 이미지 - 최대 20MB)
+          노트 파일 (PDF, DOCX, PPTX, 이미지 - 최대 20MB)
         </label>
         <input
           type="file"
-          accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif"
+          accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
           required

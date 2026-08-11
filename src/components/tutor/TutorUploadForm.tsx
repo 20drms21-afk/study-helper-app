@@ -42,7 +42,7 @@ export function TutorUploadForm({ subjects: initialSubjects }: { subjects: Subje
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-md border border-gray-200 p-4">
       <label className="block text-sm font-medium">
-        새 파일로 바로 질문하기 (PDF, DOCX, 이미지 - 최대 20MB)
+        새 파일로 바로 질문하기 (PDF, DOCX, PPTX, 이미지 - 최대 20MB)
       </label>
       <SubjectPicker
         subjects={subjects}
@@ -54,7 +54,7 @@ export function TutorUploadForm({ subjects: initialSubjects }: { subjects: Subje
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="file"
-          accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif"
+          accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
         />

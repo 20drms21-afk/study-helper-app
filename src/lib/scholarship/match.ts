@@ -6,6 +6,7 @@ import {
   scholarshipMatchSystemPrompt,
   scholarshipMatchUserPrompt,
 } from "@/lib/prompts/scholarshipMatch";
+import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export interface ScholarshipMatchResult {
   listingId: string;
@@ -26,38 +27,69 @@ export async function isScholarshipDataConfigured(): Promise<boolean> {
 // 호출 전 isScholarshipDataConfigured()로 데이터 존재 여부를 먼저 확인할 것 —
 // 이 함수는 항상 Claude를 호출하므로 할당량 체크는 호출부(route)에서 미리 해야 함.
 export async function matchScholarships(
-  userId: string
+  userId: string,
+  plan: string
 ): Promise<{ matches: ScholarshipMatchResult[] }> {
   const profile = await prisma.studentProfile.findUnique({ where: { userId } });
   const listings = await prisma.scholarshipListing.findMany();
 
-  const message = await anthropic.messages.parse({
-    model: CLAUDE_MODEL,
-    max_tokens: 8192,
-    system: scholarshipMatchSystemPrompt(),
-    messages: [
-      {
-        role: "user",
-        content: scholarshipMatchUserPrompt(
-          {
-            region: profile?.region ?? null,
-            major: profile?.major ?? null,
-            gradeLevel: profile?.gradeLevel ?? null,
-            incomeBracket: profile?.incomeBracket ?? null,
-            gpa: profile?.gpa ?? null,
-          },
-          listings.map((l) => ({
-            listingId: l.id,
-            provider: l.provider,
-            name: l.name,
-            eligibilityText: l.eligibilityText,
-          }))
-        ),
-      },
-    ],
-    output_config: { format: zodOutputFormat(scholarshipMatchSchema) },
-  });
+  const operationId = newOperationId("scholarship");
+  const metadata = { scholarshipCandidateCount: listings.length };
 
+  let message;
+  try {
+    message = await anthropic.messages.parse({
+      model: CLAUDE_MODEL,
+      max_tokens: 8192,
+      system: [
+        {
+          type: "text",
+          text: scholarshipMatchSystemPrompt(),
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+      messages: [
+        {
+          role: "user",
+          content: scholarshipMatchUserPrompt(
+            {
+              region: profile?.region ?? null,
+              major: profile?.major ?? null,
+              gradeLevel: profile?.gradeLevel ?? null,
+              incomeBracket: profile?.incomeBracket ?? null,
+              gpa: profile?.gpa ?? null,
+            },
+            listings.map((l) => ({
+              listingId: l.id,
+              provider: l.provider,
+              name: l.name,
+              eligibilityText: l.eligibilityText,
+            }))
+          ),
+        },
+      ],
+      output_config: { format: zodOutputFormat(scholarshipMatchSchema) },
+    });
+  } catch (error) {
+    await recordAiUsage({
+      userId,
+      plan,
+      feature: AiUsageFeature.SCHOLARSHIP_MATCH,
+      operationId,
+      status: AiUsageStatus.FAILED,
+      metadata: { ...metadata, ...summarizeAiError(error) },
+    });
+    throw error;
+  }
+
+  await recordAiUsage({
+    userId,
+    plan,
+    feature: AiUsageFeature.SCHOLARSHIP_MATCH,
+    operationId,
+    usage: message.usage,
+    metadata,
+  });
   const parsed = message.parsed_output;
   if (!parsed) {
     return { matches: [] };

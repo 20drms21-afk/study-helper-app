@@ -16,7 +16,8 @@
       "Read(//c/Users/boril/.claude/**)",
       "Read(//c/Users/boril/.claude/plugins/**)",
       "Bash(npx tsx *)",
-      "Bash(rm scratch_check_alpha.ts)"
+      "Bash(rm scratch_check_alpha.ts)",
+      "PowerShell(Get-NetTCPConnection *)"
     ]
   }
 }

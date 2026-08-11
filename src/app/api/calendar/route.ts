@@ -28,7 +28,6 @@ export async function GET(request: Request) {
     }),
     prisma.calendarEvent.findMany({
       where: { userId, date: { gte: monthStart, lte: monthEnd } },
-      include: { subject: { select: { name: true, color: true } } },
       orderBy: { date: "asc" },
     }),
   ]);
@@ -89,7 +88,6 @@ export async function GET(request: Request) {
 
   const upcomingExams = await prisma.calendarEvent.findMany({
     where: { userId, kind: "exam", date: { gte: today } },
-    include: { subject: { select: { name: true } } },
     orderBy: { date: "asc" },
     take: 3,
   });
@@ -98,9 +96,6 @@ export async function GET(request: Request) {
     days,
     events: events.map((e) => ({
       id: e.id,
-      subjectId: e.subjectId,
-      subjectName: e.subject.name,
-      subjectColor: e.subject.color,
       kind: e.kind,
       title: e.title,
       date: e.date,
@@ -112,8 +107,6 @@ export async function GET(request: Request) {
         id: e.id,
         title: e.title,
         date: e.date,
-        subjectId: e.subjectId,
-        subjectName: e.subject.name,
       })),
     },
   });

@@ -92,7 +92,11 @@ export async function POST(request: Request) {
   });
 
   try {
-    const pages = await translateDocument(buffer, subjectName, pagesToTranslate);
+    const pages = await translateDocument(buffer, subjectName, pagesToTranslate, {
+      userId: session.user.id,
+      plan: quota.plan,
+      operationId: `translate_${translation.id}`,
+    });
 
     for (const page of pages) {
       const saved = await saveUploadedFile(

@@ -8,6 +8,7 @@ import { anthropic, CLAUDE_MODEL } from "@/lib/anthropic";
 import { buildFileContentBlocks } from "@/lib/claudeContent";
 import { chatSystemPrompt } from "@/lib/prompts/chat";
 import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -110,13 +111,30 @@ export async function POST(
     anthropicMessages.push({ role: "user", content: message });
   }
 
+  const operationId = newOperationId("tutor");
+  const chatMetadata = { conversationTurn: history.length + 1, attachedFileCount: 1 };
+
   let answer: string;
   try {
     const response = await anthropic.messages.create({
       model: CLAUDE_MODEL,
       max_tokens: 2048,
-      system: chatSystemPrompt(),
+      system: [
+        {
+          type: "text",
+          text: chatSystemPrompt(),
+          cache_control: { type: "ephemeral" },
+        },
+      ],
       messages: anthropicMessages,
+    });
+    await recordAiUsage({
+      userId: session.user.id,
+      plan: quota.plan,
+      feature: AiUsageFeature.TUTOR_CHAT,
+      operationId,
+      usage: response.usage,
+      metadata: chatMetadata,
     });
     answer = response.content
       .filter((block): block is { type: "text"; text: string } & typeof block => block.type === "text")
@@ -125,6 +143,14 @@ export async function POST(
       .trim();
   } catch (error) {
     console.error("chat error", error);
+    await recordAiUsage({
+      userId: session.user.id,
+      plan: quota.plan,
+      feature: AiUsageFeature.TUTOR_CHAT,
+      operationId,
+      status: AiUsageStatus.FAILED,
+      metadata: { ...chatMetadata, ...summarizeAiError(error) },
+    });
     return NextResponse.json(
       { error: "AI 응답 생성 중 오류가 발생했습니다. API 키 설정을 확인해주세요." },
       { status: 502 }

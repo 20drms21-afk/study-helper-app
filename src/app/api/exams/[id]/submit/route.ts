@@ -14,6 +14,7 @@ import {
 import { gradeMcq, gradeShort } from "@/lib/grading";
 import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
 import { upsertReviewItemsForWrongAnswers } from "@/lib/review";
+import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -76,6 +77,7 @@ export async function POST(
   // auto-failed — a fixed string-similarity threshold is too brittle for
   // free-text short answers.
   const aiGradeItems: EssayGradeItem[] = [];
+  let essayItemCount = 0; // aiGradeItems 중 진짜 서술형(essay)만 센다 — 단답형 폴백과 구분
 
   for (const q of paper.questions) {
     const studentAnswer = answerMap.get(q.id) ?? "";
@@ -118,6 +120,7 @@ export async function POST(
         });
       }
     } else {
+      essayItemCount += 1;
       aiGradeItems.push({
         questionId: q.id,
         prompt: q.prompt,
@@ -135,14 +138,33 @@ export async function POST(
     }
 
     const aiGrades = new Map<string, { score: number; feedback: string }>();
+    const gradeOperationId = newOperationId("grade");
+    const gradeMetadata = {
+      questionCount: aiGradeItems.length,
+      subjectiveQuestionCount: essayItemCount,
+    };
 
     try {
       const message = await anthropic.messages.parse({
         model: CLAUDE_MODEL,
         max_tokens: 4096,
-        system: gradeSystemPrompt(),
+        system: [
+          {
+            type: "text",
+            text: gradeSystemPrompt(),
+            cache_control: { type: "ephemeral" },
+          },
+        ],
         messages: [{ role: "user", content: gradeUserPrompt(aiGradeItems) }],
         output_config: { format: zodOutputFormat(essayGradeSchema) },
+      });
+      await recordAiUsage({
+        userId: session.user.id,
+        plan: quota.plan,
+        feature: AiUsageFeature.EXAM_GRADE,
+        operationId: gradeOperationId,
+        usage: message.usage,
+        metadata: gradeMetadata,
       });
       await recordUsage(session.user.id, "exam_grade");
       const parsed = message.parsed_output;
@@ -153,6 +175,14 @@ export async function POST(
       }
     } catch (error) {
       console.error("AI grading error", error);
+      await recordAiUsage({
+        userId: session.user.id,
+        plan: quota.plan,
+        feature: AiUsageFeature.EXAM_GRADE,
+        operationId: gradeOperationId,
+        status: AiUsageStatus.FAILED,
+        metadata: { ...gradeMetadata, ...summarizeAiError(error) },
+      });
     }
 
     for (const item of aiGradeItems) {

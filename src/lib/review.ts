@@ -80,6 +80,8 @@ export async function getReviewQueueForUser(userId: string) {
   });
   const nearestExamBySubject = new Map<string, string>();
   for (const e of upcomingExams) {
+    // 캘린더 일정에 과목 입력칸이 없어져서 subjectId가 비어있는 일정은 D-day 계산에서 제외
+    if (!e.subjectId) continue;
     if (!nearestExamBySubject.has(e.subjectId)) {
       nearestExamBySubject.set(e.subjectId, e.date);
     }

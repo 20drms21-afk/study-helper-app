@@ -23,7 +23,7 @@ export async function GET() {
     return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
   }
 
-  const result = await matchScholarships(session.user.id);
+  const result = await matchScholarships(session.user.id, quota.plan);
 
   try {
     await recordUsage(session.user.id, "scholarship_match");

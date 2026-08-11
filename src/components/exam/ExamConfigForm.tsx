@@ -3,6 +3,13 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SubjectPicker, type SubjectRef } from "@/components/SubjectPicker";
+import {
+  EXAM_DIFFICULTY_MIN,
+  EXAM_DIFFICULTY_MAX,
+  EXAM_DIFFICULTY_DEFAULT,
+  describeDifficulty,
+  describePastExamWeight,
+} from "@/lib/prompts/examGenerate";
 
 interface LibraryFile {
   id: string;
@@ -49,6 +56,7 @@ export function ExamConfigForm({
   const [shortCount, setShortCount] = useState(3);
   const [essayCount, setEssayCount] = useState(1);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(50);
+  const [difficulty, setDifficulty] = useState(EXAM_DIFFICULTY_DEFAULT);
   const [professorNotes, setProfessorNotes] = useState("");
 
   const [libraryFiles, setLibraryFiles] = useState<LibraryFile[]>(initialLibraryFiles);
@@ -132,11 +140,12 @@ export function ExamConfigForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           subjectId,
-          title: title.trim() || "예상 시험",
+          title: title.trim() || "예상시험문제",
           mcqCount,
           shortCount,
           essayCount,
           timeLimitMinutes,
+          difficulty,
           professorNotes: professorNotes.trim() || undefined,
           sourceFileIds: referenceFileIds,
           pastExamFileId: pastExamFileId ?? undefined,
@@ -223,6 +232,35 @@ export function ExamConfigForm({
       </div>
 
       <div>
+        <label className="mb-1 flex items-center justify-between text-sm font-medium">
+          <span>난이도</span>
+          <span className="text-gray-500">{difficulty}/10</span>
+        </label>
+        <input
+          type="range"
+          min={EXAM_DIFFICULTY_MIN}
+          max={EXAM_DIFFICULTY_MAX}
+          value={difficulty}
+          onChange={(e) => setDifficulty(Number(e.target.value))}
+          className="w-full"
+        />
+        <div className="mt-1 flex justify-between text-[10px] text-gray-400">
+          <span>0 매우 쉬움</span>
+          <span>3 기본</span>
+          <span>5 보통</span>
+          <span>7 어려움</span>
+          <span>10 최상위</span>
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          난이도 {difficulty} — {describeDifficulty(difficulty).label}: {describeDifficulty(difficulty).rubric}
+        </p>
+        <p className="mt-1 text-xs text-gray-400">
+          시험 시간은 난이도를 바꾸지 않습니다. 문제 개수에 비해 시험 시간이 넉넉하면, AI가 이
+          난이도를 유지한 채 문제 하나하나의 풀이 단계·서술량·소문항을 늘려 시간을 채웁니다.
+        </p>
+      </div>
+
+      <div>
         <label className="mb-1 block text-sm font-medium">
           교수님 출제 성향 / 특이사항 (선택)
         </label>
@@ -261,7 +299,7 @@ export function ExamConfigForm({
         <input
           type="file"
           multiple
-          accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif"
+          accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handleReferenceFilesChange}
           disabled={referenceUploading}
           className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
@@ -300,7 +338,7 @@ export function ExamConfigForm({
         )}
         <input
           type="file"
-          accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif"
+          accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handlePastExamFileChange}
           disabled={pastExamUploading}
           className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
@@ -322,7 +360,10 @@ export function ExamConfigForm({
             className="w-full disabled:opacity-40"
           />
           <p className="mt-1 text-xs text-gray-500">
-            0에 가까우면 참고만 살짝, 10에 가까우면 기출문제 스타일을 최대한 반영합니다.
+            반영도 {pastExamWeight} — {describePastExamWeight(pastExamWeight)}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            기출 반영도는 문제의 스타일·구조만 결정하며, 위에서 정한 난이도는 그대로 유지됩니다.
           </p>
         </div>
       </div>
@@ -334,7 +375,7 @@ export function ExamConfigForm({
         disabled={loading}
         className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
       >
-        {loading ? "AI가 시험을 만드는 중... (최대 1~2분)" : "예상 시험 생성"}
+        {loading ? "AI가 시험을 만드는 중... (최대 1~2분)" : "예상시험문제 생성"}
       </button>
     </form>
   );

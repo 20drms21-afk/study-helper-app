@@ -14,6 +14,7 @@ import {
   explanationSystemPrompt,
 } from "@/lib/prompts/summarize";
 import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -63,21 +64,45 @@ export async function POST(
   }
 
   const isSummary = type === "summary";
+  const feature = isSummary ? AiUsageFeature.NOTE_SUMMARY : AiUsageFeature.NOTE_EXPLANATION;
+  const operationId = newOperationId("note");
 
   let parsedOutput;
   try {
     const message = await anthropic.messages.parse({
       model: CLAUDE_MODEL,
       max_tokens: isSummary ? 8192 : 16000,
-      system: isSummary ? summarySystemPrompt() : explanationSystemPrompt(),
+      system: [
+        {
+          type: "text",
+          text: isSummary ? summarySystemPrompt() : explanationSystemPrompt(),
+          cache_control: { type: "ephemeral" },
+        },
+      ],
       messages: [{ role: "user", content: contentBlocks }],
       output_config: {
         format: zodOutputFormat(isSummary ? summarySchema : explanationSchema),
       },
     });
+    await recordAiUsage({
+      userId: session.user.id,
+      plan: quota.plan,
+      feature,
+      operationId,
+      usage: message.usage,
+      metadata: { fileType: file.fileKind, generationType: type },
+    });
     parsedOutput = message.parsed_output;
   } catch (error) {
     console.error("note generate error", error);
+    await recordAiUsage({
+      userId: session.user.id,
+      plan: quota.plan,
+      feature,
+      operationId,
+      status: AiUsageStatus.FAILED,
+      metadata: { fileType: file.fileKind, generationType: type, ...summarizeAiError(error) },
+    });
     return NextResponse.json(
       { error: "AI 생성 중 오류가 발생했습니다. API 키 설정을 확인해주세요." },
       { status: 502 }

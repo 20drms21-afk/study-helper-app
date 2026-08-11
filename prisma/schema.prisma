@@ -13,11 +13,11 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   passwordHash String?
   name         String?
-  createdAt    DateTime      @default(now())
+  createdAt    DateTime @default(now())
 
   plan               String    @default("free") // "free" | "pro"
   subscriptionStatus String? // null | "active" | "past_due" | "canceled" | "suspended"
@@ -28,15 +28,16 @@ model User {
   canceledAt         DateTime?
   suspendedAt        DateTime?
 
-  charges      SubscriptionCharge[]
-  files        UploadedFile[]
-  summaries    SummaryNote[]
-  examConfigs  ExamConfig[]
-  examPapers   ExamPaper[]
-  attempts     ExamAttempt[]
-  chatMessages ChatMessage[]
-  usageEvents  UsageEvent[]
-  inquiries    Inquiry[]
+  charges       SubscriptionCharge[]
+  files         UploadedFile[]
+  summaries     SummaryNote[]
+  examConfigs   ExamConfig[]
+  examPapers    ExamPaper[]
+  attempts      ExamAttempt[]
+  chatMessages  ChatMessage[]
+  usageEvents   UsageEvent[]
+  aiUsageEvents AiUsageEvent[]
+  inquiries     Inquiry[]
 
   subjects              Subject[]
   calendarEvents        CalendarEvent[]
@@ -45,9 +46,9 @@ model User {
   timerRoomsHosted      TimerRoom[]
   timerRoomParticipants TimerRoomParticipant[]
 
-  studentProfile StudentProfile?
+  studentProfile      StudentProfile?
   passwordResetTokens PasswordResetToken[]
-  pdfTranslations PdfTranslation[]
+  pdfTranslations     PdfTranslation[]
 }
 
 model SubscriptionCharge {
@@ -70,10 +71,63 @@ model UsageEvent {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat"
+  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat" | "pdf_translate" | "scholarship_match"
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+enum AiUsageFeature {
+  NOTE_SUMMARY
+  NOTE_EXPLANATION
+  EXAM_BLUEPRINT
+  EXAM_GENERATE
+  EXAM_GRADE
+  TUTOR_CHAT
+  PDF_TRANSLATE
+  SCHOLARSHIP_MATCH
+}
+
+enum AiUsageStatus {
+  SUCCESS
+  FAILED
+}
+
+// Claude API 실제 호출 1건당 1행 — "제품 사용량"(UsageEvent, 무료 한도 소진 단위)과는
+// 완전히 다른 개념이다. 예: PDF 번역은 UsageEvent 1건이지만 AiUsageEvent는 페이지 수만큼
+// (최대 60건) 쌓인다. 절대 두 모델을 합치지 말 것 — 무료 한도 집계(getMonthlyUsageCount)가
+// UsageEvent.count()에 의존하므로, 여기에 Claude 호출 단위 행을 섞으면 무료 사용량 한도가
+// 조용히 잘못 계산된다.
+model AiUsageEvent {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan   String // 호출 시점 User.plan 스냅샷("free" | "pro" | 추후 "master") — 이후 유저가 플랜을 바꿔도 과거 집계가 흔들리지 않게 시점 값을 그대로 남긴다
+
+  feature     AiUsageFeature
+  operationId String // 사용자 작업 1회에 딸린 Claude 호출 여러 건을 묶는 키. 예: 예상문제 생성 1회 = EXAM_BLUEPRINT + EXAM_GENERATE 2행이 같은 operationId를 공유. PDF 번역은 페이지 수만큼의 행이 문서 1건의 operationId를 공유.
+  status      AiUsageStatus  @default(SUCCESS)
+
+  model String // 호출에 실제 사용된 모델 ID(현재 claude-sonnet-5 고정). 추후 모델 다변화 대비.
+
+  inputTokens              Int @default(0)
+  outputTokens             Int @default(0)
+  cacheCreationInputTokens Int @default(0)
+  cacheReadInputTokens     Int @default(0)
+  apiCallCount             Int @default(1) // 현재는 행당 항상 1(=호출 1건). 이후 한 행이 여러 실제 HTTP 시도를 대표해야 하는 경우(예: SDK 자동 재시도 합산)를 대비해 남겨둔 필드.
+
+  estimatedInputCostUsd         Decimal @default(0) @db.Decimal(12, 8)
+  estimatedOutputCostUsd        Decimal @default(0) @db.Decimal(12, 8)
+  estimatedCacheCreationCostUsd Decimal @default(0) @db.Decimal(12, 8)
+  estimatedCacheReadCostUsd     Decimal @default(0) @db.Decimal(12, 8)
+  estimatedTotalCostUsd         Decimal @default(0) @db.Decimal(12, 8)
+
+  metadata  Json? // 숫자/구조형 정보만 — 문서 원문·채팅 전문·학생 답안·장학금 목록 전체 등 실제 콘텐츠는 절대 넣지 않는다. 예: {"page":17,"totalPages":60}
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([operationId])
+  @@index([feature, createdAt])
 }
 
 model Inquiry {
@@ -91,23 +145,23 @@ model Inquiry {
 }
 
 model UploadedFile {
-  id            String        @id @default(cuid())
+  id            String   @id @default(cuid())
   userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId     String?
-  subject       Subject?      @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  subject       Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   originalName  String
   storedPath    String
   mimeType      String
   fileKind      String // "pdf" | "docx" | "image"
   sizeBytes     Int
   extractedText String?
-  needsVision   Boolean       @default(false)
-  purpose       String        @default("note") // "note" | "exam_reference" | "exam_past_exam"
-  createdAt     DateTime      @default(now())
+  needsVision   Boolean  @default(false)
+  purpose       String   @default("note") // "note" | "exam_reference" | "exam_past_exam"
+  createdAt     DateTime @default(now())
 
-  summaries     SummaryNote[]
-  chatMessages  ChatMessage[]
+  summaries    SummaryNote[]
+  chatMessages ChatMessage[]
 
   @@index([userId])
   @@index([userId, purpose])
@@ -131,23 +185,24 @@ model SummaryNote {
 }
 
 model ExamConfig {
-  id                String      @id @default(cuid())
+  id                String   @id @default(cuid())
   userId            String
-  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subjectId         String
-  subject           Subject     @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+  subject           Subject  @relation(fields: [subjectId], references: [id], onDelete: Restrict)
   title             String
-  mcqCount          Int         @default(0)
-  shortCount        Int         @default(0)
-  essayCount        Int         @default(0)
+  mcqCount          Int      @default(0)
+  shortCount        Int      @default(0)
+  essayCount        Int      @default(0)
   timeLimitMinutes  Int
+  difficulty        Int      @default(5) // 0(쉬움)~10(어려움), 기출문제 반영 강도와 같은 스케일
   professorNotes    String?
   sourceFileIdsJson String
   pastExamFileId    String?
   pastExamWeight    Int?
-  createdAt         DateTime    @default(now())
+  createdAt         DateTime @default(now())
 
-  examPaper         ExamPaper?
+  examPaper ExamPaper?
 
   @@index([userId])
   @@index([subjectId])
@@ -168,25 +223,25 @@ model ChatMessage {
 }
 
 model ExamPaper {
-  id          String         @id @default(cuid())
-  configId    String         @unique
-  config      ExamConfig     @relation(fields: [configId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  configId    String     @unique
+  config      ExamConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
   userId      String
-  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   title       String
   totalPoints Int
-  createdAt   DateTime       @default(now())
+  createdAt   DateTime   @default(now())
 
-  questions   ExamQuestion[]
-  attempts    ExamAttempt[]
+  questions ExamQuestion[]
+  attempts  ExamAttempt[]
 
   @@index([userId])
 }
 
 model ExamQuestion {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   examPaperId   String
-  examPaper     ExamPaper    @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  examPaper     ExamPaper @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
   order         Int
   type          String // "mcq" | "short" | "essay"
   prompt        String
@@ -197,24 +252,24 @@ model ExamQuestion {
   topicTag      String
   explanation   String?
 
-  answers       ExamAnswer[]
-  reviewItems   ReviewItem[]
+  answers     ExamAnswer[]
+  reviewItems ReviewItem[]
 
   @@index([examPaperId])
 }
 
 model ExamAttempt {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   examPaperId   String
-  examPaper     ExamPaper    @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  examPaper     ExamPaper @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
   userId        String
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  startedAt     DateTime     @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt     DateTime  @default(now())
   submittedAt   DateTime?
   totalScore    Int?
   totalPossible Int?
 
-  answers       ExamAnswer[]
+  answers ExamAnswer[]
 
   @@index([examPaperId])
   @@index([userId])
@@ -262,9 +317,9 @@ model CalendarEvent {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjectId String
-  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  kind      String // "exam" | "assignment"
+  subjectId String?
+  subject   Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  kind      String // "exam" | "assignment" | "other"
   title     String
   date      String // "YYYY-MM-DD"
   createdAt DateTime @default(now())

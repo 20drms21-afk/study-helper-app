@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { startOfMonthGrid, todayKey } from "@/lib/calendar/date";
 import { DayCell, type CalendarDayDto, type CalendarEventDto } from "@/components/calendar/DayCell";
 import { DayPanel } from "@/components/calendar/DayPanel";
-import type { SubjectRef } from "@/components/SubjectPicker";
 
 interface CalendarResponse {
   days: CalendarDayDto[];
@@ -12,7 +11,7 @@ interface CalendarResponse {
   summary: {
     monthTotalSeconds: number;
     streakDays: number;
-    upcomingExams: { id: string; title: string; date: string; subjectId: string; subjectName: string }[];
+    upcomingExams: { id: string; title: string; date: string }[];
   };
 }
 
@@ -24,14 +23,13 @@ function formatHours(seconds: number): string {
 
 const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
 
-export function CalendarBoard({ initialSubjects }: { initialSubjects: SubjectRef[] }) {
+export function CalendarBoard() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1); // 1-12
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [data, setData] = useState<CalendarResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [subjects, setSubjects] = useState<SubjectRef[]>(initialSubjects);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,7 +88,7 @@ export function CalendarBoard({ initialSubjects }: { initialSubjects: SubjectRef
             <ul className="text-xs">
               {data.summary.upcomingExams.map((e) => (
                 <li key={e.id}>
-                  {e.subjectName} · {e.title} ({e.date})
+                  {e.title} ({e.date})
                 </li>
               ))}
             </ul>
@@ -151,8 +149,6 @@ export function CalendarBoard({ initialSubjects }: { initialSubjects: SubjectRef
               date={selectedDate}
               day={dayByDate.get(selectedDate)}
               events={eventsByDate.get(selectedDate) ?? []}
-              subjects={subjects}
-              onSubjectsChange={setSubjects}
               onEventCreated={(event) => {
                 setData((prev) =>
                   prev ? { ...prev, events: [...prev.events, event] } : prev

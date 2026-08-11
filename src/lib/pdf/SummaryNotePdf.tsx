@@ -1,6 +1,7 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { NoteContentType, SummaryContent, ExplanationContent } from "@/lib/prompts/summarize";
 import { KOREAN_FONT_FAMILY, registerFonts } from "@/lib/pdf/fonts";
+import { splitSectionsIntoColumns } from "@/lib/pdf/summaryLayout";
 
 registerFonts();
 
@@ -26,8 +27,6 @@ const styles = StyleSheet.create({
   sectionBox: {
     marginBottom: 12,
     padding: 10,
-    border: "0.5pt solid #cccccc",
-    borderRadius: 4,
   },
   sectionHeading: {
     fontSize: 11,
@@ -93,8 +92,7 @@ export function SummaryNotePdf({
 }) {
   if (type === "summary") {
     const sections = (content as SummaryContent).sections;
-    const left = sections.filter((_, i) => i % 2 === 0);
-    const right = sections.filter((_, i) => i % 2 === 1);
+    const { left, right } = splitSectionsIntoColumns(sections);
 
     return (
       <Document>

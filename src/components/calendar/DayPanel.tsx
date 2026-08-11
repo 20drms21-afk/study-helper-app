@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SubjectPicker, type SubjectRef } from "@/components/SubjectPicker";
 import type { CalendarDayDto, CalendarEventDto } from "@/components/calendar/DayCell";
+import { CALENDAR_EVENT_KINDS, EVENT_KIND_COLOR, EVENT_KIND_LABEL, type CalendarEventKind } from "@/lib/calendar/kind";
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -16,8 +16,6 @@ export function DayPanel({
   date,
   day,
   events,
-  subjects,
-  onSubjectsChange,
   onEventCreated,
   onEventDeleted,
   onClose,
@@ -25,23 +23,20 @@ export function DayPanel({
   date: string;
   day: CalendarDayDto | undefined;
   events: CalendarEventDto[];
-  subjects: SubjectRef[];
-  onSubjectsChange: (subjects: SubjectRef[]) => void;
   onEventCreated: (event: CalendarEventDto) => void;
   onEventDeleted: (id: string) => void;
   onClose: () => void;
 }) {
   const [showForm, setShowForm] = useState(false);
-  const [subjectId, setSubjectId] = useState<string | null>(null);
-  const [kind, setKind] = useState<"exam" | "assignment">("exam");
+  const [kind, setKind] = useState<CalendarEventKind>("exam");
   const [title, setTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!subjectId || !title.trim()) {
-      setError("과목과 제목을 입력해주세요.");
+    if (!title.trim()) {
+      setError("제목을 입력해주세요.");
       return;
     }
     setSubmitting(true);
@@ -50,7 +45,7 @@ export function DayPanel({
       const res = await fetch("/api/calendar/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subjectId, kind, title: title.trim(), date }),
+        body: JSON.stringify({ kind, title: title.trim(), date }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -59,9 +54,6 @@ export function DayPanel({
       const event = await res.json();
       onEventCreated({
         id: event.id,
-        subjectId: event.subjectId,
-        subjectName: event.subject.name,
-        subjectColor: event.subject.color,
         kind: event.kind,
         title: event.title,
         date: event.date,
@@ -136,11 +128,11 @@ export function DayPanel({
                 <span>
                   <span
                     className="mr-1.5 inline-block rounded px-1.5 py-0.5 text-white"
-                    style={{ backgroundColor: e.subjectColor }}
+                    style={{ backgroundColor: EVENT_KIND_COLOR[e.kind] }}
                   >
-                    {e.kind === "exam" ? "시험" : "과제"}
+                    {EVENT_KIND_LABEL[e.kind]}
                   </span>
-                  {e.subjectName} · {e.title}
+                  {e.title}
                 </span>
                 <button
                   onClick={() => handleDelete(e.id)}
@@ -157,31 +149,15 @@ export function DayPanel({
 
         {showForm && (
           <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-md border border-gray-200 p-3">
-            <SubjectPicker
-              subjects={subjects}
-              value={subjectId}
-              onChange={setSubjectId}
-              onCreated={(s) => onSubjectsChange([...subjects, s])}
-            />
             <div>
               <label className="mb-1 block text-xs font-medium">종류</label>
               <div className="flex gap-3 text-sm">
-                <label className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    checked={kind === "exam"}
-                    onChange={() => setKind("exam")}
-                  />
-                  시험
-                </label>
-                <label className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    checked={kind === "assignment"}
-                    onChange={() => setKind("assignment")}
-                  />
-                  과제
-                </label>
+                {CALENDAR_EVENT_KINDS.map((k) => (
+                  <label key={k} className="flex items-center gap-1">
+                    <input type="radio" checked={kind === k} onChange={() => setKind(k)} />
+                    {EVENT_KIND_LABEL[k]}
+                  </label>
+                ))}
               </div>
             </div>
             <div>
@@ -201,6 +177,10 @@ export function DayPanel({
             >
               등록
             </button>
+            <p className="rounded-md bg-gray-50 px-2 py-1.5 text-[11px] leading-relaxed text-gray-500">
+              💡 여기서 등록하는 일정에는 과목을 지정하지 않아요. 그래서 복습 페이지의 &lsquo;과목별 다가오는
+              시험 D-day&rsquo; 표시에는 반영되지 않습니다.
+            </p>
           </form>
         )}
       </div>

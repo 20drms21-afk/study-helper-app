@@ -21,7 +21,7 @@ export default async function NewExamPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-xl font-bold">새 예상 시험 만들기</h1>
+      <h1 className="text-xl font-bold">새 예상시험문제 만들기</h1>
       <p className="mt-1 text-sm text-gray-600">
         참고자료 파일과 시험 구성을 입력하면 AI가 예상 문제를 생성합니다. 마이페이지 자료
         보관함에 올려둔 파일을 바로 선택하거나, 여기서 새로 업로드할 수 있습니다.

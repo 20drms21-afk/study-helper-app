@@ -104,7 +104,7 @@ export function MaterialsLibrary({
         <div className="flex flex-wrap items-center gap-3">
           <input
             type="file"
-            accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif"
+            accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
             onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
             className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
           />
