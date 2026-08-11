@@ -2,11 +2,15 @@
 
 대학생을 위한 AI 학습 도우미 웹앱입니다. 강의 자료를 한입 크기로 요약해준다는 뜻에서 "공부한입" — 로고도 책을 한입 베어문 모양입니다.
 
-- **노트/요약**: PDF/DOCX 문서나 필기 사진을 업로드하면 (1) 2단 레이아웃 압축 요약, (2) 실제 강의처럼 풀어서 설명하는 줄글 버전을 각각 독립적으로 만들 수 있습니다. A4 문서 형태로 보여지며 PDF로 다운로드할 수 있습니다.
-- **예상문제출력**: 참고자료 파일과 (선택) 기출문제 파일을 업로드하고 문제 구성, 교수님 출제 성향, 기출문제 반영 강도(0~10)를 입력하면 AI가 예상 시험지를 생성하고, 웹에서 바로 응시하거나 PDF로 인쇄할 수 있습니다. 제출 후에는 자동/AI 채점과 주제별 취약점 분석을 제공합니다.
+- **노트/요약**: PDF/DOCX/PPTX 문서나 필기 사진을 업로드하면 (1) 2단 레이아웃 압축 요약, (2) 실제 강의처럼 풀어서 설명하는 줄글 버전을 각각 독립적으로 만들 수 있습니다. A4 문서 형태로 보여지며 PDF로 다운로드할 수 있습니다.
+- **예상문제출력**: 참고자료 파일과 (선택) 기출문제 파일을 업로드하고 문제 구성, 난이도(0~10), 교수님 출제 성향, 기출문제 반영 강도(0~10)를 입력하면 AI가 예상 시험지를 생성하고, 웹에서 바로 응시하거나 PDF로 인쇄할 수 있습니다. 제출 후에는 자동/AI 채점과 주제별 취약점 분석을 제공합니다. 난이도와 시험시간·문항 수는 서로 독립적인 축으로 설계되어 있어, 문항 수가 적고 시험시간이 길다고 문제가 저절로 어려워지지 않습니다.
+- **오답노트**: 시험에서 틀린 문제를 과목별로 자동 수집해 복습 큐로 관리합니다.
 - **AI선생님**: 업로드한 노트를 선택해서 그 자료 내용에 근거한 질문-답변 대화를 나눌 수 있습니다.
+- **PDF 영어자료 변환**: 영어 PDF를 원본 레이아웃을 유지한 채 한글 번역 이미지를 겹쳐서 보여줍니다. 번역 상자의 위치/크기는 OCR(Tesseract) 실측값을 기준으로 계산되어, AI가 짐작한 좌표보다 원문 글자 범위에 정확히 맞습니다.
+- **캘린더 / 포모도로**: 시험·과제 일정을 종류별(시험/과제/기타)로 관리하는 캘린더와, 과목별로 집중 시간을 기록하는 포모도로 타이머를 제공합니다.
+- **장학금 / 대외활동·공모전**: 프로필(지역/전공/학년/소득분위/학점 등)을 입력하면 조건에 맞는 장학금과, 링커리어(linkareer.com)에서 수집한 모집중인 대외활동·공모전을 매칭해 보여줍니다.
 - **요금제 / 사용량 제한**: 무료 플랜은 월간 AI 요청 횟수 제한이 있고, 토스페이먼츠 자동결제(빌링)로 Pro 플랜(무제한)으로 업그레이드할 수 있습니다.
-- **문의하기**: 모든 로그인 사용자가 서로의 문의를 익명으로 볼 수 있는 게시판입니다. 관리자 페이지(`/admin/inquiries`)에서는 작성자를 포함해 전체 관리 및 상태 변경/삭제가 가능합니다.
+- **문의하기**: 모든 로그인 사용자가 서로의 문의를 익명으로 볼 수 있는 게시판입니다. 관리자 페이지(`/admin/inquiries`, `/admin/activities`)에서는 작성자를 포함해 문의·공모전 데이터를 전체 관리하고 상태 변경/삭제할 수 있습니다.
 
 ## 시작하기
 
@@ -59,6 +63,16 @@ curl -X POST http://localhost:3000/api/scholarships/sync \
 2. [Google 계정 → 보안 → 앱 비밀번호](https://myaccount.google.com/apppasswords)에서 새 앱 비밀번호를 생성합니다 (앱 이름은 아무거나 가능, 예: "공부한입").
 3. 발급된 16자리 비밀번호를 `.env.local`의 `GMAIL_APP_PASSWORD`에 넣고, `GMAIL_USER`에는 그 Gmail 주소를 넣습니다. **일반 Gmail 로그인 비밀번호가 아니라 이 앱 비밀번호를 써야 합니다.**
 
+### 2-3. 데이터베이스 설정 (Supabase Postgres)
+
+DB는 SQLite가 아니라 **Postgres**(로컬 개발도 포함)를 사용하며, [Supabase](https://supabase.com)의 무료 플랜으로 바로 시작할 수 있습니다.
+
+1. Supabase에서 프로젝트를 생성합니다.
+2. **Project Settings → Database**에서 연결 문자열 두 가지를 복사합니다: Transaction pooler(6543 포트, `DATABASE_URL`용)와 Direct connection(5432 포트, `DIRECT_URL`용).
+3. 프로젝트 루트의 **`.env`**(⚠️ `.env.local`이 아닙니다 — `prisma.config.ts`가 `.env`를 따로 로드합니다) 파일에 `DATABASE_URL`, `DIRECT_URL`을 채워 넣습니다.
+4. Supabase Storage도 함께 쓰는 경우(배포 시 파일 업로드 저장용) `.env.local`의 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`도 채웁니다. 로컬 개발만 한다면 비워두면 `STORAGE_DIR`(로컬 디스크)로 대체됩니다.
+5. Supabase 무료 플랜은 **7일간 요청이 없으면 DB가 자동으로 일시정지**됩니다 — 갑자기 쿼리가 멈추거나 응답이 없으면 Supabase 대시보드에서 "Restore"를 눌러 깨워야 합니다.
+
 ### 3. 의존성 설치 및 DB 초기화
 
 ```bash
@@ -74,7 +88,9 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000) 에서 확인할 수 있습니다.
 
-## 환경 변수 (`.env.local`)
+## 환경 변수 (`.env.local` / `.env`)
+
+대부분은 `.env.local`에 넣지만, `DATABASE_URL`/`DIRECT_URL`만 예외적으로 `.env`에 넣습니다(`prisma.config.ts`가 `.env`를 명시적으로 로드하기 때문).
 
 | 변수 | 설명 |
 |---|---|
@@ -96,15 +112,18 @@ npm run dev
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트(Google Cloud Console 발급). 없으면 로그인 화면에 "Google로 계속하기" 버튼이 표시되지 않음(나머지 기능은 정상 동작) |
 | `KAKAO_CLIENT_ID` / `KAKAO_CLIENT_SECRET` | 카카오 로그인 앱 키(Kakao Developers 발급). 없으면 "카카오로 계속하기" 버튼이 표시되지 않음(나머지 기능은 정상 동작) |
 | `FREE_PLAN_MAX_PDF_PAGES` | 무료 플랜 PDF 업로드 최대 페이지 수 (기본값: 40). Pro 플랜은 제한 없음 |
-| `DATABASE_URL` / `DIRECT_URL` | Supabase Postgres 연결 문자열(pooled/direct) — 배포 시 SQLite 대체용 |
-| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_STORAGE_BUCKET` | Supabase Storage 연동용(파일 업로드 저장) — 배포 시 로컬 디스크 저장 대체용 |
+| `DATABASE_URL` / `DIRECT_URL` | Supabase Postgres 연결 문자열(pooled/direct) — **`.env`**(⚠️ `.env.local` 아님)에 설정, 로컬/배포 공통으로 사용 |
+| `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_STORAGE_BUCKET` | Supabase Storage 연동용(파일 업로드 저장). 비워두면 `STORAGE_DIR`(로컬 디스크)로 대체됨 |
 
 ## 기술 스택
 
-Next.js 16 (App Router) · TypeScript · Prisma + SQLite · NextAuth (Credentials) · Anthropic SDK · Tailwind CSS · @react-pdf/renderer · 토스페이먼츠(Toss Payments) · Nodemailer(Gmail SMTP)
+Next.js 16 (App Router, Turbopack) · TypeScript · Prisma 6 + PostgreSQL(Supabase) · NextAuth (Credentials) · Anthropic SDK · Tailwind CSS · @react-pdf/renderer · @hyzyla/pdfium(PDF 라스터화) · tesseract.js(OCR) · jszip(PPTX 파싱) · mammoth(DOCX 파싱) · 토스페이먼츠(Toss Payments) · Nodemailer(Gmail SMTP)
 
 ## 참고 사항
 
-- 업로드 지원 형식: PDF, DOCX(.docx만 지원, 구버전 .doc 미지원), 이미지(JPEG/PNG/WEBP/GIF), 최대 20MB.
+- 업로드 지원 형식: PDF, DOCX(.docx만 지원, 구버전 .doc 미지원), PPTX, 이미지(JPEG/PNG/WEBP/GIF), 최대 20MB. **HWP(한글)는 지원하지 않습니다** — PDF로 내보내서 업로드해야 합니다.
+- 노트/시험/AI선생님 업로드는 하나의 파일 풀을 공유합니다. 한 메뉴에서 올린 파일은 재업로드 없이 다른 메뉴에서도 바로 선택해서 쓸 수 있습니다. PDF 영어자료 변환은 이 풀과 완전히 분리된 별도 파일 풀을 사용합니다.
 - 시험지 PDF에는 한글 폰트(Nanum Gothic, OFL 라이선스)가 임베딩되어 있습니다 (`public/fonts/`).
+- 무료 플랜은 월간 AI 요청 횟수 제한(`FREE_PLAN_MONTHLY_LIMIT`) 외에도 업로드 가능한 PDF 페이지 수 제한(`FREE_PLAN_MAX_PDF_PAGES`)이 있습니다. Pro 플랜은 두 제한 모두 없음.
+- 토스페이먼츠 반복 청구, 대외활동/공모전 동기화는 자동으로 일어나지 않고 `vercel.json`에 등록된 Cron(또는 수동 curl 호출)이 주기적으로 실행해줘야 합니다 — 위 "2." 항목 참고.
 - 현재는 로컬 개발 버전이며, 실제 배포(Vercel 등)는 별도 단계로 진행해야 합니다.
