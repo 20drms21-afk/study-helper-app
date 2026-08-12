@@ -133,6 +133,11 @@ export default async function ExamResultPage({
             {q.explanation && (
               <p className="mt-2 text-sm text-gray-500">해설: {q.explanation}</p>
             )}
+            {q.score < q.maxScore && q.sourceLocation && (
+              <p className="mt-2 text-sm text-blue-700">
+                📍 관련 개념 위치: {q.sourceLocation}
+              </p>
+            )}
           </div>
         ))}
       </div>

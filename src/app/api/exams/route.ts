@@ -366,6 +366,7 @@ export async function POST(request: Request) {
           points: q.points,
           topicTag: q.topicTag,
           explanation: q.explanation,
+          sourceLocation: q.sourceLocation,
         })),
       },
     },

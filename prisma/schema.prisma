@@ -251,6 +251,7 @@ model ExamQuestion {
   points        Int
   topicTag      String
   explanation   String?
+  sourceLocation String? // 이 문제가 다루는 개념이 참고 자료의 어느 파일/페이지에 나오는지 (AI가 생성, 확신 없으면 null)
 
   answers     ExamAnswer[]
   reviewItems ReviewItem[]
