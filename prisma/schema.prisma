@@ -281,7 +281,7 @@ model ExamAnswer {
   attemptId           String
   attempt             ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   questionId          String
-  question            ExamQuestion @relation(fields: [questionId], references: [id])
+  question            ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
   studentAnswer       String
   isCorrect           Boolean?
   score               Int?
