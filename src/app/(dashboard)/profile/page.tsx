@@ -18,7 +18,14 @@ export default async function ProfilePage() {
     prisma.uploadedFile.findMany({
       where: { userId, purpose: "note" },
       orderBy: { createdAt: "desc" },
-      select: { id: true, originalName: true, subjectId: true, sizeBytes: true, createdAt: true },
+      select: {
+        id: true,
+        originalName: true,
+        subjectId: true,
+        sizeBytes: true,
+        createdAt: true,
+        fileKind: true,
+      },
     }),
   ]);
 

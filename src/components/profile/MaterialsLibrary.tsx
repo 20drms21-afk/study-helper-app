@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SubjectPicker, type SubjectRef } from "@/components/SubjectPicker";
 
@@ -10,11 +10,31 @@ interface LibraryFile {
   subjectId: string | null;
   sizeBytes: number;
   createdAt: string;
+  fileKind: string;
 }
+
+// "미분류" 폴더는 실제 Subject 레코드가 아니라서(과목 삭제 시 subjectId가 SetNull로 빠지는
+// 파일들을 담는 가상 그룹) 폴더 그리드에서 다른 과목과 똑같이 다루기 위한 placeholder id.
+const UNCLASSIFIED_ID = "__unclassified__";
 
 function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+}
+
+function fileKindIcon(kind: string): string {
+  switch (kind) {
+    case "pdf":
+      return "📄";
+    case "docx":
+      return "📝";
+    case "pptx":
+      return "📊";
+    case "image":
+      return "🖼️";
+    default:
+      return "📄";
+  }
 }
 
 export function MaterialsLibrary({
@@ -26,6 +46,9 @@ export function MaterialsLibrary({
 }) {
   const [subjects, setSubjects] = useState<SubjectRef[]>(initialSubjects);
   const [files, setFiles] = useState<LibraryFile[]>(initialFiles);
+
+  // 폴더 그리드(null) ↔ 특정 과목 폴더 안(subjectId) 두 화면을 오간다.
+  const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
   const [uploadSubjectId, setUploadSubjectId] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -82,10 +105,26 @@ export function MaterialsLibrary({
     }
   }
 
-  const groups: { subject: SubjectRef | null; files: LibraryFile[] }[] = [
-    ...subjects.map((s) => ({ subject: s, files: files.filter((f) => f.subjectId === s.id) })),
-    { subject: null, files: files.filter((f) => f.subjectId === null) },
-  ].filter((g) => g.files.length > 0);
+  // 폴더 그리드에 띄울 항목: 파일이 1개 이상 있는 과목 + (미분류 파일이 있으면) 미분류.
+  const folders = useMemo(() => {
+    const bySubject = subjects
+      .map((s) => ({ id: s.id, name: s.name, color: s.color, count: files.filter((f) => f.subjectId === s.id).length }))
+      .filter((f) => f.count > 0);
+    const unclassifiedCount = files.filter((f) => f.subjectId === null).length;
+    return unclassifiedCount > 0
+      ? [...bySubject, { id: UNCLASSIFIED_ID, name: "미분류", color: "#9ca3af", count: unclassifiedCount }]
+      : bySubject;
+  }, [subjects, files]);
+
+  const openFolder = folders.find((f) => f.id === openFolderId) ?? null;
+  const openFolderFiles = openFolder
+    ? files.filter((f) => (openFolder.id === UNCLASSIFIED_ID ? f.subjectId === null : f.subjectId === openFolder.id))
+    : [];
+
+  function openFolderAndPreselect(id: string) {
+    setOpenFolderId(id);
+    setUploadSubjectId(id === UNCLASSIFIED_ID ? null : id);
+  }
 
   return (
     <div className="space-y-4">
@@ -119,65 +158,92 @@ export function MaterialsLibrary({
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
 
-      {groups.length === 0 ? (
+      {folders.length === 0 ? (
         <p className="text-sm text-gray-600">아직 업로드한 자료가 없습니다.</p>
-      ) : (
-        <div className="space-y-4">
-          {groups.map((group) => (
-            <div key={group.subject?.id ?? "unclassified"}>
-              <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-900">
-                {group.subject && (
-                  <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: group.subject.color }}
-                  />
-                )}
-                {group.subject?.name ?? "미분류"}
-              </h3>
-              <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
-                {group.files.map((file) => (
-                  <li key={file.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{file.originalName}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatSize(file.sizeBytes)} ·{" "}
-                        {new Date(file.createdAt).toLocaleDateString("ko-KR")}
-                      </p>
-                      <div className="mt-1 flex gap-3 text-xs">
-                        <Link href={`/notes/${file.id}`} className="text-gray-600 underline">
-                          노트에서 열기
-                        </Link>
-                        <Link href={`/tutor/${file.id}`} className="text-gray-600 underline">
-                          AI선생님에게 질문
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <select
-                        value={file.subjectId ?? ""}
-                        onChange={(e) => handleReassign(file.id, e.target.value || null)}
-                        className="rounded-md border border-gray-300 px-2 py-1 text-xs"
-                      >
-                        <option value="">미분류</option>
-                        {subjects.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(file.id)}
-                        className="text-xs font-medium text-red-600 hover:text-red-700"
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      ) : !openFolder ? (
+        // 폴더 그리드 화면
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {folders.map((folder) => (
+            <button
+              key={folder.id}
+              type="button"
+              onClick={() => openFolderAndPreselect(folder.id)}
+              className="relative flex flex-col items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-4 text-center hover:border-gray-300 hover:bg-gray-50"
+            >
+              <span
+                className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: folder.color }}
+              />
+              <span className="text-3xl">📁</span>
+              <span className="truncate text-sm font-medium text-gray-900">{folder.name}</span>
+              <span className="text-xs text-gray-500">{folder.count}개</span>
+            </button>
           ))}
+        </div>
+      ) : (
+        // 과목 폴더 내부 화면
+        <div>
+          <div className="mb-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setOpenFolderId(null)}
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              ← 뒤로
+            </button>
+            <h3 className="flex items-center gap-2 text-sm font-medium text-gray-900">
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: openFolder.color }}
+              />
+              📁 {openFolder.name} ({openFolder.count}개)
+            </h3>
+          </div>
+          <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
+            {openFolderFiles.map((file) => (
+              <li key={file.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                <div className="flex min-w-0 items-start gap-2">
+                  <span className="mt-0.5 shrink-0 text-lg">{fileKindIcon(file.fileKind)}</span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{file.originalName}</p>
+                    <p className="text-xs text-gray-500">
+                      {formatSize(file.sizeBytes)} ·{" "}
+                      {new Date(file.createdAt).toLocaleDateString("ko-KR")}
+                    </p>
+                    <div className="mt-1 flex gap-3 text-xs">
+                      <Link href={`/notes/${file.id}`} className="text-gray-600 underline">
+                        노트에서 열기
+                      </Link>
+                      <Link href={`/tutor/${file.id}`} className="text-gray-600 underline">
+                        AI선생님에게 질문
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <select
+                    value={file.subjectId ?? ""}
+                    onChange={(e) => handleReassign(file.id, e.target.value || null)}
+                    className="rounded-md border border-gray-300 px-2 py-1 text-xs"
+                  >
+                    <option value="">미분류</option>
+                    {subjects.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(file.id)}
+                    className="text-xs font-medium text-red-600 hover:text-red-700"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
