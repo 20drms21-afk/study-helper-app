@@ -8,7 +8,8 @@ export type UsageKind =
   | "exam_grade"
   | "tutor_chat"
   | "scholarship_match"
-  | "pdf_translate";
+  | "pdf_translate"
+  | "activity_match";
 
 export interface QuotaStatus {
   plan: "free" | "pro";

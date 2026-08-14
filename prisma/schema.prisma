@@ -71,7 +71,7 @@ model UsageEvent {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat" | "pdf_translate" | "scholarship_match"
+  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat" | "pdf_translate" | "scholarship_match" | "activity_match"
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
@@ -86,6 +86,7 @@ enum AiUsageFeature {
   TUTOR_CHAT
   PDF_TRANSLATE
   SCHOLARSHIP_MATCH
+  ACTIVITY_FIELD_MATCH
 }
 
 enum AiUsageStatus {
@@ -415,6 +416,13 @@ model StudentProfile {
   gpa           Float? // 직전 학기 평균 학점 (4.5 만점 기준) — 장학금 매칭에 사용
   interests     String? // 관심분야 (자유 텍스트, 쉼표 구분) — 대외활동/공모전 매칭에 사용
   updatedAt     DateTime @updatedAt
+
+  // 대외활동/공모전 매칭용 AI 분류 캐시. PUT /api/profile 저장 시 major/interests가
+  // 바뀐 경우에만 Claude(Haiku)로 1회 분류해서 채운다 — getActivitiesForUser는 이 캐시만
+  // 읽고 페이지 조회마다 재분류하지 않는다. 사람이 짠 키워드 사전(FIELD_TAG_KEYWORDS,
+  // 삭제됨)이 새 전공마다 오탐/누락을 반복해서 AI 분류로 대체함(src/lib/activity/classify.ts).
+  activityFieldTags       String? // 쉼표 구분 카테고리 목록 (ActivityListing.fieldTags와 동일 포맷, 0개 이상 — 확신 없으면 빈 문자열)
+  activityFieldTagsSource String? // 마지막 분류에 사용한 {major, interests} 스냅샷(JSON) — 재분류 필요 여부 판단용
 }
 
 model ScholarshipListing {
