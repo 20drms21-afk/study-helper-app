@@ -92,8 +92,15 @@ function computeGrowthCeiling(region: OcrRegion, allRegions: OcrRegion[], pageHe
 
     const overlapWidth =
       Math.min(region.bbox.right, other.bbox.right) - Math.max(region.bbox.left, other.bbox.left);
+    // 겹침 비율은 region 자기 폭이 아니라 두 영역 중 더 좁은 쪽 폭 기준으로 계산한다 — 들여쓰기된
+    // 하위 글머리기호(예: "- 물리적 의미")처럼 폭이 좁은 줄이 훨씬 넓은 상위 글머리기호 바로
+    // 아래에 있을 때, region(위쪽, 넓음) 기준으로 계산하면 실제로는 바로 아래에 있는데도 비율이
+    // 낮게 나와 "아래에 있는 영역 없음"으로 오판되어 그 줄의 위치까지 성장 한계가 뚫려버리는
+    // 문제가 실측 확인됨(번역문이 다음 줄 원본 위에 겹쳐 그려짐).
+    const otherWidth = other.bbox.right - other.bbox.left;
     const regionWidth = region.bbox.right - region.bbox.left;
-    if (regionWidth <= 0 || overlapWidth / regionWidth < 0.3) continue; // 가로로 충분히 겹칠 때만 "같은 컬럼 아래"로 본다
+    const minWidth = Math.min(regionWidth, otherWidth);
+    if (minWidth <= 0 || overlapWidth / minWidth < 0.3) continue; // 가로로 충분히 겹칠 때만 "같은 컬럼 아래"로 본다
 
     nearestBelowTop = Math.min(nearestBelowTop, other.bbox.top);
   }
@@ -232,9 +239,13 @@ export async function overlayTranslation(
     );
     const lineHeight = fontSize * LINE_HEIGHT_FACTOR;
     const textStartY = boxTop + fontSize;
-    // 배경 사각형은 원본 잉크 영역은 항상 덮되(원문이 항상 지워지도록), 확장 필요분만큼만 더 키운다
-    // — growthCeiling까지 무조건 다 덮어버리면 아래쪽 다른 텍스트 위까지 배경색을 씌울 수 있다.
-    const renderedHeight = Math.max(originalRegionHeight, Math.min(boxHeight, lines.length * lineHeight));
+    // 배경 사각형은 실제로 그려질 줄 수만큼 반드시 다 덮어야 한다 — fitTextInBox는 minFontSize
+    // 바닥(원본의 절반) 때문에 boxHeight를 못 맞추고 그대로 반환하는 경우가 있을 수 있는데(글이
+    // 길고 자리가 좁을 때), 그때 boxHeight로 상한을 씌우면 다 못 덮은 구간에 원본 픽셀이 그대로
+    // 남아 그 위에 새 텍스트가 겹쳐 그려져 보이는 문제가 실측 확인됨. boxHeight를 넘어서더라도
+    // 실제 렌더링 높이만큼 그대로 덮는다 — 그 아래에 다른 영역이 있다면 그 영역이 자기 차례에
+    // 다시 덮어 그리므로 결과적으로 자연스럽게 정리된다(반대로 안 덮으면 절대 안 지워짐).
+    const renderedHeight = Math.max(originalRegionHeight, lines.length * lineHeight);
 
     svgParts.push(
       `<rect x="${boxLeft}" y="${boxTop}" width="${boxWidth}" height="${renderedHeight}" fill="${bgColor}" />`

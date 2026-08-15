@@ -40,6 +40,11 @@ const MARKER_REGEX = /^(?:[^\p{L}\p{N}\s]+|\(?[A-Za-z0-9]{1,2}[.)]\)?)$/u;
 // (번호/문자 마커는 원래 뒤에 마침표·괄호가 붙어야 구분되는데 심볼 단위로 쪼개면 그 구분이 애매해져서
 // 제외 — 기호 계열만 심볼 레벨 폴백 대상으로 한정).
 const MARKER_CHAR_REGEX = /^[^\p{L}\p{N}\s]$/u;
+// MARKER_REGEX와 같은 패턴이지만 끝 anchor($) 없이 "접두사"만 매치한다 — "Ch.4&5"처럼 마커와 뒤
+// 내용 사이에 공백이 아예 없어서 Tesseract가 통째로 한 단어로 묶어버린 경우(예: 다른 "Ch. N" 줄은
+// 공백이 있어서 별도 단어로 나뉘는데 이 줄만 자간이 좁아 붙어버림), 단어 앞부분만 마커로 인식하기
+// 위한 것. 이런 경우 "Ch."는 그대로 남고 "4&5"만 번역 대상이 되어야 형제 항목들과 스타일이 맞는다.
+const MARKER_PREFIX_REGEX = /^(?:[^\p{L}\p{N}\s]+|\(?[A-Za-z0-9]{1,2}[.)]\)?)/u;
 
 export interface OcrRegion {
   bbox: { left: number; top: number; right: number; bottom: number };
@@ -84,11 +89,21 @@ function splitLeadingMarker(line: Line): {
     };
   }
 
-  // Case B: 공백 없이 붙어있는 경우(예: "•Text") — 첫 단어의 심볼을 앞에서부터 훑어 마커 문자만 분리
+  // Case B: 공백 없이 붙어있는 경우 — 첫 단어의 심볼을 앞에서부터 훑어 마커 부분만 분리한다.
+  // 두 가지 패턴을 모두 시도한다: (1) 순수 기호 나열이 붙은 경우(예: "•Text"), (2) 번호/문자
+  // 마커가 뒤 내용과 공백 없이 붙은 경우(예: "Ch.4&5" — 다른 "Ch. N" 줄은 공백이 있어 Case A로
+  // 분리되지만, 이 줄만 자간이 좁아 Tesseract가 한 단어로 묶어버림).
   const symbols = first.symbols ?? [];
   let markerCount = 0;
   while (markerCount < symbols.length && MARKER_CHAR_REGEX.test(symbols[markerCount].text.trim())) {
     markerCount++;
+  }
+  if (markerCount === 0) {
+    const prefixMatch = MARKER_PREFIX_REGEX.exec(firstText);
+    if (prefixMatch && prefixMatch[0].length > 0 && prefixMatch[0].length < firstText.length) {
+      // 매치된 글자 수만큼 앞쪽 심볼을 마커로 취급한다(라틴 문자는 보통 심볼 1개 = 글자 1개).
+      markerCount = Math.min(prefixMatch[0].length, symbols.length - 1);
+    }
   }
   if (markerCount > 0 && markerCount < symbols.length) {
     const markerSymbols = symbols.slice(0, markerCount);
