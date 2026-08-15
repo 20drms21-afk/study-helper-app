@@ -1,4 +1,11 @@
-import { createScheduler, createWorker, PSM, type Worker } from "tesseract.js";
+import {
+  createScheduler,
+  createWorker,
+  PSM,
+  type Worker,
+  type Line,
+} from "tesseract.js";
+import sharp from "sharp";
 
 // 번역/오버레이 단위는 OCR이 인식한 "줄(line)" 그대로 하나씩이다 — 여러 줄을 하나의 문단으로
 // 묶어서 번역하면(예: "Ch. 1 Chemicals to electric" + "Ch. 2 Electrochemical cells"를 하나로
@@ -17,18 +24,101 @@ const MIN_TEXT_LENGTH = 2;
 const HIGH_CONFIDENCE_SAMPLE = 80;
 const HEIGHT_OUTLIER_MULTIPLIER = 3;
 const MIN_SAMPLE_SIZE = 3;
+// 이상치 높이인데도 걸러내지 않아야 하는 경우(진짜 큰 제목/헤딩)와, 걸러내야 하는 경우(화살표가
+// "4"로 오인식된 것 같은 노이즈)를 구분하는 기준 — 실제 헤딩은 거의 항상 이보다 길다.
+const OUTLIER_TEXT_LENGTH_THRESHOLD = 3;
+
+// 글머리기호/화살표/번호 마커 — 줄 맨 앞에 이 패턴이 오면 번역 대상에서 분리해서 원본 그대로 보존한다
+// (Claude에게 번역을 맡기면 문장/구만 옮기고 마커 자체는 누락시키거나, 심지어 Claude가 임의로 다른
+// 기호로 바꿔 쓰는 경우까지 실측 확인됨 — 원본 글머리기호/화살표 아이콘을 Tesseract가 "=", ">"처럼
+// 전혀 다른 문자로 잘못 읽는 경우가 흔한데, 그 잘못 읽힌 문자가 그대로 Claude 입력에 들어가면 번역
+// 결과에 엉뚱한 문자로 다시 나타남). 특정 기호 몇 개만 나열하는 대신, "알파벳/숫자가 하나도 없는
+// 순수 기호 조합"이면 전부 마커로 간주한다 — 실제 영어 단어는 항상 알파벳을 포함하므로 오탐 위험이
+// 없고, Tesseract가 아이콘을 어떤 문자로 잘못 읽든(=, >, ~, 임의의 특수문자 등) 안전하게 걸러진다.
+const MARKER_REGEX = /^(?:[^\p{L}\p{N}\s]+|\(?[A-Za-z0-9]{1,2}[.)]\)?)$/u;
+// 공백 없이 텍스트에 붙어있는 마커(예: "•Text")를 심볼 단위로 스캔할 때 쓰는, 기호 계열만의 문자셋
+// (번호/문자 마커는 원래 뒤에 마침표·괄호가 붙어야 구분되는데 심볼 단위로 쪼개면 그 구분이 애매해져서
+// 제외 — 기호 계열만 심볼 레벨 폴백 대상으로 한정).
+const MARKER_CHAR_REGEX = /^[^\p{L}\p{N}\s]$/u;
 
 export interface OcrRegion {
   bbox: { left: number; top: number; right: number; bottom: number };
   text: string;
   confidence: number;
   lineHeight: number; // 이 줄의 실측 픽셀 높이 — 번역 폰트 크기 산정에 사용
+  marker?: { text: string; bbox: { left: number; top: number; right: number; bottom: number } }; // 줄 맨 앞에서 분리해낸 글머리기호/화살표 — 있으면 원본 그대로 보존됨(overlay.ts가 이 영역을 건드리지 않음)
 }
 
 interface FlatLine {
   bbox: { x0: number; y0: number; x1: number; y1: number };
   text: string;
   confidence: number;
+  marker?: { text: string; bbox: { x0: number; y0: number; x1: number; y1: number } };
+}
+
+// Tesseract가 인식한 줄(Line)에서 맨 앞의 글머리기호/화살표/번호 마커를 분리한다. 분리에 성공하면
+// 마커는 자기 bbox를 그대로 유지한 채 번역 대상에서 빠지고, 나머지("rest")만 번역용 텍스트/bbox로
+// 쓰인다 — overlay.ts가 이 축소된 bbox만 배경색으로 덮으므로 마커의 원본 픽셀은 자동으로 보존된다.
+function splitLeadingMarker(line: Line): {
+  text: string;
+  bbox: { x0: number; y0: number; x1: number; y1: number };
+  marker?: { text: string; bbox: { x0: number; y0: number; x1: number; y1: number } };
+} {
+  const words = line.words ?? [];
+  if (words.length === 0) return { text: line.text, bbox: line.bbox };
+
+  const first = words[0];
+  const firstText = first.text.trim();
+
+  // Case A: 첫 단어 전체가 마커(공백으로 분리되어 있는 경우, 예: "• Text")
+  if (firstText.length > 0 && MARKER_REGEX.test(firstText)) {
+    const rest = words.slice(1);
+    if (rest.length === 0) {
+      // 줄 전체가 마커뿐 — 번역할 내용이 없으므로 빈 텍스트로 반환(뒤에서 길이 필터에 걸려 자동 드롭됨)
+      return { text: "", bbox: line.bbox, marker: { text: firstText, bbox: first.bbox } };
+    }
+    return {
+      text: rest.map((w) => w.text).join(" "),
+      bbox: { x0: rest[0].bbox.x0, y0: line.bbox.y0, x1: line.bbox.x1, y1: line.bbox.y1 },
+      marker: { text: firstText, bbox: first.bbox },
+    };
+  }
+
+  // Case B: 공백 없이 붙어있는 경우(예: "•Text") — 첫 단어의 심볼을 앞에서부터 훑어 마커 문자만 분리
+  const symbols = first.symbols ?? [];
+  let markerCount = 0;
+  while (markerCount < symbols.length && MARKER_CHAR_REGEX.test(symbols[markerCount].text.trim())) {
+    markerCount++;
+  }
+  if (markerCount > 0 && markerCount < symbols.length) {
+    const markerSymbols = symbols.slice(0, markerCount);
+    const restSymbols = symbols.slice(markerCount);
+    const markerBbox = {
+      x0: markerSymbols[0].bbox.x0,
+      y0: Math.min(...markerSymbols.map((s) => s.bbox.y0)),
+      x1: markerSymbols[markerSymbols.length - 1].bbox.x1,
+      y1: Math.max(...markerSymbols.map((s) => s.bbox.y1)),
+    };
+    const restText = [restSymbols.map((s) => s.text).join(""), ...words.slice(1).map((w) => w.text)]
+      .join(" ")
+      .trim();
+    return {
+      text: restText,
+      bbox: { x0: restSymbols[0].bbox.x0, y0: line.bbox.y0, x1: line.bbox.x1, y1: line.bbox.y1 },
+      marker: { text: markerSymbols.map((s) => s.text).join(""), bbox: markerBbox },
+    };
+  }
+
+  return { text: line.text, bbox: line.bbox };
+}
+
+// 두 bbox가 겹치는 넓이가 a 넓이 대비 얼마나 되는지(0~1) — 반전 패스 중복 제거에 사용.
+function bboxOverlapRatio(a: OcrRegion["bbox"], b: OcrRegion["bbox"]): number {
+  const overlapWidth = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+  const overlapHeight = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+  if (overlapWidth <= 0 || overlapHeight <= 0) return 0;
+  const aArea = Math.max(1, (a.right - a.left) * (a.bottom - a.top));
+  return (overlapWidth * overlapHeight) / aArea;
 }
 
 function median(values: number[]): number {
@@ -54,13 +144,29 @@ function filterLines(lines: FlatLine[]): OcrRegion[] {
     if (text.replace(/\s+/g, "").length < MIN_TEXT_LENGTH) continue;
 
     const height = line.bbox.y1 - line.bbox.y0;
-    if (referenceHeight !== null && height > referenceHeight * HEIGHT_OUTLIER_MULTIPLIER) continue;
+    // 높이만 보고 걸러내면 진짜 큰 제목/헤딩까지 오인식 노이즈로 오판할 수 있다 — 글자 수까지 짧을
+    // 때만(원래 코드 주석의 예시처럼 화살표가 "4"로 오인식된 경우 등) 걸러낸다.
+    const isHeightOutlier = referenceHeight !== null && height > referenceHeight * HEIGHT_OUTLIER_MULTIPLIER;
+    const looksLikeMisrecognizedGlyph =
+      text.replace(/\s+/g, "").length <= OUTLIER_TEXT_LENGTH_THRESHOLD;
+    if (isHeightOutlier && looksLikeMisrecognizedGlyph) continue;
 
     regions.push({
       bbox: { left: line.bbox.x0, top: line.bbox.y0, right: line.bbox.x1, bottom: line.bbox.y1 },
       text,
       confidence: line.confidence,
       lineHeight: height,
+      marker: line.marker
+        ? {
+            text: line.marker.text,
+            bbox: {
+              left: line.marker.bbox.x0,
+              top: line.marker.bbox.y0,
+              right: line.marker.bbox.x1,
+              bottom: line.marker.bbox.y1,
+            },
+          }
+        : undefined,
     });
   }
   return regions;
@@ -93,20 +199,44 @@ export async function createOcrPool(size: number): Promise<OcrPool> {
     scheduler.addWorker(worker);
   }
 
-  return {
-    async extractPageRegions(pageImageBuffer: Buffer): Promise<OcrRegion[]> {
-      const result = await scheduler.addJob("recognize", pageImageBuffer, {}, { blocks: true });
-      const lines: FlatLine[] = [];
+  async function recognizeOnce(buffer: Buffer): Promise<OcrRegion[]> {
+    const result = await scheduler.addJob("recognize", buffer, {}, { blocks: true });
+    const lines: FlatLine[] = [];
 
-      for (const block of result.data.blocks ?? []) {
-        for (const paragraph of block.paragraphs) {
-          for (const line of paragraph.lines) {
-            lines.push({ bbox: line.bbox, text: line.text, confidence: line.confidence });
-          }
+    for (const block of result.data.blocks ?? []) {
+      for (const paragraph of block.paragraphs) {
+        for (const line of paragraph.lines) {
+          const split = splitLeadingMarker(line);
+          lines.push({
+            bbox: split.bbox,
+            text: split.text,
+            confidence: line.confidence,
+            marker: split.marker,
+          });
         }
       }
+    }
 
-      return filterLines(lines);
+    return filterLines(lines);
+  }
+
+  return {
+    async extractPageRegions(pageImageBuffer: Buffer): Promise<OcrRegion[]> {
+      const normalRegions = await recognizeOnce(pageImageBuffer);
+
+      // 진한 색 배경 위 흰 글씨(강조 색 박스 안 제목 등)는 일반 패스에서 거의 인식되지 않는다 —
+      // Tesseract 자체의 한계(README에도 기록된 알려진 한계). 페이지를 색반전한 사본으로 한 번 더
+      // OCR을 돌려서(흰 글씨/진한 배경 → 검은 글씨/밝은 배경이 되어 인식률이 올라감) 놓친 글자를
+      // 보완한다. 일반 패스에서 이미 잡힌 영역과 겹치는 반전 패스 결과는 버린다 — 일반 텍스트는
+      // 원래 패스 쪽이 더 정확하므로 덮어쓰지 않고, 새로 잡힌 영역만 추가한다. 페이지당 OCR을
+      // 두 번 돌리는 셈이라 처리 시간이 늘지만(대략 2배), 이 트레이드오프는 감수하기로 함.
+      const invertedBuffer = await sharp(pageImageBuffer).negate({ alpha: false }).png().toBuffer();
+      const invertedRegions = await recognizeOnce(invertedBuffer);
+      const newFromInverted = invertedRegions.filter(
+        (inv) => !normalRegions.some((norm) => bboxOverlapRatio(inv.bbox, norm.bbox) > 0.5)
+      );
+
+      return [...normalRegions, ...newFromInverted];
     },
     async terminate() {
       await scheduler.terminate();
