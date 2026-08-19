@@ -62,7 +62,13 @@ export function TranslationViewer({
         </p>
       )}
 
-      <div className="mb-3 flex justify-end">
+      <div className="mb-3 flex justify-end gap-2">
+        <a
+          href={`/api/translate/${translationId}/download`}
+          className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+        >
+          번역본 PDF 다운로드
+        </a>
         <button
           type="button"
           onClick={() => setSingleView((v) => !v)}
