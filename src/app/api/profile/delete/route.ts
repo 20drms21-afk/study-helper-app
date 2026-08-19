@@ -21,7 +21,7 @@ export async function POST() {
     }),
     prisma.pdfTranslation.findMany({
       where: { userId: session.user.id },
-      select: { originalStoredPath: true, pages: { select: { translatedImagePath: true } } },
+      select: { originalStoredPath: true, translatedStoredPath: true },
     }),
   ]);
 
@@ -46,11 +46,13 @@ export async function POST() {
       deleteStoredFile(t.originalStoredPath).catch((error) =>
         console.error("translate original file delete error on account deletion", error)
       ),
-      ...t.pages.map((p) =>
-        deleteStoredFile(p.translatedImagePath).catch((error) =>
-          console.error("translate page file delete error on account deletion", error)
-        )
-      ),
+      ...(t.translatedStoredPath
+        ? [
+            deleteStoredFile(t.translatedStoredPath).catch((error) =>
+              console.error("translate translated file delete error on account deletion", error)
+            ),
+          ]
+        : []),
     ])
   );
 

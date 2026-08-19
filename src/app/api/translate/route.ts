@@ -92,31 +92,26 @@ export async function POST(request: Request) {
   });
 
   try {
-    const pages = await translateDocument(buffer, subjectName, pagesToTranslate, {
-      userId: session.user.id,
-      plan: quota.plan,
-      operationId: `translate_${translation.id}`,
-    });
+    const { translatedBuffer, translatedPageCount } = await translateDocument(
+      buffer,
+      file.name,
+      pagesToTranslate
+    );
 
-    for (const page of pages) {
-      const saved = await saveUploadedFile(
-        session.user.id,
-        `page-${page.pageNumber}.png`,
-        page.buffer,
-        "image/png"
-      );
-      await prisma.pdfTranslationPage.create({
-        data: {
-          translationId: translation.id,
-          pageNumber: page.pageNumber,
-          translatedImagePath: saved.storedPath,
-        },
-      });
-    }
+    const saved = await saveUploadedFile(
+      session.user.id,
+      `translated-${file.name}`,
+      translatedBuffer,
+      "application/pdf"
+    );
 
     await prisma.pdfTranslation.update({
       where: { id: translation.id },
-      data: { status: "done" },
+      data: {
+        status: "done",
+        translatedStoredPath: saved.storedPath,
+        translatedPageCount,
+      },
     });
 
     try {

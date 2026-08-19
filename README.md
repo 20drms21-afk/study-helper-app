@@ -6,7 +6,7 @@
 - **예상문제출력**: 참고자료 파일과 (선택) 기출문제 파일을 업로드하고 문제 구성, 난이도(0~10), 교수님 출제 성향, 기출문제 반영 강도(0~10)를 입력하면 AI가 예상 시험지를 생성하고, 웹에서 바로 응시하거나 PDF로 인쇄할 수 있습니다. 제출 후에는 자동/AI 채점과 주제별 취약점 분석을 제공합니다. 난이도와 시험시간·문항 수는 서로 독립적인 축으로 설계되어 있어, 문항 수가 적고 시험시간이 길다고 문제가 저절로 어려워지지 않습니다.
 - **오답노트**: 시험에서 틀린 문제를 과목별로 자동 수집해 복습 큐로 관리합니다.
 - **AI선생님**: 업로드한 노트를 선택해서 그 자료 내용에 근거한 질문-답변 대화를 나눌 수 있습니다.
-- **PDF 영어자료 변환**: 영어 PDF를 원본 레이아웃을 유지한 채 한글 번역 이미지를 겹쳐서 보여줍니다. 번역 상자의 위치/크기는 OCR(Tesseract) 실측값을 기준으로 계산되어, AI가 짐작한 좌표보다 원문 글자 범위에 정확히 맞습니다.
+- **PDF 영어자료 변환**: 영어 PDF를 DeepL Document Translation API로 번역합니다. PDF의 실제 텍스트 레이어를 직접 읽어 문서를 재구성해서 돌려주는 방식이라, 이미지 위에 번역 텍스트 좌표를 추정해서 겹쳐 그리는 방식과 달리 레이아웃이 어긋나지 않습니다.
 - **캘린더 / 포모도로**: 시험·과제 일정을 종류별(시험/과제/기타)로 관리하는 캘린더와, 과목별로 집중 시간을 기록하는 포모도로 타이머를 제공합니다.
 - **장학금 / 대외활동·공모전**: 프로필(지역/전공/학년/소득분위/학점 등)을 입력하면 조건에 맞는 장학금과, 링커리어(linkareer.com)에서 수집한 모집중인 대외활동·공모전을 매칭해 보여줍니다.
 - **요금제 / 사용량 제한**: 무료 플랜은 월간 AI 요청 횟수 제한이 있고, 토스페이먼츠 자동결제(빌링)로 Pro 플랜(무제한)으로 업그레이드할 수 있습니다.
@@ -112,12 +112,14 @@ npm run dev
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트(Google Cloud Console 발급). 없으면 로그인 화면에 "Google로 계속하기" 버튼이 표시되지 않음(나머지 기능은 정상 동작) |
 | `KAKAO_CLIENT_ID` / `KAKAO_CLIENT_SECRET` | 카카오 로그인 앱 키(Kakao Developers 발급). 없으면 "카카오로 계속하기" 버튼이 표시되지 않음(나머지 기능은 정상 동작) |
 | `FREE_PLAN_MAX_PDF_PAGES` | 무료 플랜 PDF 업로드 최대 페이지 수 (기본값: 40). Pro 플랜은 제한 없음 |
+| `DEEPL_API_KEY` | PDF 영어자료 변환(DeepL Document Translation) API 키. [deepl.com](https://www.deepl.com/ko/your-account/keys)에서 발급. Free 계정 키는 끝이 `:fx`로 끝남. 없으면 이 기능만 실패(나머지 기능은 정상 동작) |
+| `DEEPL_API_URL` | Free 계정: `https://api-free.deepl.com/v2`(기본값). Pro/Developer/Growth 등 유료 계정: `https://api.deepl.com/v2` |
 | `DATABASE_URL` / `DIRECT_URL` | Supabase Postgres 연결 문자열(pooled/direct) — **`.env`**(⚠️ `.env.local` 아님)에 설정, 로컬/배포 공통으로 사용 |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_STORAGE_BUCKET` | Supabase Storage 연동용(파일 업로드 저장). 비워두면 `STORAGE_DIR`(로컬 디스크)로 대체됨 |
 
 ## 기술 스택
 
-Next.js 16 (App Router, Turbopack) · TypeScript · Prisma 6 + PostgreSQL(Supabase) · NextAuth (Credentials) · Anthropic SDK · Tailwind CSS · @react-pdf/renderer · @hyzyla/pdfium(PDF 라스터화) · tesseract.js(OCR) · jszip(PPTX 파싱) · mammoth(DOCX 파싱) · 토스페이먼츠(Toss Payments) · Nodemailer(Gmail SMTP)
+Next.js 16 (App Router, Turbopack) · TypeScript · Prisma 6 + PostgreSQL(Supabase) · NextAuth (Credentials) · Anthropic SDK · DeepL API(PDF 문서 번역) · Tailwind CSS · @react-pdf/renderer · @hyzyla/pdfium(PDF 라스터화) · pdf-lib(PDF 페이지 서브셋) · jszip(PPTX 파싱) · mammoth(DOCX 파싱) · 토스페이먼츠(Toss Payments) · Nodemailer(Gmail SMTP)
 
 ## 참고 사항
 

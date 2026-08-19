@@ -26,29 +26,25 @@ export async function GET(
 
   const translation = await prisma.pdfTranslation.findFirst({
     where: { id, userId: session.user.id },
-    include: { pages: variant === "translated" ? { where: { pageNumber } } : false },
   });
   if (!translation) {
     return NextResponse.json({ error: "찾을 수 없습니다." }, { status: 404 });
   }
 
-  let buffer: Buffer;
-  if (variant === "original") {
-    if (pageNumber > translation.pageCount) {
-      return NextResponse.json({ error: "페이지 범위를 벗어났습니다." }, { status: 400 });
-    }
-    const pdfBuffer = await readStoredFile(translation.originalStoredPath);
-    const rendered = await renderPdfPage(pdfBuffer, pageNumber);
-    buffer = rendered.buffer;
-  } else {
-    const page = translation.pages?.[0];
-    if (!page) {
-      return NextResponse.json({ error: "찾을 수 없습니다." }, { status: 404 });
-    }
-    buffer = await readStoredFile(page.translatedImagePath);
+  // 원본/번역본 둘 다 이제 저장된 PDF 전체에서 그때그때 페이지를 라스터화해서 보여준다 — DeepL이
+  // 번역된 PDF를 페이지 이미지가 아니라 PDF 파일 하나로 통째로 돌려주므로, 예전처럼 페이지별 PNG를
+  // 미리 만들어 저장해둘 필요가 없어졌다(원본이 이미 이렇게 하고 있던 방식과 동일하게 맞춤).
+  const storedPath = variant === "original" ? translation.originalStoredPath : translation.translatedStoredPath;
+  const maxPage = variant === "original" ? translation.pageCount : translation.translatedPageCount;
+
+  if (!storedPath || pageNumber > maxPage) {
+    return NextResponse.json({ error: "페이지 범위를 벗어났거나 아직 준비되지 않았습니다." }, { status: 400 });
   }
 
-  return new NextResponse(new Uint8Array(buffer), {
+  const pdfBuffer = await readStoredFile(storedPath);
+  const rendered = await renderPdfPage(pdfBuffer, pageNumber);
+
+  return new NextResponse(new Uint8Array(rendered.buffer), {
     headers: { "Content-Type": "image/png", "Cache-Control": "private, max-age=86400" },
   });
 }

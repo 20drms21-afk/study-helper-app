@@ -18,7 +18,6 @@ export async function GET(
   const { id } = await ctx.params;
   const translation = await prisma.pdfTranslation.findFirst({
     where: { id, userId: session.user.id },
-    include: { pages: { orderBy: { pageNumber: "asc" } } },
   });
 
   if (!translation) {
@@ -40,7 +39,6 @@ export async function DELETE(
   const { id } = await ctx.params;
   const translation = await prisma.pdfTranslation.findFirst({
     where: { id, userId: session.user.id },
-    include: { pages: true },
   });
 
   if (!translation) {
@@ -52,13 +50,11 @@ export async function DELETE(
   await deleteStoredFile(translation.originalStoredPath).catch((error) =>
     console.error("translate original file delete error", error)
   );
-  await Promise.all(
-    translation.pages.map((p) =>
-      deleteStoredFile(p.translatedImagePath).catch((error) =>
-        console.error("translate page file delete error", p.id, error)
-      )
-    )
-  );
+  if (translation.translatedStoredPath) {
+    await deleteStoredFile(translation.translatedStoredPath).catch((error) =>
+      console.error("translate translated file delete error", error)
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }
