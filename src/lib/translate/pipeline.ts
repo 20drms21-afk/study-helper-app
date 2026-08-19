@@ -35,7 +35,18 @@ export async function translateDocument(
   originalFileName: string,
   maxPages: number
 ): Promise<TranslateResult> {
-  const { buffer: subsetBuffer, pageCount } = await subsetPdfPages(pdfBuffer, maxPages);
+  const { buffer: subsetBuffer } = await subsetPdfPages(pdfBuffer, maxPages);
   const translatedBuffer = await translatePdfWithDeepL(subsetBuffer, originalFileName);
-  return { translatedBuffer, translatedPageCount: pageCount };
+
+  // 번역문(한글)이 원문(영어)보다 길어지면, DeepL이 고정폭 텍스트 상자 안에 다 못 넣고 그 내용을
+  // 다음 페이지로 넘겨서(원본엔 없던 페이지를 새로 만들어서) 번역된 PDF의 총 페이지 수가 업로드한
+  // 페이지 수보다 늘어날 수 있다(실측 확인됨). "번역 요청한 페이지 수 = 번역 결과 페이지 수"라고
+  // 가정하면, 이렇게 새로 생긴 페이지가 뷰어의 최대 페이지 수(translatedPageCount)에 반영되지 않아
+  // 접근 불가능해진다 — 번역이 안 된 게 아니라 저장은 됐는데 못 보여주는 상태가 됨. 그래서
+  // 업로드 전 페이지 수를 그대로 쓰지 않고, 실제로 돌려받은 PDF의 페이지 수를 다시 센다.
+  const translatedPageCount = await PDFDocument.load(translatedBuffer, { updateMetadata: false }).then((doc) =>
+    doc.getPageCount()
+  );
+
+  return { translatedBuffer, translatedPageCount };
 }
