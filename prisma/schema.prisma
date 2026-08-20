@@ -19,7 +19,7 @@ model User {
   name         String?
   createdAt    DateTime @default(now())
 
-  plan               String    @default("free") // "free" | "pro"
+  plan               String    @default("free") // "free" | "pro" | "master"
   subscriptionStatus String? // null | "active" | "past_due" | "canceled" | "suspended"
   tossCustomerKey    String?   @unique
   tossBillingKey     String?   @unique
@@ -103,7 +103,7 @@ model AiUsageEvent {
   id     String @id @default(cuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan   String // 호출 시점 User.plan 스냅샷("free" | "pro" | 추후 "master") — 이후 유저가 플랜을 바꿔도 과거 집계가 흔들리지 않게 시점 값을 그대로 남긴다
+  plan   String // 호출 시점 User.plan 스냅샷("free" | "pro" | "master") — 이후 유저가 플랜을 바꿔도 과거 집계가 흔들리지 않게 시점 값을 그대로 남긴다
 
   feature     AiUsageFeature
   operationId String // 사용자 작업 1회에 딸린 Claude 호출 여러 건을 묶는 키. 예: 예상문제 생성 1회 = EXAM_BLUEPRINT + EXAM_GENERATE 2행이 같은 operationId를 공유. PDF 번역은 페이지 수만큼의 행이 문서 1건의 operationId를 공유.
@@ -427,17 +427,20 @@ model StudentProfile {
 
 model ScholarshipListing {
   id              String   @id @default(cuid())
-  externalId      String   @unique // 원본 API의 레코드 식별자 (중복 방지)
+  externalId      String   @unique // 원본 파일의 레코드 식별자 (운영기관명+상품명+모집시작일 조합, 중복 방지)
   provider        String // 운영기관명
   name            String // 상품명
-  kind            String? // 상품구분
+  kind            String? // 운영기관구분/상품구분
   amountText      String? // 지원금액 (조건부 금액이 많아 원문 텍스트로 저장)
   eligibilityText String // 신청대상/소득기준/지역거주여부/학과구분 상세내용을 합친 원문
   applyPeriodText String? // 신청기간 원문
   applyUrl        String?
+  applyStartDate  String? // "YYYY-MM-DD" 파싱 성공 시만 (정렬용)
+  applyEndDate    String? // "YYYY-MM-DD" 파싱 성공 시만 (만료 판정용) — ActivityListing.deadlineDate와 동일 패턴
   fetchedAt       DateTime @default(now())
 
   @@index([fetchedAt])
+  @@index([applyEndDate])
 }
 
 model ActivityListing {

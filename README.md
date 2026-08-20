@@ -48,7 +48,7 @@ curl -X POST http://localhost:3000/api/activities/sync \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 
-**장학금**(`/api/scholarships/sync`)은 공공데이터포털 API 연동이 필요한데 `src/lib/scholarship/kosaf.ts`가 아직 스텁 상태라 `KOSAF_API_KEY`를 발급받아 해당 파일을 채우기 전까지는 500을 반환합니다 — 그래서 아직 `vercel.json`에 등록하지 않았습니다(Vercel Hobby 플랜은 Cron을 2개까지만 허용하는데 실제로 동작하지 않는 라우트를 등록해봐야 자리만 차지함). 실제 KOSAF 연동을 완료하면 `charge-due`/`activities/sync`와 같은 방식으로 `vercel.json`에 추가하면 됩니다. 로컬 수동 테스트(구현 전에는 500):
+**장학금**(`/api/scholarships/sync`)은 한국장학재단이 공공데이터포털에 공개한 "학자금지원정보(대학생)" 파일데이터를 씁니다(`src/lib/scholarship/kosaf.ts`) — **오픈API가 아니라 "파일데이터"로 등록되어 있어 활용신청/API키가 필요 없고**, 로그인 없이 CSV를 바로 받아올 수 있습니다. 다운로드는 겉보기엔 버튼 클릭 한 번이지만 실제로는 (1) `POST /tcs/dss/selectFileDataDownload.do`로 실제 다운로드용 파일 식별자를 받고 (2) `GET /cmm/cmm/fileDownload.do`로 CSV(CP949 인코딩)를 받는 2단계 요청이라 이걸 그대로 재현합니다. 원본이 월 1회만 갱신되므로(데이터 상세 페이지의 "차기 등록 예정일" 참고) 우리 쪽도 월 1회 동기화면 충분하고, 이미 마감된 장학금은 동기화 주기와 무관하게 매 실행마다 `모집종료일` 기준으로 정리됩니다(`ActivityListing`과 동일 패턴). **다만 이 라우트는 아직 `vercel.json`에 등록하지 않았습니다** — Vercel Hobby 플랜은 Cron을 2개까지만 허용하는데 이미 `charge-due`(매일)/`activities/sync`(매일)로 자리가 다 찼습니다. 월 1회면 충분한 이 배치를 매일 도는 Cron 자리와 맞바꾸는 건 아까우니, GitHub Actions 스케줄이나 cron-job.org 같은 외부 무료 스케줄러로 매월 1회 아래 curl을 호출하는 쪽을 권장합니다(둘 다 `CRON_SECRET`만 있으면 됨). 로컬 수동 테스트:
 
 ```bash
 curl -X POST http://localhost:3000/api/scholarships/sync \
@@ -105,8 +105,8 @@ npm run dev
 | `TOSS_SECRET_KEY` | 토스페이먼츠 서버 전용 시크릿 키 — 결제 기능 사용 시 필요 |
 | `TOSS_WEBHOOK_SECRET_KEY` | 웹훅 서명 검증용 키 — 결제 기능 사용 시 필요 |
 | `TOSS_PRO_PLAN_AMOUNT` | Pro 플랜 월 요금(원, 정수). 기본값: 9900 |
+| `TOSS_MASTER_PLAN_AMOUNT` | Master 플랜 월 요금(원, 정수). 기본값: 14800 |
 | `CRON_SECRET` | `charge-due`(정기 청구)/`activities/sync`(대외활동 수집)/`scholarships/sync`(장학금 수집) 라우트 보호용 임의의 랜덤 문자열 |
-| `KOSAF_API_KEY` | 한국장학재단 학자금지원정보 오픈API 키 (공공데이터포털 활용신청 후 발급). 없으면 `scholarships/sync`는 500 반환, 나머지 기능은 정상 동작 |
 | `GMAIL_USER` | 비밀번호 재설정 이메일을 발송할 Gmail 주소 |
 | `GMAIL_APP_PASSWORD` | 위 Gmail 계정의 앱 비밀번호(일반 로그인 비밀번호 아님) — 발급 방법은 위 "2-2" 참고. 없으면 비밀번호 찾기는 500 반환, 나머지 기능은 정상 동작 |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트(Google Cloud Console 발급). 없으면 로그인 화면에 "Google로 계속하기" 버튼이 표시되지 않음(나머지 기능은 정상 동작) |

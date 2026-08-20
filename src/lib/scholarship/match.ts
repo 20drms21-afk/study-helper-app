@@ -8,6 +8,13 @@ import {
 } from "@/lib/prompts/scholarshipMatch";
 import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
+// ScholarshipListing은 KOSAF 동기화마다 만료분을 정리하긴 하지만(현재 실측 20~30여 건),
+// 프롬프트가 "모든 장학금에 대해 빠짐없이 결과를 반환"하도록 지시하고 있어 후보 수가
+// 늘어나면 입력·출력 토큰이 함께 선형으로 늘어난다 — ActivityListing(getActivitiesForUser,
+// MAX_DISPLAYED_ACTIVITIES=60)과 같은 이유로 상한을 둔다. 마감이 가까운 것부터 우선
+// 포함되도록 정렬 후 자른다.
+const MAX_SCHOLARSHIP_CANDIDATES = 150;
+
 export interface ScholarshipMatchResult {
   listingId: string;
   provider: string;
@@ -31,7 +38,10 @@ export async function matchScholarships(
   plan: string
 ): Promise<{ matches: ScholarshipMatchResult[] }> {
   const profile = await prisma.studentProfile.findUnique({ where: { userId } });
-  const listings = await prisma.scholarshipListing.findMany();
+  const listings = await prisma.scholarshipListing.findMany({
+    orderBy: [{ applyEndDate: { sort: "asc", nulls: "last" } }],
+    take: MAX_SCHOLARSHIP_CANDIDATES,
+  });
 
   const operationId = newOperationId("scholarship");
   const metadata = { scholarshipCandidateCount: listings.length };
