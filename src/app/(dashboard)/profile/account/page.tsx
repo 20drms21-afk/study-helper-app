@@ -56,8 +56,8 @@ export default async function AccountPage() {
             현재 플랜: <strong>{quota.plan === "free" ? "무료" : planLabel(quota.plan)}</strong>
           </p>
           <p className="text-sb-mute">
-            이번 달 사용량: {quota.used}
-            {quota.limit === null ? " / 무제한" : ` / ${quota.limit}회`}
+            이번 달 사용량: {quota.used.toLocaleString("ko-KR")}
+            {quota.limit === null ? " / 무제한" : ` / ${quota.limit.toLocaleString("ko-KR")}토큰`}
           </p>
           {periodEndText && (
             <p className="text-sb-mute">

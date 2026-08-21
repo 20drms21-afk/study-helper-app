@@ -3,7 +3,7 @@ import { z } from "zod";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getQuotaStatus, recordUsage } from "@/lib/usage";
+import { getQuotaStatus } from "@/lib/usage";
 import { classifyActivityFieldTags } from "@/lib/activity/classify";
 
 const profileSchema = z.object({
@@ -75,9 +75,6 @@ export async function PUT(request: Request) {
             activityFieldTags: categories.join(","),
             activityFieldTagsSource: currentSource,
           },
-        });
-        await recordUsage(session.user.id, "activity_match").catch((err) => {
-          console.error("usage record failed", err);
         });
       } catch (err) {
         console.error("activity field classification failed (soft-fail, profile save unaffected)", err);

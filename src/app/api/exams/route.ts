@@ -21,7 +21,7 @@ import {
 } from "@/lib/prompts/examGenerate";
 import { buildFileContentBlocks, type ContentBlocks } from "@/lib/claudeContent";
 import { totalPointsOf } from "@/lib/exam/formatters";
-import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import { recordAiUsage, AiUsageFeature, AiUsageStatus, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
   const quota = await getQuotaStatus(session.user.id);
   if (!quota.allowed) {
-    return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
+    return NextResponse.json({ error: quotaExceededMessage(quota.limit!, quota.plan) }, { status: 402 });
   }
 
   const body = await request.json().catch(() => null);
@@ -333,12 +333,6 @@ export async function POST(request: Request) {
       { error: "AI 시험 생성 중 오류가 발생했습니다. API 키 설정을 확인해주세요." },
       { status: 502 }
     );
-  }
-
-  try {
-    await recordUsage(session.user.id, "exam_generate");
-  } catch (err) {
-    console.error("usage record failed", err);
   }
 
   if (!parsedOutput || parsedOutput.questions.length === 0) {

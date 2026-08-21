@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { saveUploadedFile } from "@/lib/storage";
 import { MAX_UPLOAD_BYTES, getPdfPageCount } from "@/lib/fileKind";
-import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import {
   translateDocument,
   FREE_PLAN_TRANSLATE_MAX_PAGES,
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   const quota = await getQuotaStatus(session.user.id);
   if (!quota.allowed) {
-    return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
+    return NextResponse.json({ error: quotaExceededMessage(quota.limit!, quota.plan) }, { status: 402 });
   }
 
   const formData = await request.formData().catch(() => null);
@@ -118,12 +118,6 @@ export async function POST(request: Request) {
         translatedPageCount,
       },
     });
-
-    try {
-      await recordUsage(session.user.id, "pdf_translate");
-    } catch (err) {
-      console.error("usage record failed", err);
-    }
   } catch (error) {
     console.error("pdf translate failed", error);
     await prisma.pdfTranslation.update({

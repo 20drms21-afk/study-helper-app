@@ -35,7 +35,6 @@ model User {
   examPapers    ExamPaper[]
   attempts      ExamAttempt[]
   chatMessages  ChatMessage[]
-  usageEvents   UsageEvent[]
   aiUsageEvents AiUsageEvent[]
   inquiries     Inquiry[]
 
@@ -67,16 +66,6 @@ model SubscriptionCharge {
   @@unique([userId, periodKey, attemptSeq])
 }
 
-model UsageEvent {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // "note_generate" | "exam_generate" | "exam_grade" | "tutor_chat" | "pdf_translate" | "scholarship_match" | "activity_match"
-  createdAt DateTime @default(now())
-
-  @@index([userId, createdAt])
-}
-
 enum AiUsageFeature {
   NOTE_SUMMARY
   NOTE_EXPLANATION
@@ -94,11 +83,14 @@ enum AiUsageStatus {
   FAILED
 }
 
-// Claude API 실제 호출 1건당 1행 — "제품 사용량"(UsageEvent, 무료 한도 소진 단위)과는
-// 완전히 다른 개념이다. 예: PDF 번역은 UsageEvent 1건이지만 AiUsageEvent는 페이지 수만큼
-// (최대 60건) 쌓인다. 절대 두 모델을 합치지 말 것 — 무료 한도 집계(getMonthlyUsageCount)가
-// UsageEvent.count()에 의존하므로, 여기에 Claude 호출 단위 행을 섞으면 무료 사용량 한도가
-// 조용히 잘못 계산된다.
+// Claude API 실제 호출 1건당 1행. 원가 로그일 뿐 아니라 **무료 플랜의 월간 토큰 쿼터도
+// 이 테이블에서 직접 집계한다**(src/lib/usage.ts의 getMonthlyTokenUsage가 이번 달 행의
+// inputTokens+outputTokens+cacheCreationInputTokens+cacheReadInputTokens를 합산) — 과거엔
+// 별도 카운트 전용 UsageEvent 모델(호출 성공 시 1행)이 있었지만, Claude를 호출하지 않는
+// PDF 영어자료 변환(DeepL)을 빼면 이 테이블과 정보가 완전히 겹쳐서 삭제하고 이 모델 하나로
+// 통합함. **PDF 번역(DeepL)은 Claude를 호출하지 않으므로 여기에 행이 전혀 쌓이지 않는다**
+// — 즉 토큰 쿼터를 소비하지 않으며, 그 대신 자체 페이지 수 상한(FREE_PLAN_TRANSLATE_MAX_PAGES
+// 등, src/lib/translate/pipeline.ts)으로만 제한된다.
 model AiUsageEvent {
   id     String @id @default(cuid())
   userId String
@@ -240,18 +232,18 @@ model ExamPaper {
 }
 
 model ExamQuestion {
-  id            String    @id @default(cuid())
-  examPaperId   String
-  examPaper     ExamPaper @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
-  order         Int
-  type          String // "mcq" | "short" | "essay"
-  prompt        String
-  choicesJson   String?
-  correctAnswer String?
-  modelAnswer   String?
-  points        Int
-  topicTag      String
-  explanation   String?
+  id             String    @id @default(cuid())
+  examPaperId    String
+  examPaper      ExamPaper @relation(fields: [examPaperId], references: [id], onDelete: Cascade)
+  order          Int
+  type           String // "mcq" | "short" | "essay"
+  prompt         String
+  choicesJson    String?
+  correctAnswer  String?
+  modelAnswer    String?
+  points         Int
+  topicTag       String
+  explanation    String?
   sourceLocation String? // 이 문제가 다루는 개념이 참고 자료의 어느 파일/페이지에 나오는지 (AI가 생성, 확신 없으면 null)
 
   answers     ExamAnswer[]
@@ -477,18 +469,18 @@ model PasswordResetToken {
 // 번역된 PDF 전체 경로 하나만 저장한다. 뷰어가 보여줄 페이지 이미지는 원본과 마찬가지로 저장된
 // PDF에서 그때그때 라스터화한다(원본은 이미 그렇게 하고 있었음 — /api/translate/[id]/page/[n]).
 model PdfTranslation {
-  id                  String   @id @default(cuid())
-  userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjectName         String // 사용자가 직접 입력한 과목명(자유 텍스트) — 화면 표시/자료 정리용
-  originalFileName    String
-  originalStoredPath  String
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectName          String // 사용자가 직접 입력한 과목명(자유 텍스트) — 화면 표시/자료 정리용
+  originalFileName     String
+  originalStoredPath   String
   translatedStoredPath String? // DeepL이 반환한 번역된 PDF 전체 경로 — 완료 전에는 null
-  pageCount           Int // 원본 PDF 전체 페이지 수
-  translatedPageCount Int // 실제로 번역 요청한 페이지 수(무료/Pro 상한 반영 — DeepL에 보내기 전에 이 페이지 수만큼만 잘라서 업로드)
-  status              String   @default("processing") // "processing" | "done" | "failed"
-  errorMessage        String?
-  createdAt           DateTime @default(now())
+  pageCount            Int // 원본 PDF 전체 페이지 수
+  translatedPageCount  Int // 실제로 번역 요청한 페이지 수(무료/Pro 상한 반영 — DeepL에 보내기 전에 이 페이지 수만큼만 잘라서 업로드)
+  status               String   @default("processing") // "processing" | "done" | "failed"
+  errorMessage         String?
+  createdAt            DateTime @default(now())
 
   @@index([userId])
 }

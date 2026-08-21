@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FREE_MONTHLY_LIMIT } from "@/lib/usage";
+import { FREE_MONTHLY_TOKEN_LIMIT, PRO_MONTHLY_TOKEN_LIMIT, MASTER_MONTHLY_TOKEN_LIMIT } from "@/lib/usage";
 import { PRO_PLAN_AMOUNT, MASTER_PLAN_AMOUNT } from "@/lib/subscription";
 import {
   FREE_PLAN_TRANSLATE_MAX_PAGES,
@@ -28,7 +28,7 @@ export function PricingSection() {
             </p>
             <p className="font-display text-[34px] font-extrabold text-sb-text">₩0</p>
             <ul className="flex flex-1 flex-col gap-4 font-body-kr text-sm text-sb-text">
-              <li>기능 생성 월 {FREE_MONTHLY_LIMIT}회</li>
+              <li>기능 생성 월 {FREE_MONTHLY_TOKEN_LIMIT.toLocaleString("ko-KR")}토큰</li>
               <li>PDF 영어자료 최대 {FREE_PLAN_TRANSLATE_MAX_PAGES}페이지 변환</li>
               <li>오답노트 · 취약점 분석 포함</li>
             </ul>
@@ -56,7 +56,7 @@ export function PricingSection() {
               <span className="font-body-kr text-sm font-normal text-sb-mute">/월</span>
             </p>
             <ul className="flex flex-1 flex-col gap-4 font-body-kr text-sm text-sb-text">
-              <li>기능 생성 무제한</li>
+              <li>기능 생성 월 {PRO_MONTHLY_TOKEN_LIMIT.toLocaleString("ko-KR")}토큰</li>
               <li>PDF 영어자료 최대 {PRO_PLAN_TRANSLATE_MAX_PAGES}페이지 변환</li>
               <li>오답노트 · 취약점 분석 포함</li>
             </ul>
@@ -79,7 +79,7 @@ export function PricingSection() {
               <span className="font-body-kr text-sm font-normal text-sb-mute">/월</span>
             </p>
             <ul className="flex flex-1 flex-col gap-4 font-body-kr text-sm text-sb-text">
-              <li>기능 생성 무제한</li>
+              <li>기능 생성 월 {MASTER_MONTHLY_TOKEN_LIMIT.toLocaleString("ko-KR")}토큰</li>
               <li>PDF 영어자료 최대 {MASTER_PLAN_TRANSLATE_MAX_PAGES}페이지 변환</li>
               <li>오답노트 · 취약점 분석 포함</li>
             </ul>

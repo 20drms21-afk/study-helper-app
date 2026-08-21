@@ -12,7 +12,7 @@ import {
   type EssayGradeItem,
 } from "@/lib/prompts/grade";
 import { gradeMcq, gradeShort } from "@/lib/grading";
-import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import { upsertReviewItemsForWrongAnswers } from "@/lib/review";
 import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
@@ -134,7 +134,7 @@ export async function POST(
   if (aiGradeItems.length > 0) {
     const quota = await getQuotaStatus(session.user.id);
     if (!quota.allowed) {
-      return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
+      return NextResponse.json({ error: quotaExceededMessage(quota.limit!, quota.plan) }, { status: 402 });
     }
 
     const aiGrades = new Map<string, { score: number; feedback: string }>();
@@ -166,7 +166,6 @@ export async function POST(
         usage: message.usage,
         metadata: gradeMetadata,
       });
-      await recordUsage(session.user.id, "exam_grade");
       const parsed = message.parsed_output;
       if (parsed) {
         for (const grade of parsed.grades) {

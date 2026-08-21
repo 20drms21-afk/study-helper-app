@@ -1,8 +1,8 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
-export const PRO_PLAN_AMOUNT = Number(process.env.TOSS_PRO_PLAN_AMOUNT ?? 9900);
-export const MASTER_PLAN_AMOUNT = Number(process.env.TOSS_MASTER_PLAN_AMOUNT ?? 14800);
+export const PRO_PLAN_AMOUNT = Number(process.env.TOSS_PRO_PLAN_AMOUNT ?? 7800);
+export const MASTER_PLAN_AMOUNT = Number(process.env.TOSS_MASTER_PLAN_AMOUNT ?? 13800);
 
 // 유료 플랜은 "pro"/"master" 두 종류 — 매달 재청구(charge-due)나 카드 재시도(card-update)처럼
 // 이미 구독 중인 유저의 plan 값만 보고 금액을 다시 계산해야 하는 자리가 여러 곳이라 헬퍼로 뽑음.

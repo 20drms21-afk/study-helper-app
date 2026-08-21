@@ -13,7 +13,7 @@ import {
   explanationSchema,
   explanationSystemPrompt,
 } from "@/lib/prompts/summarize";
-import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
@@ -34,7 +34,7 @@ export async function POST(
 
   const quota = await getQuotaStatus(session.user.id);
   if (!quota.allowed) {
-    return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
+    return NextResponse.json({ error: quotaExceededMessage(quota.limit!, quota.plan) }, { status: 402 });
   }
 
   const { id } = await ctx.params;
@@ -107,12 +107,6 @@ export async function POST(
       { error: "AI 생성 중 오류가 발생했습니다. API 키 설정을 확인해주세요." },
       { status: 502 }
     );
-  }
-
-  try {
-    await recordUsage(session.user.id, "note_generate");
-  } catch (err) {
-    console.error("usage record failed", err);
   }
 
   if (!parsedOutput) {

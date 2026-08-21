@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { getQuotaStatus, recordUsage, quotaExceededMessage } from "@/lib/usage";
+import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import { isScholarshipDataConfigured, matchScholarships } from "@/lib/scholarship/match";
 
 export const runtime = "nodejs";
@@ -20,16 +20,10 @@ export async function GET() {
 
   const quota = await getQuotaStatus(session.user.id);
   if (!quota.allowed) {
-    return NextResponse.json({ error: quotaExceededMessage(quota.limit!) }, { status: 402 });
+    return NextResponse.json({ error: quotaExceededMessage(quota.limit!, quota.plan) }, { status: 402 });
   }
 
   const result = await matchScholarships(session.user.id, quota.plan);
-
-  try {
-    await recordUsage(session.user.id, "scholarship_match");
-  } catch (err) {
-    console.error("usage record failed", err);
-  }
 
   return NextResponse.json({ configured: true, ...result });
 }

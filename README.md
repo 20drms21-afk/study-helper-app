@@ -99,13 +99,15 @@ npm run dev
 | `NEXTAUTH_SECRET` | NextAuth 세션 암호화 키 |
 | `NEXTAUTH_URL` | 앱 URL (로컬: `http://localhost:3000`) |
 | `STORAGE_DIR` | 업로드 파일 저장 경로 (기본값: `./storage`) |
-| `FREE_PLAN_MONTHLY_LIMIT` | 무료 플랜 월간 AI 요청 한도 (기본값: 20) |
+| `FREE_PLAN_MONTHLY_TOKEN_LIMIT` | 무료 플랜 월간 AI 토큰 한도, 입력 토큰 기준(출력/캐시 토큰은 실제 단가 비율로 가중 환산 후 합산) (기본값: 200000) |
+| `PRO_PLAN_MONTHLY_TOKEN_LIMIT` | Pro 플랜 월간 AI 토큰 한도 (기본값: 550000) |
+| `MASTER_PLAN_MONTHLY_TOKEN_LIMIT` | Master 플랜 월간 AI 토큰 한도 (기본값: 1200000) |
 | `ADMIN_EMAIL` | 관리자 페이지(`/admin`) 접근을 허용할 이메일 |
 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` | 토스페이먼츠 클라이언트 키 (브라우저에 노출됨) — 결제 기능 사용 시 필요 |
 | `TOSS_SECRET_KEY` | 토스페이먼츠 서버 전용 시크릿 키 — 결제 기능 사용 시 필요 |
 | `TOSS_WEBHOOK_SECRET_KEY` | 웹훅 서명 검증용 키 — 결제 기능 사용 시 필요 |
-| `TOSS_PRO_PLAN_AMOUNT` | Pro 플랜 월 요금(원, 정수). 기본값: 9900 |
-| `TOSS_MASTER_PLAN_AMOUNT` | Master 플랜 월 요금(원, 정수). 기본값: 14800 |
+| `TOSS_PRO_PLAN_AMOUNT` | Pro 플랜 월 요금(원, 정수). 기본값: 7800 |
+| `TOSS_MASTER_PLAN_AMOUNT` | Master 플랜 월 요금(원, 정수). 기본값: 13800 |
 | `CRON_SECRET` | `charge-due`(정기 청구)/`activities/sync`(대외활동 수집)/`scholarships/sync`(장학금 수집) 라우트 보호용 임의의 랜덤 문자열 |
 | `GMAIL_USER` | 비밀번호 재설정 이메일을 발송할 Gmail 주소 |
 | `GMAIL_APP_PASSWORD` | 위 Gmail 계정의 앱 비밀번호(일반 로그인 비밀번호 아님) — 발급 방법은 위 "2-2" 참고. 없으면 비밀번호 찾기는 500 반환, 나머지 기능은 정상 동작 |
@@ -126,6 +128,6 @@ Next.js 16 (App Router, Turbopack) · TypeScript · Prisma 6 + PostgreSQL(Supaba
 - 업로드 지원 형식: PDF, DOCX(.docx만 지원, 구버전 .doc 미지원), PPTX, 이미지(JPEG/PNG/WEBP/GIF), 최대 20MB. **HWP(한글)는 지원하지 않습니다** — PDF로 내보내서 업로드해야 합니다.
 - 노트/시험/AI선생님 업로드는 하나의 파일 풀을 공유합니다. 한 메뉴에서 올린 파일은 재업로드 없이 다른 메뉴에서도 바로 선택해서 쓸 수 있습니다. PDF 영어자료 변환은 이 풀과 완전히 분리된 별도 파일 풀을 사용합니다.
 - 시험지 PDF에는 한글 폰트(Nanum Gothic, OFL 라이선스)가 임베딩되어 있습니다 (`public/fonts/`).
-- 무료 플랜은 월간 AI 요청 횟수 제한(`FREE_PLAN_MONTHLY_LIMIT`) 외에도 업로드 가능한 PDF 페이지 수 제한(`FREE_PLAN_MAX_PDF_PAGES`)이 있습니다. Pro 플랜은 두 제한 모두 없음.
+- 세 플랜(무료/Pro/Master) 모두 월간 AI 토큰 사용량 제한(`FREE_PLAN_MONTHLY_TOKEN_LIMIT`/`PRO_PLAN_MONTHLY_TOKEN_LIMIT`/`MASTER_PLAN_MONTHLY_TOKEN_LIMIT`, 요청 횟수가 아니라 실제 소모 토큰 기준)이 있습니다. 무료 플랜은 추가로 업로드 가능한 PDF 페이지 수 제한(`FREE_PLAN_MAX_PDF_PAGES`)도 있음(Pro/Master는 이 제한 없음). PDF 영어자료 변환은 이 토큰 한도와 무관하게 플랜별 페이지 상한이 별도로 있습니다.
 - 토스페이먼츠 반복 청구, 대외활동/공모전 동기화는 자동으로 일어나지 않고 `vercel.json`에 등록된 Cron(또는 수동 curl 호출)이 주기적으로 실행해줘야 합니다 — 위 "2." 항목 참고.
 - 현재는 로컬 개발 버전이며, 실제 배포(Vercel 등)는 별도 단계로 진행해야 합니다.
