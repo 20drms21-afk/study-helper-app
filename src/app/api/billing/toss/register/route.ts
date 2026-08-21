@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { issueBillingKey, chargeBilling, TossApiError } from "@/lib/toss";
-import { PRO_PLAN_AMOUNT, addOneMonth, periodKeyOf, reserveCharge } from "@/lib/subscription";
+import { addOneMonth, periodKeyOf, planAmount, planLabel, reserveCharge } from "@/lib/subscription";
 
 export const runtime = "nodejs";
 
@@ -18,6 +18,10 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const authKey = searchParams.get("authKey");
   const customerKey = searchParams.get("customerKey");
+  // BillingActions가 카드 인증 요청 시 successUrl에 실어 보낸, 사용자가 고른 유료 플랜.
+  // 없거나 이상한 값이면 Pro로 안전하게 취급(구 successUrl이 캐시됐거나 직접 접근한 경우 대비).
+  const targetPlanParam = searchParams.get("targetPlan");
+  const targetPlan = targetPlanParam === "master" ? "master" : "pro";
 
   if (!authKey || !customerKey || customerKey !== session.user.id) {
     return NextResponse.redirect(new URL("/billing?checkout=fail", baseUrl));
@@ -27,11 +31,12 @@ export async function GET(request: Request) {
     const { billingKey } = await issueBillingKey(authKey, customerKey);
 
     const periodKey = periodKeyOf(new Date());
+    const amount = planAmount(targetPlan);
     const reservation = await reserveCharge({
       userId: customerKey,
       periodKey,
       attemptSeq: 1,
-      amount: PRO_PLAN_AMOUNT,
+      amount,
     });
     if (!reservation) {
       // 동시에 두 번 리다이렉트된 경우(중복 제출) — 이미 처리 중이므로 재청구하지 않음
@@ -40,9 +45,9 @@ export async function GET(request: Request) {
 
     await chargeBilling(billingKey, {
       customerKey,
-      amount: PRO_PLAN_AMOUNT,
+      amount,
       orderId: reservation.orderId,
-      orderName: "공부한입 Pro 플랜 (월 구독)",
+      orderName: `공부한입 ${planLabel(targetPlan)} 플랜 (월 구독)`,
     });
 
     const currentPeriodEnd = addOneMonth(new Date());
@@ -54,7 +59,7 @@ export async function GET(request: Request) {
       prisma.user.update({
         where: { id: session.user.id },
         data: {
-          plan: "pro",
+          plan: targetPlan,
           subscriptionStatus: "active",
           tossCustomerKey: customerKey,
           tossBillingKey: billingKey,

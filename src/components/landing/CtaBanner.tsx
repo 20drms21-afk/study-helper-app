@@ -1,22 +1,25 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
 import { Reveal } from "@/components/landing/Reveal";
 
-export function CtaBanner() {
+export function CtaBanner({ loggedIn }: { loggedIn: boolean }) {
   return (
-    <section className="bg-sb-bg px-5 py-16 sm:py-20">
+    <section className="mx-auto w-full max-w-[1200px] border-t border-white/10 px-[clamp(20px,5vw,64px)] pb-12 pt-[60px]">
       <Reveal>
-        <div className="bite-corner glass mx-auto flex w-full max-w-6xl flex-col items-center gap-6 rounded-2xl px-8 py-16 text-center sm:py-20">
-          <Logo size={40} className="text-sb-text" />
-          <h2 className="max-w-lg font-display text-3xl text-sb-text sm:text-4xl">
-            지금, 한 입 베어물어보세요.
-          </h2>
-          <p className="font-body-kr text-sb-mute">가입은 금방 끝나요.</p>
+        <p className="font-display text-2xl font-bold uppercase tracking-wide text-sb-accent-deep sm:text-3xl">
+          09 · 지금 시작하기
+        </p>
+        <h3 className="mt-2 font-display text-xl font-extrabold text-sb-text">
+          강의 자료만 올리세요.
+        </h3>
+        <p className="mt-3 max-w-[60ch] font-body-kr text-[15px] leading-relaxed text-sb-mute">
+          요약, 개념 설명, 예상문제, 복습까지 공부한입이 이어서 준비해드려요.
+        </p>
+        <div className="mt-6 flex max-w-[480px] flex-wrap items-stretch gap-3">
           <Link
-            href="/signup"
-            className="mt-2 rounded-full bg-sb-accent px-8 py-3.5 font-body-kr text-base font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
+            href={loggedIn ? "/notes" : "/signup"}
+            className="flex h-12 items-center rounded-full bg-sb-accent px-6.5 font-body-kr text-sm font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
           >
-            무료로 시작하기
+            {loggedIn ? "내 학습 이어가기" : "내 강의자료로 시작하기"}
           </Link>
         </div>
       </Reveal>

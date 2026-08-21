@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isAdmin } from "@/lib/admin";
 
 export const FREE_MONTHLY_LIMIT = Number(process.env.FREE_PLAN_MONTHLY_LIMIT ?? 20);
 
@@ -12,7 +13,7 @@ export type UsageKind =
   | "activity_match";
 
 export interface QuotaStatus {
-  plan: "free" | "pro";
+  plan: "free" | "pro" | "master";
   limit: number | null;
   used: number;
   allowed: boolean;
@@ -32,11 +33,14 @@ export async function getMonthlyUsageCount(userId: string, now = new Date()): Pr
 }
 
 export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { plan: true } });
-  const plan: "free" | "pro" = user?.plan === "pro" ? "pro" : "free";
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { plan: true, email: true } });
+  const plan: "free" | "pro" | "master" =
+    user?.plan === "master" ? "master" : user?.plan === "pro" ? "pro" : "free";
   const used = await getMonthlyUsageCount(userId);
 
-  if (plan === "pro") {
+  // 관리자 계정은 플랜과 무관하게 사용량 제한 없음. Pro/Master 둘 다 무제한(차이는 PDF 번역
+  // 페이지 상한에서만 남 — src/lib/translate/pipeline.ts).
+  if (plan !== "free" || isAdmin(user?.email)) {
     return { plan, limit: null, used, allowed: true };
   }
 

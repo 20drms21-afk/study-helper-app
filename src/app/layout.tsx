@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Do_Hyeon, Gothic_A1 } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 
@@ -13,17 +14,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 랜딩페이지 전용 브랜드 서체 — 나머지 앱 화면(대시보드)은 기존 서체를 그대로 씀
-const doHyeon = Do_Hyeon({
-  variable: "--font-do-hyeon",
-  weight: "400",
-  subsets: ["latin"],
-});
-
-const gothicA1 = Gothic_A1({
-  variable: "--font-gothic-a1",
-  weight: ["400", "500", "700", "900"],
-  subsets: ["latin"],
+// 랜딩페이지 전용 브랜드 서체 — 나머지 앱 화면(대시보드)은 기존 서체를 그대로 씀.
+// Pretendard는 Google Fonts 목록에 없어 next/font/google로 못 받아옴 — 가변폰트 파일을
+// public/fonts/에 직접 두고 next/font/local로 로드(런타임 CDN 요청 없이 자체 호스팅).
+const pretendard = localFont({
+  src: "../../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  weight: "45 920",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -39,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} ${doHyeon.variable} ${gothicA1.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${pretendard.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

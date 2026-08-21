@@ -9,6 +9,7 @@ import {
   translateDocument,
   FREE_PLAN_TRANSLATE_MAX_PAGES,
   PRO_PLAN_TRANSLATE_MAX_PAGES,
+  MASTER_PLAN_TRANSLATE_MAX_PAGES,
 } from "@/lib/translate/pipeline";
 
 export const runtime = "nodejs";
@@ -74,7 +75,11 @@ export async function POST(request: Request) {
     select: { plan: true },
   });
   const planLimit =
-    user?.plan === "pro" ? PRO_PLAN_TRANSLATE_MAX_PAGES : FREE_PLAN_TRANSLATE_MAX_PAGES;
+    user?.plan === "master"
+      ? MASTER_PLAN_TRANSLATE_MAX_PAGES
+      : user?.plan === "pro"
+        ? PRO_PLAN_TRANSLATE_MAX_PAGES
+        : FREE_PLAN_TRANSLATE_MAX_PAGES;
   const pagesToTranslate = Math.min(pageCount, planLimit);
 
   const { storedPath } = await saveUploadedFile(session.user.id, file.name, buffer, file.type);

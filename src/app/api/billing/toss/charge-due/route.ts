@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { chargeBilling, TossApiError } from "@/lib/toss";
-import { PRO_PLAN_AMOUNT, addDays, addOneMonth, periodKeyOf, reserveCharge } from "@/lib/subscription";
+import { addDays, addOneMonth, periodKeyOf, planAmount, planLabel, reserveCharge } from "@/lib/subscription";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -50,12 +50,16 @@ async function handleChargeDue(request: Request) {
   for (const user of due) {
     const attemptSeq = user.subscriptionStatus === "past_due" ? 2 : 1;
     const periodKey = periodKeyOf(user.currentPeriodEnd ?? now);
+    // 정기 재청구는 새 플랜을 고르는 자리가 아니라, 이미 구독 중이던 플랜(Pro/Master)을
+    // user.plan에서 그대로 읽어와 그 금액으로 다시 청구한다.
+    const amount = planAmount(user.plan);
+    const label = planLabel(user.plan);
 
     const reservation = await reserveCharge({
       userId: user.id,
       periodKey,
       attemptSeq,
-      amount: PRO_PLAN_AMOUNT,
+      amount,
     });
     if (!reservation) {
       // 이미 다른 실행(중복 크론 호출 또는 카드 변경 라우트)이 이 시도를 처리했음
@@ -65,10 +69,10 @@ async function handleChargeDue(request: Request) {
     try {
       await chargeBilling(user.tossBillingKey!, {
         customerKey: user.tossCustomerKey ?? user.id,
-        amount: PRO_PLAN_AMOUNT,
+        amount,
         orderId: reservation.orderId,
         orderName:
-          attemptSeq === 1 ? "공부한입 Pro 플랜 (월 구독 갱신)" : "공부한입 Pro 플랜 (재시도 청구)",
+          attemptSeq === 1 ? `공부한입 ${label} 플랜 (월 구독 갱신)` : `공부한입 ${label} 플랜 (재시도 청구)`,
       });
 
       const newPeriodEnd = addOneMonth(user.currentPeriodEnd ?? now);

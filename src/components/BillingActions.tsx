@@ -8,7 +8,7 @@ export function BillingActions({
   plan,
   subscriptionStatus,
 }: {
-  plan: "free" | "pro";
+  plan: "free" | "pro" | "master";
   subscriptionStatus: string | null;
 }) {
   const { data: session } = useSession();
@@ -16,7 +16,10 @@ export function BillingActions({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function requestCardAuth(successPath: "register" | "card-update") {
+  async function requestCardAuth(
+    successPath: "register" | "card-update",
+    targetPlan?: "pro" | "master"
+  ) {
     if (!session?.user?.id) return;
 
     setError(null);
@@ -31,9 +34,14 @@ export function BillingActions({
       const tossPayments = await loadTossPayments(clientKey);
       const payment = tossPayments.payment({ customerKey: session.user.id });
 
+      // 신규 구독(register)일 때만 어떤 플랜을 고른 건지 successUrl에 실어 보냄 — 서버(register
+      // 라우트)가 이 값을 읽어서 Pro/Master 금액 중 뭘 청구할지 결정함.
+      const successUrl = new URL(`/api/billing/toss/${successPath}`, window.location.origin);
+      if (targetPlan) successUrl.searchParams.set("targetPlan", targetPlan);
+
       await payment.requestBillingAuth({
         method: "CARD",
-        successUrl: `${window.location.origin}/api/billing/toss/${successPath}`,
+        successUrl: successUrl.toString(),
         failUrl: `${window.location.origin}/billing?checkout=fail`,
         customerEmail: session.user.email ?? undefined,
         customerName: session.user.name ?? undefined,
@@ -72,7 +80,7 @@ export function BillingActions({
           <button
             onClick={() => requestCardAuth("card-update")}
             disabled={loading}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-50"
           >
             카드 변경
           </button>
@@ -81,7 +89,7 @@ export function BillingActions({
           <button
             onClick={() => requestCardAuth("card-update")}
             disabled={loading}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
           >
             {loading ? "처리 중..." : "카드 확인하고 재결제"}
           </button>
@@ -90,31 +98,40 @@ export function BillingActions({
           <button
             onClick={() => requestCardAuth("card-update")}
             disabled={loading}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
           >
             {loading ? "처리 중..." : "재구독하기"}
           </button>
         )}
         {(subscriptionStatus === null || subscriptionStatus === "suspended") && plan === "free" && (
-          <button
-            onClick={() => requestCardAuth("register")}
-            disabled={loading}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-          >
-            {loading ? "처리 중..." : "업그레이드"}
-          </button>
+          <>
+            <button
+              onClick={() => requestCardAuth("register", "pro")}
+              disabled={loading}
+              className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              {loading ? "처리 중..." : "Pro로 업그레이드"}
+            </button>
+            <button
+              onClick={() => requestCardAuth("register", "master")}
+              disabled={loading}
+              className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              {loading ? "처리 중..." : "Master로 업그레이드"}
+            </button>
+          </>
         )}
         {canCancel && (
           <button
             onClick={handleCancel}
             disabled={loading}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium text-sb-mute hover:bg-white/5 disabled:opacity-50"
           >
             구독 취소
           </button>
         )}
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
     </div>
   );
 }

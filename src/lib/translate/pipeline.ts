@@ -3,6 +3,7 @@ import { translatePdfWithDeepL } from "./deepl";
 
 export const FREE_PLAN_TRANSLATE_MAX_PAGES = 5;
 export const PRO_PLAN_TRANSLATE_MAX_PAGES = 60;
+export const MASTER_PLAN_TRANSLATE_MAX_PAGES = 150;
 
 export interface TranslateResult {
   translatedBuffer: Buffer;

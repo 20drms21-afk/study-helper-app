@@ -1,38 +1,49 @@
 import Link from "next/link";
-import { Reveal } from "@/components/landing/Reveal";
+import { HeroOrb } from "@/components/landing/HeroOrb";
 
-export function Hero() {
+export function Hero({ loggedIn }: { loggedIn: boolean }) {
   return (
-    <section className="relative flex min-h-[560px] w-full items-center justify-center overflow-hidden bg-sb-bg px-5 py-20 sm:min-h-[680px]">
+    <section
+      id="hero-section"
+      className="relative mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-[900px] flex-col items-center justify-center px-[clamp(20px,5vw,64px)] py-[clamp(20px,5vw,64px)] text-center"
+    >
       {/* 장식용 히어로 비주얼 — 클릭/조작 불가, 텍스트 우선순위를 넘지 않도록 은은하게 */}
       <div
-        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[min(70vw,820px)] w-[min(70vw,820px)] -translate-x-1/2 -translate-y-1/2"
         aria-hidden="true"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/landing/hero-blob.webp"
-          alt=""
-          className="hero-orb w-[380px] max-w-none select-none opacity-80 sm:w-[520px] lg:w-[620px]"
-        />
+        <HeroOrb />
       </div>
 
-      <Reveal className="relative z-10">
-        <div className="hero-card mx-auto max-w-lg rounded-3xl px-8 py-10 text-center sm:px-12">
-          <h1
-            className="font-display text-4xl leading-[1.15] text-sb-text sm:text-6xl"
-            style={{ textShadow: "0 2px 24px rgba(0,0,0,0.85), 0 1px 3px rgba(0,0,0,0.9)" }}
-          >
-            공부를, 한 입 크기로.
-          </h1>
+      <div className="relative z-10">
+        <span className="inline-block rounded-full border border-sb-accent/40 px-3.5 py-1.5 font-body-kr text-xs font-semibold text-sb-accent-deep">
+          공부를 바꾸는 AI
+        </span>
+        <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.15] tracking-tight text-sb-text sm:text-6xl">
+          <span className="block">강의자료를</span>
+          <span className="block text-sb-accent-deep">한입 크기로</span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-[50ch] font-body-kr text-[17px] leading-relaxed text-sb-mute">
+          자료 정리부터 개념 이해, 문제 풀이, 시험 대비까지. <br />
+          공부의 모든 과정을 한곳에서 해결하세요.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3.5">
           <Link
-            href="/signup"
-            className="mt-7 inline-block rounded-full bg-sb-accent px-7 py-3.5 font-body-kr text-base font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
+            href={loggedIn ? "/notes" : "/signup"}
+            className="rounded-full bg-sb-accent px-7 py-3.5 font-body-kr text-[15px] font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
           >
-            무료로 시작하기
+            {loggedIn ? "내 학습 이어가기" : "무료로 시작하기"}
           </Link>
         </div>
-      </Reveal>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+          <span className="inline-flex items-center rounded-full bg-sb-bg-soft px-3 py-1.5 font-body-kr text-xs text-sb-text">
+            Powered by Claude
+          </span>
+          <span className="font-body-kr text-[13px] text-sb-mute">
+            Anthropic Claude 기반 AI 엔진으로 동작해요
+          </span>
+        </div>
+      </div>
     </section>
   );
 }

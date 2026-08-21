@@ -5,6 +5,7 @@ import { useState } from "react";
 import { List, X } from "@phosphor-icons/react/dist/ssr";
 import { Logo } from "@/components/Logo";
 import { NavDropdown } from "@/components/nav/NavDropdown";
+import { UserMenu } from "@/components/nav/UserMenu";
 
 const studyLinks = [
   { href: "/notes", label: "노트/요약" },
@@ -21,44 +22,59 @@ const infoLinks = [
   { href: "/activities", label: "대외활동/공모전" },
 ];
 
-export function LandingHeader() {
+export function LandingHeader({
+  loggedIn,
+  userName,
+}: {
+  loggedIn: boolean;
+  userName: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-sb-border bg-sb-bg/75 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-3.5">
-        <Link href="/" className="flex items-center gap-2 text-sb-text">
-          <Logo size={26} />
-          <span className="font-display text-xl leading-none">공부한입</span>
+      <div className="flex w-full items-center justify-between gap-5 px-[clamp(20px,5vw,64px)] py-3">
+        <Link href="/" className="flex items-center gap-3 text-sb-text">
+          <Logo size={33} className="text-sb-accent" />
+          <span className="font-display text-xl font-extrabold leading-none">공부한입</span>
+          <span className="font-body-kr text-[11px] tracking-[0.08em] text-sb-mute">
+            STUDYBITE
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-5 md:flex">
           <NavDropdown dark label="학습" items={studyLinks} />
           <NavDropdown dark label="정보" items={infoLinks} />
-          <Link href="/billing" className="text-sm font-medium text-sb-mute hover:text-sb-text">
+          <a href="#features" className="text-sm font-medium text-sb-mute hover:text-sb-text">
+            이용방법
+          </a>
+          <a href="#pricing" className="text-sm font-medium text-sb-mute hover:text-sb-text">
             요금제
-          </Link>
-          <Link
-            href="/inquiries"
-            className="text-sm font-medium text-sb-mute hover:text-sb-text"
-          >
-            문의하기
-          </Link>
+          </a>
+          <a href="#faq" className="text-sm font-medium text-sb-mute hover:text-sb-text">
+            FAQ
+          </a>
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
-          <Link
-            href="/login"
-            className="font-body-kr text-[15px] font-medium text-sb-mute transition-colors hover:text-sb-text"
-          >
-            로그인
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-full bg-sb-accent px-5 py-2.5 font-body-kr text-[15px] font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
-          >
-            무료로 시작하기
-          </Link>
+        <div className="hidden min-w-[230px] items-center justify-end gap-4 md:flex">
+          {loggedIn ? (
+            <UserMenu userName={userName} dark />
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="font-body-kr text-[15px] font-medium text-sb-mute transition-colors hover:text-sb-text"
+              >
+                로그인
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-full bg-sb-accent px-5 py-2.5 font-body-kr text-[15px] font-bold text-sb-accent-ink transition-transform hover:-translate-y-0.5"
+              >
+                무료로 시작하기
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -101,34 +117,64 @@ export function LandingHeader() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/billing"
+            <a
+              href="#features"
+              onClick={() => setOpen(false)}
+              className="font-body-kr py-2 text-[15px] font-medium text-sb-text/85"
+            >
+              이용방법
+            </a>
+            <a
+              href="#pricing"
               onClick={() => setOpen(false)}
               className="font-body-kr py-2 text-[15px] font-medium text-sb-text/85"
             >
               요금제
-            </Link>
-            <Link
-              href="/inquiries"
+            </a>
+            <a
+              href="#faq"
               onClick={() => setOpen(false)}
               className="font-body-kr py-2 text-[15px] font-medium text-sb-text/85"
             >
-              문의하기
-            </Link>
+              FAQ
+            </a>
           </nav>
           <div className="mt-3 flex flex-col gap-2">
-            <Link
-              href="/login"
-              className="rounded-full border border-sb-border py-2.5 text-center font-body-kr text-[15px] font-medium text-sb-text"
-            >
-              로그인
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-full bg-sb-accent py-2.5 text-center font-body-kr text-[15px] font-bold text-sb-accent-ink"
-            >
-              무료로 시작하기
-            </Link>
+            {loggedIn ? (
+              <>
+                <Link
+                  href="/notes"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-sb-accent py-2.5 text-center font-body-kr text-[15px] font-bold text-sb-accent-ink"
+                >
+                  내 학습 이어가기
+                </Link>
+                <Link
+                  href="/profile"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full border border-sb-border py-2.5 text-center font-body-kr text-[15px] font-medium text-sb-text"
+                >
+                  마이페이지
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full border border-sb-border py-2.5 text-center font-body-kr text-[15px] font-medium text-sb-text"
+                >
+                  로그인
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-sb-accent py-2.5 text-center font-body-kr text-[15px] font-bold text-sb-accent-ink"
+                >
+                  무료로 시작하기
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

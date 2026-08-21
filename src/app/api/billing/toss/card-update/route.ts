@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { issueBillingKey, chargeBilling, TossApiError } from "@/lib/toss";
-import { PRO_PLAN_AMOUNT, addOneMonth, periodKeyOf, reserveCharge } from "@/lib/subscription";
+import { addOneMonth, periodKeyOf, planAmount, planLabel, reserveCharge } from "@/lib/subscription";
 
 export const runtime = "nodejs";
 
@@ -33,22 +33,24 @@ export async function GET(request: Request) {
     await prisma.user.update({ where: { id: user.id }, data: { tossBillingKey: billingKey } });
 
     if (user.subscriptionStatus === "past_due" && user.currentPeriodEnd) {
-      // 재시도(attemptSeq 2)를 새 카드로 즉시 소진 시도 — 크론이 이미 처리했으면 스킵
+      // 재시도(attemptSeq 2)를 새 카드로 즉시 소진 시도 — 크론이 이미 처리했으면 스킵.
+      // 여기서는 새 플랜을 고르는 게 아니라 원래 구독 중이던 플랜(user.plan)을 그대로 재청구함.
+      const amount = planAmount(user.plan);
       const periodKey = periodKeyOf(user.currentPeriodEnd);
       const reservation = await reserveCharge({
         userId: user.id,
         periodKey,
         attemptSeq: 2,
-        amount: PRO_PLAN_AMOUNT,
+        amount,
       });
 
       if (reservation) {
         try {
           await chargeBilling(billingKey, {
             customerKey,
-            amount: PRO_PLAN_AMOUNT,
+            amount,
             orderId: reservation.orderId,
-            orderName: "공부한입 Pro 플랜 (재시도 청구)",
+            orderName: `공부한입 ${planLabel(user.plan)} 플랜 (재시도 청구)`,
           });
           const newPeriodEnd = addOneMonth(user.currentPeriodEnd);
           await prisma.$transaction([
@@ -111,13 +113,20 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL("/billing?checkout=success", baseUrl));
     }
 
-    // suspended 또는 무구독 상태 — 신규 구독으로 취급(즉시 청구 + 새 기간 시작)
+    // suspended 또는 무구독 상태 — 신규 구독으로 취급(즉시 청구 + 새 기간 시작). 이 라우트는
+    // BillingActions에서 "카드 변경"으로만 연결되어 있어 targetPlan이 실려오지 않는 게 보통이고,
+    // 이 분기 자체도 현재 UI에서는 거의 도달하지 않는 방어적 경로라 register와 동일하게
+    // targetPlan 쿼리를 읽되 없으면 Pro로 취급.
+    const targetPlanParam = searchParams.get("targetPlan");
+    const targetPlan = targetPlanParam === "master" ? "master" : "pro";
+    const amount = planAmount(targetPlan);
+
     const periodKey = periodKeyOf(new Date());
     const reservation = await reserveCharge({
       userId: user.id,
       periodKey,
       attemptSeq: 1,
-      amount: PRO_PLAN_AMOUNT,
+      amount,
     });
     if (!reservation) {
       return NextResponse.redirect(new URL("/billing?checkout=success", baseUrl));
@@ -125,9 +134,9 @@ export async function GET(request: Request) {
 
     await chargeBilling(billingKey, {
       customerKey,
-      amount: PRO_PLAN_AMOUNT,
+      amount,
       orderId: reservation.orderId,
-      orderName: "공부한입 Pro 플랜 (월 구독)",
+      orderName: `공부한입 ${planLabel(targetPlan)} 플랜 (월 구독)`,
     });
 
     const currentPeriodEnd = addOneMonth(new Date());
@@ -139,7 +148,7 @@ export async function GET(request: Request) {
       prisma.user.update({
         where: { id: user.id },
         data: {
-          plan: "pro",
+          plan: targetPlan,
           subscriptionStatus: "active",
           currentPeriodEnd,
           nextChargeAt: currentPeriodEnd,
