@@ -1,198 +1,202 @@
-import Link from "next/link";
-import {
-  CheckCircle,
-  ClipboardText,
-  NotePencil,
-} from "@phosphor-icons/react/dist/ssr";
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import { CheckCircle, FilePdf, Question } from "@phosphor-icons/react/dist/ssr";
 import { Reveal } from "@/components/landing/Reveal";
 
-function LearnMore({ href }: { href: string }) {
+type Tab = "summary" | "lecture" | "exam" | "tutor";
+
+const tabs: { key: Tab; label: string }[] = [
+  { key: "summary", label: "AI요약" },
+  { key: "lecture", label: "AI설명" },
+  { key: "exam", label: "예상시험문제" },
+  { key: "tutor", label: "AI선생님" },
+];
+
+function TabButton({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
   return (
-    <Link
-      href={href}
-      className="mt-6 inline-block font-body-kr text-sm font-bold text-sb-text underline decoration-sb-accent decoration-4 underline-offset-4"
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-full px-4.5 py-2.5 font-body-kr text-[13px] font-semibold transition-colors ${
+        active
+          ? "bg-sb-accent text-sb-accent-ink"
+          : "border border-sb-border bg-sb-bg-soft text-sb-mute hover:text-sb-text"
+      }`}
     >
-      자세히 보기
-    </Link>
+      {label}
+    </button>
   );
 }
 
-function NotesVisual() {
+function SummaryPreview() {
   return (
-    <div className="bite-corner glass rounded-2xl p-6">
-      <div className="flex items-center gap-2 text-sb-text">
-        <NotePencil size={18} weight="bold" />
-        <span className="font-body-kr text-sm font-bold">열역학 제1법칙 · 요약형</span>
+    <div>
+      <div className="mb-1 font-body-kr text-[15px] font-bold uppercase tracking-wide text-sb-accent-deep">
+        2단 레이아웃 요약
       </div>
-      <div className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 font-body-kr text-[13px]">
-        <span className="font-bold text-sb-mute">정의</span>
-        <span className="text-sb-text/80">에너지 총량은 변하지 않고 형태만 바뀐다</span>
-        <span className="font-bold text-sb-mute">식</span>
-        <span className="text-sb-text/80">ΔU = Q - W</span>
-        <span className="font-bold text-sb-mute">함정</span>
-        <span className="text-sb-text/80">부호 규약, 계와 주변 헷갈리지 않기</span>
+      <p className="mb-4 font-body-kr text-[13.5px] leading-relaxed text-sb-mute">
+        한눈에 더 많은 내용을 확인하고 빠르게 복습할 수 있어요.
+      </p>
+      <div className="max-h-[600px] overflow-y-auto rounded-lg">
+        <Image
+          src="/landing/demo-summary.png"
+          alt="AI 요약 결과"
+          width={1819}
+          height={2573}
+          sizes="(min-width: 1024px) 640px, 100vw"
+          className="block w-full rounded-lg"
+        />
       </div>
     </div>
   );
 }
 
-function ExamVisual() {
+function LecturePreview() {
   return (
-    <div className="bite-corner glass rounded-2xl p-6">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="mb-1 font-body-kr text-[15px] font-bold uppercase tracking-wide text-sb-accent-deep">
+        강의식 설명
+      </div>
+      <p className="mb-4 font-body-kr text-[13.5px] leading-relaxed text-sb-mute">
+        요약이 아닌, 이해를 위한 설명. 원문을 교수님의 강의처럼 자연스러운 대본형 설명으로
+        바꿔드려요.
+      </p>
+      <div className="flex max-h-[600px] flex-col gap-4 overflow-y-auto">
+        <Image
+          src="/landing/demo-lecture-1.png"
+          alt="강의식 설명 결과 1페이지"
+          width={1241}
+          height={1754}
+          sizes="(min-width: 1024px) 640px, 100vw"
+          className="block w-full rounded-lg"
+        />
+        <Image
+          src="/landing/demo-lecture-2.png"
+          alt="강의식 설명 결과 2페이지"
+          width={1241}
+          height={1754}
+          sizes="(min-width: 1024px) 640px, 100vw"
+          className="block w-full rounded-lg"
+        />
+      </div>
+    </div>
+  );
+}
+
+function ExamPreview() {
+  return (
+    <div className="rounded-xl bg-sb-bg-soft p-5">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sb-text">
-          <ClipboardText size={18} weight="bold" />
-          <span className="font-body-kr text-sm font-bold">2주차 예상문제</span>
+          <Question size={16} weight="bold" className="text-sb-accent-deep" />
+          <span className="font-body-kr text-sm font-bold">예상 시험문제 · 2주차</span>
         </div>
-        <span className="rounded-full bg-sb-accent/25 px-3 py-1 font-body-kr text-xs font-bold text-sb-accent-deep">
-          채점 완료
+        <span className="rounded-full bg-sb-accent/20 px-3 py-1 font-body-kr text-xs font-bold text-sb-accent-deep">
+          기출 반영 7/10
         </span>
       </div>
-      <p className="mt-4 font-body-kr text-[13px] text-sb-text/80">
-        Q3. 소비자잉여가 커지는 경우로 옳은 것은?
+      <p className="font-body-kr text-[13.5px] font-semibold text-sb-text">
+        Q1. (객관식) 엔트로피가 상태함수인 근거로 가장 적절한 것은?
       </p>
-      <div className="mt-2 space-y-1.5 font-body-kr text-[13px] text-sb-mute">
-        <p>① 시장가격이 상승할 때</p>
+      <div className="mt-1.5 space-y-1 font-body-kr text-[13px] text-sb-mute">
+        <p>① 항상 증가하기 때문 ② 경로와 무관하게 결정되기 때문</p>
         <p className="flex items-center gap-1.5 text-sb-accent-deep">
-          <CheckCircle size={15} weight="fill" /> ② 시장가격이 하락할 때
+          <CheckCircle size={14} weight="fill" /> 정답 · ②
         </p>
-        <p>③ 공급이 감소할 때</p>
       </div>
+      <p className="mt-3 border-t border-sb-border pt-3 font-body-kr text-[13.5px] font-semibold text-sb-text">
+        Q2. (서술형) 고립계에서 제2법칙의 부등식을 쓰고, 등호 조건을 설명하시오.
+      </p>
     </div>
   );
 }
 
-function TutorVisual() {
+function TutorPreview() {
   return (
-    <div className="mx-auto max-w-lg space-y-3">
-      <div className="ml-auto w-fit max-w-[80%] rounded-2xl rounded-tr-sm bg-sb-accent px-4 py-2.5 font-body-kr text-sm text-sb-accent-ink">
-        소비자잉여랑 생산자잉여 차이가 뭐야?
+    <div className="rounded-xl bg-sb-bg-soft p-5">
+      <div className="mb-4 flex items-center gap-2 text-sb-text">
+        <FilePdf size={16} weight="bold" className="text-sb-accent-deep" />
+        <span className="font-body-kr text-sm font-bold">AI선생님과의 대화</span>
       </div>
-      <div className="bite-corner glass mr-auto w-fit max-w-[85%] rounded-2xl px-4 py-3 font-body-kr text-sm text-sb-text/85">
-        <p>
-          소비자잉여는 소비자가 지불할 용의보다 싸게 산 이득, 생산자잉여는 판매자가 받으려던
-          가격보다 비싸게 판 이득이에요.
-        </p>
-        <p className="mt-2 font-body-kr text-xs text-sb-mute">
-          출처: 미시경제학_3주차.pdf, 12페이지
-        </p>
+      <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-tr-sm bg-white/10 px-4 py-2.5 font-body-kr text-[13.5px] text-sb-text">
+        왜 실제 과정은 비가역적인데도 엔트로피 변화를 구할 수 있어요?
       </div>
-    </div>
-  );
-}
-
-function TranslateVisual() {
-  return (
-    <div className="mx-auto grid max-w-lg grid-cols-2 gap-3">
-      <div className="glass rounded-2xl p-4">
-        <p className="font-body-kr text-xs font-bold text-sb-mute">원문</p>
-        <div className="mt-3 space-y-2">
-          <div className="h-2 w-full rounded bg-sb-border" />
-          <div className="h-2 w-5/6 rounded bg-sb-border" />
-          <div className="h-2 w-full rounded bg-sb-border" />
-          <div className="mt-3 h-10 w-2/3 rounded bg-sb-border" />
-          <div className="h-2 w-4/6 rounded bg-sb-border" />
-        </div>
-      </div>
-      <div className="bite-corner rounded-2xl bg-sb-accent p-4">
-        <p className="font-body-kr text-xs font-bold text-sb-accent-ink">번역본</p>
-        <div className="mt-3 space-y-2 font-body-kr text-[11px] leading-relaxed text-sb-accent-ink/85">
-          <p>반응은 두 방향 모두로</p>
-          <p>자유롭게 진행될 수 있다.</p>
-          <div className="mt-3 h-10 w-2/3 rounded bg-sb-accent-ink/10" />
-          <p>가역성이란 이런 성질을</p>
-          <p>가리키는 말이다.</p>
-        </div>
+      <div className="mr-auto mt-3 w-fit max-w-[90%] rounded-2xl rounded-tl-sm border border-sb-accent/25 bg-sb-accent/10 px-4 py-3 font-body-kr text-[13.5px] leading-relaxed text-sb-text">
+        좋은 질문이에요! 엔트로피는 상태함수라서, 실제 경로가 비가역적이어도 같은 시작점과
+        끝점을 잇는 가상의 가역 경로를 그려서 그 길을 따라 적분하면 돼요. 값 자체는 경로에
+        의존하지 않거든요.
       </div>
     </div>
   );
 }
 
 export function Features() {
+  const [tab, setTab] = useState<Tab>("summary");
+
   return (
-    <>
-      <section id="notes" className="bg-sb-bg py-20 sm:py-28">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 lg:grid-cols-2 lg:gap-16">
-          <Reveal>
-            <h2 className="max-w-md font-display text-3xl text-sb-text sm:text-4xl">
-              요약과 설명, 두 가지로 정리해요
-            </h2>
-            <p className="mt-4 max-w-md font-body-kr leading-relaxed text-sb-mute">
-              요약형은 표로 한눈에, 설명형은 강의처럼 풀어서. 같은 자료로 둘 다 만들 수 있어요.
-            </p>
-            <LearnMore href="/notes" />
-          </Reveal>
-          <Reveal delay={150}>
-            <NotesVisual />
-          </Reveal>
-        </div>
-      </section>
+    <section
+      id="features"
+      className="mx-auto w-full max-w-[1200px] px-[clamp(20px,5vw,64px)] py-[60px]"
+    >
+      <Reveal>
+        <p className="font-display text-2xl font-bold uppercase tracking-wide text-sb-accent-deep sm:text-3xl">
+          01 · 핵심 기능
+        </p>
+        <div className="mt-2 h-px bg-sb-border" />
+        <p className="mt-3 font-body-kr text-sb-mute">
+          원본 자료가 기능에 따라 어떻게 바뀌는지 오른쪽 탭을 눌러 직접 확인해보세요.
+        </p>
+      </Reveal>
 
-      <section id="exams" className="bg-sb-bg-soft py-20 sm:py-28">
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-5 lg:grid-cols-2 lg:gap-16">
-          <Reveal delay={150} className="lg:order-2">
-            <h2 className="max-w-md font-display text-3xl text-sb-text sm:text-4xl">
-              기출 스타일 그대로, 예상문제
-            </h2>
-            <p className="mt-4 max-w-md font-body-kr leading-relaxed text-sb-mute">
-              참고자료와 기출문제를 함께 올리면 교수님 출제 스타일에 맞춰 문제를 만들어요.
-              채점 후엔 취약점까지 짚어드려요.
+      <Reveal delay={100}>
+        <div className="mt-7 grid gap-px overflow-hidden rounded-3xl bg-sb-border shadow-[0_12px_28px_rgba(0,0,0,0.25)] lg:grid-cols-[minmax(280px,1fr)_minmax(320px,1.2fr)]">
+          <div className="flex flex-col gap-3 bg-sb-bg-soft p-6">
+            <p className="font-body-kr text-sm font-bold uppercase tracking-wide text-sb-accent-deep">
+              원본 자료 · thermodynamics_lecture04.pdf
             </p>
-            <LearnMore href="/exams" />
-          </Reveal>
-          <Reveal className="lg:order-1">
-            <ExamVisual />
-          </Reveal>
-        </div>
-      </section>
+            <p className="font-body-kr text-[13.5px] leading-relaxed text-sb-mute">
+              강의자료, 필기, 교재를 PDF, DOCX, PPTX, 이미지 형식으로 자유롭게 업로드해보세요.
+            </p>
+            <Image
+              src="/landing/demo-source.png"
+              alt="원본 PDF 문서"
+              width={1489}
+              height={2105}
+              sizes="(min-width: 1024px) 400px, 100vw"
+              className="block w-full rounded-lg"
+            />
+          </div>
 
-      <section id="tutor" className="bg-sb-bg py-20 sm:py-28">
-        <div className="mx-auto w-full max-w-3xl px-5 text-center">
-          <Reveal>
-            <h2 className="font-display text-3xl text-sb-text sm:text-4xl">
-              모르는 부분, 바로 물어봐요
-            </h2>
-            <p className="mx-auto mt-4 max-w-md font-body-kr leading-relaxed text-sb-mute">
-              업로드한 자료를 근거로 답하는 AI선생님이라 엉뚱한 대답을 하지 않아요.
-            </p>
-          </Reveal>
+          <div className="bg-sb-bg-soft p-6 sm:p-8">
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((t) => (
+                <TabButton
+                  key={t.key}
+                  label={t.label}
+                  active={tab === t.key}
+                  onClick={() => setTab(t.key)}
+                />
+              ))}
+            </div>
+            <div className="mt-6">
+              {tab === "summary" && <SummaryPreview />}
+              {tab === "lecture" && <LecturePreview />}
+              {tab === "exam" && <ExamPreview />}
+              {tab === "tutor" && <TutorPreview />}
+            </div>
+          </div>
         </div>
-        <Reveal delay={150} className="mt-10 px-5">
-          <TutorVisual />
-        </Reveal>
-        <div className="mt-8 text-center">
-          <Link
-            href="/tutor"
-            className="font-body-kr text-sm font-bold text-sb-text underline decoration-sb-accent decoration-4 underline-offset-4"
-          >
-            자세히 보기
-          </Link>
-        </div>
-      </section>
-
-      <section id="translate" className="bg-sb-bg-soft py-20 sm:py-28">
-        <div className="mx-auto w-full max-w-3xl px-5 text-center">
-          <Reveal>
-            <h2 className="font-display text-3xl text-sb-text sm:text-4xl">
-              영어자료도, 원래 모양 그대로
-            </h2>
-            <p className="mx-auto mt-4 max-w-md font-body-kr leading-relaxed text-sb-mute">
-              레이아웃은 그대로 두고 번역만 얹어요. 그림, 화살표, 수식은 손대지 않아요.
-            </p>
-          </Reveal>
-        </div>
-        <Reveal delay={150} className="mt-10 px-5">
-          <TranslateVisual />
-        </Reveal>
-        <div className="mt-8 text-center">
-          <Link
-            href="/translate"
-            className="font-body-kr text-sm font-bold text-sb-text underline decoration-sb-accent decoration-4 underline-offset-4"
-          >
-            자세히 보기
-          </Link>
-        </div>
-      </section>
-    </>
+      </Reveal>
+    </section>
   );
 }

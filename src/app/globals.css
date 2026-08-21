@@ -15,18 +15,21 @@
      public/landing/bg-study.jpg)를 고정 배치하고, 그 위에 반투명 글래스 패널을 얹는
      방식이라 팔레트 자체는 사진의 어두운 톤에 맞춰 다크로 되돌림(라이트 배경으로는
      사진 위에 흰 텍스트/유리가 뜨지 않음). */
-  --color-sb-bg: #12100c;
-  --color-sb-bg-soft: #1a1712;
+  --color-sb-bg: #171a10;
+  --color-sb-bg-soft: #20231a;
+  /* 목업의 두 번째 카드 톤 — 02/05/06 섹션 카드는 이 올리브그린을, 01/04/07(무료·Pro) 카드는
+     위의 sb-bg-soft(#20231a)를 씀. 같은 "카드 배경"이라도 섹션마다 다른 색을 의도적으로 씀. */
+  --color-sb-card: #293220;
   --color-sb-surface: rgba(255, 255, 255, 0.08);
   --color-sb-surface-strong: rgba(255, 255, 255, 0.14);
-  --color-sb-border: rgba(255, 255, 255, 0.18);
-  --color-sb-text: #f6f3ec;
-  --color-sb-mute: rgba(246, 243, 236, 0.68);
-  --color-sb-accent: #cbff4d;
-  --color-sb-accent-deep: #cbff4d;
-  --color-sb-accent-ink: #142108;
-  --font-display: var(--font-do-hyeon);
-  --font-body-kr: var(--font-gothic-a1);
+  --color-sb-border: rgba(255, 255, 255, 0.16);
+  --color-sb-text: #f5f5ee;
+  --color-sb-mute: #b9bbaf;
+  --color-sb-accent: #c2ff3d;
+  --color-sb-accent-deep: #c2ff3d;
+  --color-sb-accent-ink: #12100c;
+  --font-display: var(--font-pretendard);
+  --font-body-kr: var(--font-pretendard);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -99,6 +102,18 @@ body {
     background: #17140e;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+
+/* 대외활동/장학금 데모 카드의 결과가 나타날 때 쓰는 페이드+슬라이드업 등장 애니메이션 */
+@keyframes bubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
