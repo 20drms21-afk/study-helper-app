@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
+import { AuthShell, authInputClass, authLabelClass, authPrimaryButtonClass } from "@/components/auth/AuthShell";
 
 const OAUTH_ERROR_MESSAGES: Record<string, string> = {
   OAuthEmailExists: "이미 이메일/비밀번호로 가입된 계정입니다. 이메일/비밀번호로 로그인해주세요.",
@@ -13,7 +14,7 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/notes";
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,59 +47,55 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-center text-2xl font-bold">로그인</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium">
-              이메일
+    <AuthShell>
+      <h1 className="mb-8 text-center font-display text-2xl font-extrabold text-sb-text">
+        로그인
+      </h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className={authLabelClass}>
+            이메일
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={authInputClass}
+          />
+        </div>
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <label htmlFor="password" className="block font-body-kr text-sm font-medium text-sb-text">
+              비밀번호
             </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-            />
+            <Link href="/forgot-password" className="font-body-kr text-xs text-sb-mute hover:text-sb-text">
+              비밀번호를 잊으셨나요?
+            </Link>
           </div>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm font-medium">
-                비밀번호
-              </label>
-              <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-gray-900">
-                비밀번호를 잊으셨나요?
-              </Link>
-            </div>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-          >
-            {loading ? "로그인 중..." : "로그인"}
-          </button>
-        </form>
-        <SocialLoginButtons callbackUrl={callbackUrl} />
-        <p className="mt-6 text-center text-sm text-gray-600">
-          계정이 없으신가요?{" "}
-          <Link href="/signup" className="font-medium text-gray-900 underline">
-            회원가입
-          </Link>
-        </p>
-      </div>
-    </div>
+          <input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={authInputClass}
+          />
+        </div>
+        {error && <p className="font-body-kr text-sm text-[#ff8a8a]">{error}</p>}
+        <button type="submit" disabled={loading} className={authPrimaryButtonClass}>
+          {loading ? "로그인 중..." : "로그인"}
+        </button>
+      </form>
+      <SocialLoginButtons callbackUrl={callbackUrl} />
+      <p className="mt-6 text-center font-body-kr text-sm text-sb-mute">
+        계정이 없으신가요?{" "}
+        <Link href="/signup" className="font-medium text-sb-accent-deep underline">
+          회원가입
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
 

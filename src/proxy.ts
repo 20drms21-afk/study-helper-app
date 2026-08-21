@@ -43,7 +43,9 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isAuthPage && token) {
-    return NextResponse.redirect(new URL("/notes", request.url));
+    // 로그인 상태로 /login, /signup에 다시 들어오면 대시보드(/notes)가 아니라 랜딩페이지로
+    // 보낸다 — 로그인 후 첫 화면은 이제 랜딩페이지(로그인 상태 UI)가 기준.
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

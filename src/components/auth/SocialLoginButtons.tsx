@@ -48,8 +48,7 @@ const PROVIDER_META: Record<
 > = {
   google: {
     label: "Google로 계속하기",
-    className:
-      "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
+    className: "border border-white/16 bg-sb-bg text-sb-text hover:bg-white/5",
     icon: GoogleIcon,
   },
   kakao: {
@@ -73,10 +72,10 @@ export function SocialLoginButtons({ callbackUrl }: { callbackUrl: string }) {
 
   return (
     <div className="mt-6 space-y-2">
-      <div className="flex items-center gap-3 text-xs text-gray-400">
-        <div className="h-px flex-1 bg-gray-200" />
+      <div className="flex items-center gap-3 font-body-kr text-xs text-sb-mute">
+        <div className="h-px flex-1 bg-white/12" />
         또는
-        <div className="h-px flex-1 bg-gray-200" />
+        <div className="h-px flex-1 bg-white/12" />
       </div>
       {providers.map((p) => {
         const meta = PROVIDER_META[p.id];
@@ -86,8 +85,8 @@ export function SocialLoginButtons({ callbackUrl }: { callbackUrl: string }) {
             key={p.id}
             type="button"
             onClick={() => signIn(p.id, { callbackUrl })}
-            className={`relative flex w-full items-center justify-center rounded-md py-2 text-sm font-medium ${
-              meta?.className ?? "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            className={`relative flex w-full items-center justify-center rounded-full py-3 font-body-kr text-sm font-medium ${
+              meta?.className ?? "border border-white/16 bg-sb-bg text-sb-text hover:bg-white/5"
             }`}
           >
             {Icon && (

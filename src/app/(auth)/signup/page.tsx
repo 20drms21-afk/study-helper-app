@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SocialLoginButtons } from "@/components/auth/SocialLoginButtons";
+import { AuthShell, authInputClass, authLabelClass, authPrimaryButtonClass } from "@/components/auth/AuthShell";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -46,71 +47,67 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/notes");
+    router.push("/");
     router.refresh();
   }
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-center text-2xl font-bold">회원가입</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="mb-1 block text-sm font-medium">
-              이름 (선택)
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium">
-              이메일
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium">
-              비밀번호 (8자 이상)
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
-            />
-          </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-          >
-            {loading ? "가입 중..." : "회원가입"}
-          </button>
-        </form>
-        <SocialLoginButtons callbackUrl="/notes" />
-        <p className="mt-6 text-center text-sm text-gray-600">
-          이미 계정이 있으신가요?{" "}
-          <Link href="/login" className="font-medium text-gray-900 underline">
-            로그인
-          </Link>
-        </p>
-      </div>
-    </div>
+    <AuthShell>
+      <h1 className="mb-8 text-center font-display text-2xl font-extrabold text-sb-text">
+        회원가입
+      </h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="name" className={authLabelClass}>
+            이름 (선택)
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={authInputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className={authLabelClass}>
+            이메일
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={authInputClass}
+          />
+        </div>
+        <div>
+          <label htmlFor="password" className={authLabelClass}>
+            비밀번호 (8자 이상)
+          </label>
+          <input
+            id="password"
+            type="password"
+            required
+            minLength={8}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={authInputClass}
+          />
+        </div>
+        {error && <p className="font-body-kr text-sm text-[#ff8a8a]">{error}</p>}
+        <button type="submit" disabled={loading} className={authPrimaryButtonClass}>
+          {loading ? "가입 중..." : "회원가입"}
+        </button>
+      </form>
+      <SocialLoginButtons callbackUrl="/" />
+      <p className="mt-6 text-center font-body-kr text-sm text-sb-mute">
+        이미 계정이 있으신가요?{" "}
+        <Link href="/login" className="font-medium text-sb-accent-deep underline">
+          로그인
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
