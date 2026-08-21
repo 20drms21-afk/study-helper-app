@@ -15,7 +15,7 @@ export function ActivityProfilePanel({ initialValue }: { initialValue: StudentPr
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="mb-2 text-sm font-medium text-gray-900 hover:underline"
+        className="mb-2 text-sm font-medium text-sb-text hover:underline"
       >
         {open ? "전공/관심분야 접기 ▲" : "전공/관심분야 입력·수정하기 ▼"}
       </button>

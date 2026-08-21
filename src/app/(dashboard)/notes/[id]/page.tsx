@@ -30,14 +30,14 @@ export default async function NoteDetailPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">{file.originalName}</h1>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-sb-mute">
             {new Date(file.createdAt).toLocaleString("ko-KR")}
           </p>
         </div>
         <div className="flex items-center gap-4">
           <Link
             href={`/tutor/${file.id}`}
-            className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="text-sm font-medium text-sb-mute hover:text-sb-text"
           >
             AI선생님에게 질문하기 →
           </Link>

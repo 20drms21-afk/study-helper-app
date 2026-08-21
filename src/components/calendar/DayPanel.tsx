@@ -75,25 +75,25 @@ export function DayPanel({
   const maxSeconds = Math.max(1, ...(day?.bySubject.map((s) => s.seconds) ?? [0]));
 
   return (
-    <div className="rounded-md border border-gray-200 p-4">
+    <div className="rounded-md border border-white/10 p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-bold">{date}</h3>
-        <button onClick={onClose} className="text-xs text-gray-500 hover:text-gray-900">
+        <button onClick={onClose} className="text-xs text-sb-mute hover:text-sb-text">
           닫기
         </button>
       </div>
 
       <div className="mb-4">
-        <p className="mb-2 text-xs font-medium text-gray-600">과목별 공부 시간</p>
+        <p className="mb-2 text-xs font-medium text-sb-mute">과목별 공부 시간</p>
         {day && day.bySubject.length > 0 ? (
           <div className="space-y-2">
             {day.bySubject.map((s) => (
               <div key={s.subjectId}>
                 <div className="mb-1 flex items-center justify-between text-xs">
                   <span className="font-medium">{s.name}</span>
-                  <span className="text-gray-600">{formatDuration(s.seconds)}</span>
+                  <span className="text-sb-mute">{formatDuration(s.seconds)}</span>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${(s.seconds / maxSeconds) * 100}%`, backgroundColor: s.color }}
@@ -103,16 +103,16 @@ export function DayPanel({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-500">이 날의 학습 기록이 없습니다.</p>
+          <p className="text-xs text-sb-mute">이 날의 학습 기록이 없습니다.</p>
         )}
       </div>
 
       <div className="mb-4">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-xs font-medium text-gray-600">일정</p>
+          <p className="text-xs font-medium text-sb-mute">일정</p>
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="text-xs font-medium text-gray-900 hover:underline"
+            className="text-xs font-medium text-sb-text hover:underline"
           >
             {showForm ? "취소" : "+ 일정 등록"}
           </button>
@@ -123,7 +123,7 @@ export function DayPanel({
             {events.map((e) => (
               <li
                 key={e.id}
-                className="flex items-center justify-between rounded-md bg-gray-50 px-2 py-1.5 text-xs"
+                className="flex items-center justify-between rounded-md bg-sb-card px-2 py-1.5 text-xs"
               >
                 <span>
                   <span
@@ -136,7 +136,7 @@ export function DayPanel({
                 </span>
                 <button
                   onClick={() => handleDelete(e.id)}
-                  className="ml-2 shrink-0 text-red-600 hover:text-red-700"
+                  className="ml-2 shrink-0 text-[#ff8a8a] hover:text-[#ff8a8a]"
                 >
                   삭제
                 </button>
@@ -144,11 +144,11 @@ export function DayPanel({
             ))}
           </ul>
         ) : (
-          !showForm && <p className="text-xs text-gray-500">등록된 일정이 없습니다.</p>
+          !showForm && <p className="text-xs text-sb-mute">등록된 일정이 없습니다.</p>
         )}
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-md border border-gray-200 p-3">
+          <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-md border border-white/10 p-3">
             <div>
               <label className="mb-1 block text-xs font-medium">종류</label>
               <div className="flex gap-3 text-sm">
@@ -166,18 +166,18 @@ export function DayPanel({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="예: 중간고사"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
               />
             </div>
-            {error && <p className="text-xs text-red-600">{error}</p>}
+            {error && <p className="text-xs text-[#ff8a8a]">{error}</p>}
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+              className="rounded-full bg-sb-accent px-3 py-1.5 text-xs font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
             >
               등록
             </button>
-            <p className="rounded-md bg-gray-50 px-2 py-1.5 text-[11px] leading-relaxed text-gray-500">
+            <p className="rounded-md bg-sb-card px-2 py-1.5 text-[11px] leading-relaxed text-sb-mute">
               💡 여기서 등록하는 일정에는 과목을 지정하지 않아요. 그래서 복습 페이지의 &lsquo;과목별 다가오는
               시험 D-day&rsquo; 표시에는 반영되지 않습니다.
             </p>

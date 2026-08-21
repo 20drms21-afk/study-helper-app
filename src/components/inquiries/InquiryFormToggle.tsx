@@ -10,13 +10,13 @@ export function InquiryFormToggle() {
     <div>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5"
       >
         {open ? "닫기" : "문의 등록하기"}
       </button>
 
       {open && (
-        <div className="mt-4 rounded-md border border-gray-200 p-4">
+        <div className="mt-4 rounded-md border border-white/10 p-4">
           <InquiryForm onSuccess={() => setOpen(false)} />
         </div>
       )}

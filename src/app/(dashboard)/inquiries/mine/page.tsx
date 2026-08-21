@@ -22,7 +22,7 @@ export default async function MyInquiriesPage() {
     <div className="mx-auto max-w-2xl">
       <div>
         <h1 className="text-xl font-bold">내 문의 내역</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-sb-mute">
           내가 작성한 문의만 모아서 볼 수 있습니다.{" "}
           <Link href="/inquiries" className="underline">
             전체 문의 게시판
@@ -32,19 +32,19 @@ export default async function MyInquiriesPage() {
 
       <div className="mt-6">
         {inquiries.length === 0 ? (
-          <p className="text-sm text-gray-600">아직 작성한 문의가 없습니다.</p>
+          <p className="text-sm text-sb-mute">아직 작성한 문의가 없습니다.</p>
         ) : (
-          <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
+          <ul className="divide-y divide-white/10 rounded-md border border-white/10">
             {inquiries.map((inquiry) => (
               <li key={inquiry.id} className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">{inquiry.subject}</p>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-sb-mute">
                     {STATUS_LABEL[inquiry.status] ?? inquiry.status}
                   </span>
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{inquiry.message}</p>
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 whitespace-pre-wrap text-sm text-sb-text">{inquiry.message}</p>
+                <p className="mt-1 text-xs text-sb-mute/70">
                   {new Date(inquiry.createdAt).toLocaleString("ko-KR")}
                 </p>
               </li>

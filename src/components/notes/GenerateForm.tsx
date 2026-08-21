@@ -46,7 +46,7 @@ export function GenerateForm({
       <button
         onClick={handleGenerate}
         disabled={loading}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {loading
           ? `${label} 생성 중... (최대 1~2분 정도 걸릴 수 있습니다)`
@@ -54,7 +54,7 @@ export function GenerateForm({
             ? "다시 생성"
             : "생성하기"}
       </button>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#ff8a8a]">{error}</p>}
     </div>
   );
 }

@@ -105,7 +105,7 @@ export function StudentProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-md border border-gray-200 p-4">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-md border border-white/10 p-4">
       <h2 className="text-sm font-bold">{title}</h2>
 
       <div className="grid grid-cols-2 gap-4">
@@ -115,7 +115,7 @@ export function StudentProfileForm({
             <select
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
             >
               <option value="">선택 안 함</option>
               {REGIONS.map((r) => (
@@ -133,7 +133,7 @@ export function StudentProfileForm({
               value={major}
               onChange={(e) => setMajor(e.target.value)}
               placeholder="예: 경영학과"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
             />
           </div>
         )}
@@ -143,7 +143,7 @@ export function StudentProfileForm({
             <select
               value={gradeLevel}
               onChange={(e) => setGradeLevel(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
             >
               <option value={0}>선택 안 함</option>
               {[1, 2, 3, 4, 5, 6].map((g) => (
@@ -160,7 +160,7 @@ export function StudentProfileForm({
             <select
               value={incomeBracket}
               onChange={(e) => setIncomeBracket(Number(e.target.value))}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
             >
               <option value={0}>해당없음/모름</option>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((b) => (
@@ -182,7 +182,7 @@ export function StudentProfileForm({
               value={gpa}
               onChange={(e) => setGpa(e.target.value)}
               placeholder="예: 3.75"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
             />
           </div>
         )}
@@ -195,18 +195,18 @@ export function StudentProfileForm({
             value={interests}
             onChange={(e) => setInterests(e.target.value)}
             placeholder="예: 마케팅, 데이터 분석, 디자인"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {saved && <p className="text-sm text-green-700">저장되었습니다.</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
+      {saved && <p className="text-sm text-sb-accent-deep">저장되었습니다.</p>}
 
       <button
         type="submit"
         disabled={saving}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {saving ? "저장 중..." : "저장"}
       </button>

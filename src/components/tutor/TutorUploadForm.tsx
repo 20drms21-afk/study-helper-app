@@ -40,7 +40,7 @@ export function TutorUploadForm({ subjects: initialSubjects }: { subjects: Subje
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 rounded-md border border-gray-200 p-4">
+    <form onSubmit={handleSubmit} className="space-y-3 rounded-md border border-white/10 p-4">
       <label className="block text-sm font-medium">
         새 파일로 바로 질문하기 (PDF, DOCX, PPTX, 이미지 - 최대 20MB)
       </label>
@@ -56,17 +56,17 @@ export function TutorUploadForm({ subjects: initialSubjects }: { subjects: Subje
           type="file"
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
+          className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
         />
         <button
           type="submit"
           disabled={loading || !file}
-          className="shrink-0 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+          className="shrink-0 rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
         >
           {loading ? "업로드 중..." : "업로드하고 질문하기"}
         </button>
       </div>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm text-[#ff8a8a]">{error}</p>}
     </form>
   );
 }

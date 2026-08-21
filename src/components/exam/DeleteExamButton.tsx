@@ -25,7 +25,7 @@ export function DeleteExamButton({ examId }: { examId: string }) {
     <button
       onClick={handleDelete}
       disabled={loading}
-      className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+      className="text-sm font-medium text-[#ff8a8a] hover:text-[#ff8a8a] disabled:opacity-50"
     >
       {loading ? "삭제 중..." : "삭제"}
     </button>

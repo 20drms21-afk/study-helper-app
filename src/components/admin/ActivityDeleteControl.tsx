@@ -30,11 +30,11 @@ export function ActivityDeleteControl({ id }: { id: string }) {
       <button
         onClick={handleDelete}
         disabled={loading}
-        className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+        className="text-xs font-medium text-[#ff8a8a] hover:text-[#ff8a8a] disabled:opacity-50"
       >
         삭제
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-[#ff8a8a]">{error}</span>}
     </div>
   );
 }

@@ -18,7 +18,7 @@ export default async function InquiriesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">문의하기</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-sm text-sb-mute">
             다른 사용자들의 문의를 익명으로 확인할 수 있습니다.
           </p>
         </div>
@@ -30,19 +30,19 @@ export default async function InquiriesPage() {
 
       <div className="mt-6">
         {inquiries.length === 0 ? (
-          <p className="text-sm text-gray-600">아직 등록된 문의가 없습니다.</p>
+          <p className="text-sm text-sb-mute">아직 등록된 문의가 없습니다.</p>
         ) : (
-          <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
+          <ul className="divide-y divide-white/10 rounded-md border border-white/10">
             {inquiries.map((inquiry) => (
               <li key={inquiry.id} className="px-4 py-3">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">{inquiry.subject}</p>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-sb-mute">
                     {STATUS_LABEL[inquiry.status] ?? inquiry.status}
                   </span>
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-gray-700">{inquiry.message}</p>
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 whitespace-pre-wrap text-sm text-sb-text">{inquiry.message}</p>
+                <p className="mt-1 text-xs text-sb-mute/70">
                   {new Date(inquiry.createdAt).toLocaleString("ko-KR")}
                 </p>
               </li>

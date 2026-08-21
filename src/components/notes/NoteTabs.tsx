@@ -31,15 +31,15 @@ export function NoteTabs({
 
   return (
     <div>
-      <div className="mb-6 flex gap-1 border-b border-gray-200">
+      <div className="mb-6 flex gap-1 border-b border-white/10">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === tab.key
-                ? "border-b-2 border-gray-900 text-gray-900"
-                : "text-gray-500 hover:text-gray-900"
+                ? "border-b-2 border-sb-accent text-sb-text"
+                : "text-sb-mute hover:text-sb-text"
             }`}
           >
             {tab.label}
@@ -73,7 +73,7 @@ function NoteContentTab<T extends SummaryContent | ExplanationContent>({
         {entry && (
           <a
             href={`/api/summaries/${entry.id}/pdf`}
-            className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="text-sm font-medium text-sb-mute hover:text-sb-text"
           >
             PDF로 다운로드
           </a>
@@ -83,7 +83,7 @@ function NoteContentTab<T extends SummaryContent | ExplanationContent>({
       {entry ? (
         <SummaryView content={entry.content} type={type} />
       ) : (
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-sb-mute">
           아직 생성된 {type === "summary" ? "요약" : "설명"}이 없습니다.
         </p>
       )}

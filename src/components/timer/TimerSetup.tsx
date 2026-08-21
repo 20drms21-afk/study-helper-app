@@ -208,22 +208,22 @@ export function TimerSetup({
   if (stage.kind === "lobby") {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <p className="text-sm text-gray-600">친구에게 이 코드를 공유하세요</p>
+        <p className="text-sm text-sb-mute">친구에게 이 코드를 공유하세요</p>
         <p className="text-3xl font-bold tracking-widest">{stage.code}</p>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-sb-mute">
           {stage.isHost ? "친구가 참가하면 시작 버튼을 눌러주세요." : "호스트가 시작하기를 기다리는 중..."}
         </p>
         {stage.isHost && (
           <button
             onClick={handleStartRoom}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+            className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5"
           >
             시작
           </button>
         )}
         <button
           onClick={() => setStage({ kind: "setup" })}
-          className="text-xs text-gray-500 hover:text-gray-900"
+          className="text-xs text-sb-mute hover:text-sb-text"
         >
           취소
         </button>
@@ -239,20 +239,20 @@ export function TimerSetup({
           <button
             onClick={() => setMode("simple")}
             className={`rounded-md border p-4 text-left ${
-              mode === "simple" ? "border-gray-900" : "border-gray-200"
+              mode === "simple" ? "border-sb-accent" : "border-white/10"
             }`}
           >
             <p className="text-sm font-medium">심플 모드</p>
-            <p className="mt-1 text-xs text-gray-500">원형 타이머로 집중 시간을 확인</p>
+            <p className="mt-1 text-xs text-sb-mute">원형 타이머로 집중 시간을 확인</p>
           </button>
           <button
             onClick={() => setMode("immersive")}
             className={`rounded-md border p-4 text-left ${
-              mode === "immersive" ? "border-gray-900" : "border-gray-200"
+              mode === "immersive" ? "border-sb-accent" : "border-white/10"
             }`}
           >
             <p className="text-sm font-medium">몰입 모드</p>
-            <p className="mt-1 text-xs text-gray-500">책상 일러스트와 함께 공부</p>
+            <p className="mt-1 text-xs text-sb-mute">책상 일러스트와 함께 공부</p>
           </button>
         </div>
       </div>
@@ -266,26 +266,26 @@ export function TimerSetup({
         label="공부할 과목 (선택)"
       />
 
-      <p className="text-xs text-gray-500">{STUDY_MINUTES}분 공부 / {BREAK_MINUTES}분 휴식 자동 반복</p>
+      <p className="text-xs text-sb-mute">{STUDY_MINUTES}분 공부 / {BREAK_MINUTES}분 휴식 자동 반복</p>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
 
       <div className="flex flex-wrap gap-3">
         <button
           onClick={handleSolo}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+          className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5"
         >
           바로 시작
         </button>
         <button
           onClick={handleCreateRoom}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5"
         >
           친구 초대
         </button>
         <button
           onClick={() => setShowJoin((v) => !v)}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5"
         >
           코드로 참가
         </button>
@@ -297,11 +297,11 @@ export function TimerSetup({
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
             placeholder="초대 코드 입력"
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm uppercase"
+            className="rounded-md border border-white/15 px-3 py-2 text-sm uppercase"
           />
           <button
             onClick={handleJoin}
-            className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+            className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5"
           >
             참가
           </button>

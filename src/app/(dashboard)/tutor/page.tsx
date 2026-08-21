@@ -24,7 +24,7 @@ export default async function TutorPage() {
     <div>
       <div>
         <h1 className="text-xl font-bold">AI선생님</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-sb-mute">
           파일을 바로 업로드해 질문하거나, 이전에 올린 노트를 선택해 이어서 질문할 수 있습니다.
         </p>
       </div>
@@ -34,24 +34,24 @@ export default async function TutorPage() {
       </div>
 
       {files.length === 0 ? (
-        <p className="mt-8 text-sm text-gray-600">
+        <p className="mt-8 text-sm text-sb-mute">
           아직 업로드한 파일이 없습니다. 위에서 파일을 올려 바로 질문을 시작해보세요.
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-gray-200 rounded-md border border-gray-200">
+        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
           {files.map((file) => (
             <li key={file.id}>
               <Link
                 href={`/tutor/${file.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50"
+                className="flex items-center justify-between px-4 py-3 hover:bg-white/5"
               >
                 <div>
                   <p className="text-sm font-medium">{file.originalName}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-sb-mute">
                     {new Date(file.createdAt).toLocaleString("ko-KR")}
                   </p>
                 </div>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-sb-mute">
                   {file.chatMessages.length > 0
                     ? `대화 ${file.chatMessages.length}건`
                     : "대화 시작하기"}

@@ -21,22 +21,22 @@ export default async function AdminInquiriesPage() {
       <h1 className="text-xl font-bold">문의 관리</h1>
 
       {inquiries.length === 0 ? (
-        <p className="mt-8 text-sm text-gray-600">접수된 문의가 없습니다.</p>
+        <p className="mt-8 text-sm text-sb-mute">접수된 문의가 없습니다.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-gray-200 rounded-md border border-gray-200">
+        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
           {inquiries.map((inquiry) => (
             <li key={inquiry.id} className="px-4 py-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">{inquiry.subject}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-sb-mute">
                     {inquiry.user.name ?? inquiry.user.email} ·{" "}
                     {new Date(inquiry.createdAt).toLocaleString("ko-KR")}
                   </p>
                 </div>
                 <InquiryStatusControl id={inquiry.id} status={inquiry.status} />
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-gray-700">{inquiry.message}</p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-sb-text">{inquiry.message}</p>
             </li>
           ))}
         </ul>

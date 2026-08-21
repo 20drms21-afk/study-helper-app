@@ -180,7 +180,7 @@ export function ExamConfigForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="예: 중간고사 대비 예상문제"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
         />
       </div>
 
@@ -193,7 +193,7 @@ export function ExamConfigForm({
             max={30}
             value={mcqCount}
             onChange={(e) => setMcqCount(Number(e.target.value))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -204,7 +204,7 @@ export function ExamConfigForm({
             max={30}
             value={shortCount}
             onChange={(e) => setShortCount(Number(e.target.value))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -215,7 +215,7 @@ export function ExamConfigForm({
             max={15}
             value={essayCount}
             onChange={(e) => setEssayCount(Number(e.target.value))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -226,7 +226,7 @@ export function ExamConfigForm({
             max={300}
             value={timeLimitMinutes}
             onChange={(e) => setTimeLimitMinutes(Number(e.target.value))}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
         </div>
       </div>
@@ -234,7 +234,7 @@ export function ExamConfigForm({
       <div>
         <label className="mb-1 flex items-center justify-between text-sm font-medium">
           <span>난이도</span>
-          <span className="text-gray-500">{difficulty}/10</span>
+          <span className="text-sb-mute">{difficulty}/10</span>
         </label>
         <input
           type="range"
@@ -244,17 +244,17 @@ export function ExamConfigForm({
           onChange={(e) => setDifficulty(Number(e.target.value))}
           className="w-full"
         />
-        <div className="mt-1 flex justify-between text-[10px] text-gray-400">
+        <div className="mt-1 flex justify-between text-[10px] text-sb-mute/70">
           <span>0 매우 쉬움</span>
           <span>3 기본</span>
           <span>5 보통</span>
           <span>7 어려움</span>
           <span>10 최상위</span>
         </div>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-sb-mute">
           난이도 {difficulty} — {describeDifficulty(difficulty).label}: {describeDifficulty(difficulty).rubric}
         </p>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-sb-mute/70">
           시험 시간은 난이도를 바꾸지 않습니다. 문제 개수에 비해 시험 시간이 넉넉하면, AI가 이
           난이도를 유지한 채 문제 하나하나의 풀이 단계·서술량·소문항을 늘려 시간을 채웁니다.
         </p>
@@ -269,22 +269,22 @@ export function ExamConfigForm({
           onChange={(e) => setProfessorNotes(e.target.value)}
           rows={4}
           placeholder="예: 암기보다는 개념 이해를 묻는 문제 위주. 계산 문제 비중이 높았음."
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
         />
       </div>
 
       <div>
         <label className="mb-2 block text-sm font-medium">참고자료 파일</label>
         {sortedFiles.length === 0 ? (
-          <p className="mb-2 text-xs text-gray-500">
+          <p className="mb-2 text-xs text-sb-mute">
             아직 업로드한 자료가 없습니다. 아래에서 새로 업로드해주세요.
           </p>
         ) : (
-          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-2">
+          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-white/10 p-2">
             {sortedFiles.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5"
               >
                 <input
                   type="checkbox"
@@ -302,16 +302,16 @@ export function ExamConfigForm({
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handleReferenceFilesChange}
           disabled={referenceUploading}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
         />
-        {referenceUploading && <p className="mt-2 text-xs text-gray-500">업로드 중...</p>}
+        {referenceUploading && <p className="mt-2 text-xs text-sb-mute">업로드 중...</p>}
       </div>
 
       <div>
         <label className="mb-2 block text-sm font-medium">기출문제 (족보, 선택)</label>
         {sortedFiles.length > 0 && (
-          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-gray-200 p-2">
-            <label className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50">
+          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-white/10 p-2">
+            <label className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5">
               <input
                 type="radio"
                 name="pastExamFile"
@@ -323,7 +323,7 @@ export function ExamConfigForm({
             {sortedFiles.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-gray-50"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5"
               >
                 <input
                   type="radio"
@@ -341,14 +341,14 @@ export function ExamConfigForm({
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handlePastExamFileChange}
           disabled={pastExamUploading}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
         />
-        {pastExamUploading && <p className="mt-2 text-xs text-gray-500">업로드 중...</p>}
+        {pastExamUploading && <p className="mt-2 text-xs text-sb-mute">업로드 중...</p>}
 
         <div className="mt-3">
           <label className="mb-1 flex items-center justify-between text-sm font-medium">
             <span>기출문제 반영 강도</span>
-            <span className="text-gray-500">{pastExamWeight}/10</span>
+            <span className="text-sb-mute">{pastExamWeight}/10</span>
           </label>
           <input
             type="range"
@@ -359,21 +359,21 @@ export function ExamConfigForm({
             disabled={!pastExamFileId}
             className="w-full disabled:opacity-40"
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-sb-mute">
             반영도 {pastExamWeight} — {describePastExamWeight(pastExamWeight)}
           </p>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-sb-mute/70">
             기출 반영도는 문제의 스타일·구조만 결정하며, 위에서 정한 난이도는 그대로 유지됩니다.
           </p>
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {loading ? "AI가 시험을 만드는 중... (최대 1~2분)" : "예상시험문제 생성"}
       </button>

@@ -73,17 +73,17 @@ export function CalendarBoard() {
 
   return (
     <div>
-      <div className="mb-4 grid grid-cols-3 gap-4 rounded-md border border-gray-200 p-4">
+      <div className="mb-4 grid grid-cols-3 gap-4 rounded-md border border-white/10 p-4">
         <div>
-          <p className="text-xs text-gray-500">이번 달 총 학습시간</p>
+          <p className="text-xs text-sb-mute">이번 달 총 학습시간</p>
           <p className="text-lg font-bold">{formatHours(data?.summary.monthTotalSeconds ?? 0)}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">연속 학습일</p>
+          <p className="text-xs text-sb-mute">연속 학습일</p>
           <p className="text-lg font-bold">{data?.summary.streakDays ?? 0}일</p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">다가오는 시험</p>
+          <p className="text-xs text-sb-mute">다가오는 시험</p>
           {data && data.summary.upcomingExams.length > 0 ? (
             <ul className="text-xs">
               {data.summary.upcomingExams.map((e) => (
@@ -93,7 +93,7 @@ export function CalendarBoard() {
               ))}
             </ul>
           ) : (
-            <p className="text-xs text-gray-500">없음</p>
+            <p className="text-xs text-sb-mute">없음</p>
           )}
         </div>
       </div>
@@ -103,7 +103,7 @@ export function CalendarBoard() {
           <div className="mb-3 flex items-center justify-between">
             <button
               onClick={() => goMonth(-1)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
+              className="rounded-md border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5"
             >
               이전
             </button>
@@ -112,13 +112,13 @@ export function CalendarBoard() {
             </h2>
             <button
               onClick={() => goMonth(1)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
+              className="rounded-md border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5"
             >
               다음
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs text-sb-mute">
             {WEEKDAY_LABELS.map((w) => (
               <div key={w} className="pb-1">
                 {w}
@@ -162,7 +162,7 @@ export function CalendarBoard() {
               onClose={() => setSelectedDate(null)}
             />
           ) : (
-            <div className="rounded-md border border-dashed border-gray-200 p-4 text-center text-sm text-gray-500">
+            <div className="rounded-md border border-dashed border-white/10 p-4 text-center text-sm text-sb-mute">
               날짜를 클릭하면 학습 기록과 일정을 여기서 확인·등록할 수 있어요.
             </div>
           )}

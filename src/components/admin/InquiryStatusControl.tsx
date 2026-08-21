@@ -59,7 +59,7 @@ export function InquiryStatusControl({ id, status }: { id: string; status: strin
         defaultValue={status}
         onChange={handleChange}
         disabled={loading}
-        className="rounded-md border border-gray-300 px-2 py-1 text-xs"
+        className="rounded-md border border-white/15 px-2 py-1 text-xs"
       >
         {STATUS_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -70,11 +70,11 @@ export function InquiryStatusControl({ id, status }: { id: string; status: strin
       <button
         onClick={handleDelete}
         disabled={loading}
-        className="text-xs font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+        className="text-xs font-medium text-[#ff8a8a] hover:text-[#ff8a8a] disabled:opacity-50"
       >
         삭제
       </button>
-      {error && <span className="text-xs text-red-600">{error}</span>}
+      {error && <span className="text-xs text-[#ff8a8a]">{error}</span>}
     </div>
   );
 }

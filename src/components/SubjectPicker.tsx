@@ -71,13 +71,13 @@ export function SubjectPicker({
               }
             }}
             placeholder="새 과목 이름"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           />
           <button
             type="button"
             onClick={handleCreate}
             disabled={submitting}
-            className="shrink-0 rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="shrink-0 rounded-full bg-sb-accent px-3 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
           >
             추가
           </button>
@@ -88,12 +88,12 @@ export function SubjectPicker({
               setNewName("");
               setError(null);
             }}
-            className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50"
+            className="shrink-0 rounded-md border border-white/15 px-3 py-2 text-sm font-medium hover:bg-white/5"
           >
             취소
           </button>
         </div>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        {error && <p className="mt-1 text-xs text-[#ff8a8a]">{error}</p>}
       </div>
     );
   }
@@ -105,7 +105,7 @@ export function SubjectPicker({
         <select
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value || null)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
         >
           {allowNone && <option value="">선택 안 함</option>}
           {!allowNone && <option value="" disabled>과목을 선택하세요</option>}
@@ -118,7 +118,7 @@ export function SubjectPicker({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50"
+          className="shrink-0 rounded-md border border-white/15 px-3 py-2 text-sm font-medium hover:bg-white/5"
         >
           새 과목...
         </button>

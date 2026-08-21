@@ -15,7 +15,7 @@ export default async function NewNotePage() {
   return (
     <div className="mx-auto max-w-xl">
       <h1 className="text-xl font-bold">새 노트 업로드</h1>
-      <p className="mt-1 text-sm text-gray-600">
+      <p className="mt-1 text-sm text-sb-mute">
         PDF, DOCX, PPTX 문서 또는 필기 사진을 업로드하면 요약, 강의식 설명, 질문하기 기능을 사용할 수 있습니다.
       </p>
       <div className="mt-6">

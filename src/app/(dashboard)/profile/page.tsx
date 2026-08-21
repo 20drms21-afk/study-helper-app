@@ -34,7 +34,7 @@ export default async function ProfilePage() {
       <h1 className="text-xl font-bold">마이페이지</h1>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-gray-900">관심분야/전공 설정</h2>
+        <h2 className="mb-2 text-sm font-semibold text-sb-text">관심분야/전공 설정</h2>
         <StudentProfileForm
           initialValue={{
             region: studentProfile?.region ?? null,
@@ -48,8 +48,8 @@ export default async function ProfilePage() {
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-gray-900">자료 보관함</h2>
-        <p className="mb-3 text-xs text-gray-500">
+        <h2 className="mb-2 text-sm font-semibold text-sb-text">자료 보관함</h2>
+        <p className="mb-3 text-xs text-sb-mute">
           과목별로 자료를 업로드해두면 노트/요약, 예상문제출력, AI선생님에서 다시 업로드하지
           않고 바로 선택해서 쓸 수 있어요.
         </p>

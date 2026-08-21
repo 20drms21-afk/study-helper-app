@@ -95,7 +95,7 @@ export function ImmersiveTimerView({
         {allowPause && (
           <button
             onClick={engine.togglePause}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+            className="rounded-md border border-white/15 px-3 py-1.5 text-sm font-medium hover:bg-white/5"
           >
             {engine.paused ? "재개" : "일시정지"}
           </button>
@@ -105,20 +105,20 @@ export function ImmersiveTimerView({
             engine.stop();
             onExit();
           }}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+          className="rounded-md border border-white/15 px-3 py-1.5 text-sm font-medium hover:bg-white/5"
         >
           종료
         </button>
       </div>
 
       {code && (
-        <div className="w-full max-w-xs rounded-md border border-gray-200 p-3">
-          <p className="mb-2 text-xs font-medium text-gray-600">참가자</p>
+        <div className="w-full max-w-xs rounded-md border border-white/10 p-3">
+          <p className="mb-2 text-xs font-medium text-sb-mute">참가자</p>
           <ul className="space-y-1 text-sm">
             {participants.map((p) => (
               <li key={p.userId} className="flex items-center justify-between">
                 <span>{p.name}</span>
-                <span className="text-xs text-gray-500">{formatClock(p.elapsedSeconds)}</span>
+                <span className="text-xs text-sb-mute">{formatClock(p.elapsedSeconds)}</span>
               </li>
             ))}
           </ul>

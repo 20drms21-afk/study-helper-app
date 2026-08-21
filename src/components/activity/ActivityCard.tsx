@@ -46,10 +46,10 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
   }
 
   return (
-    <li className="rounded-md border border-gray-200 p-4">
+    <li className="rounded-md border border-white/10 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+          <span className="rounded bg-white/5 px-2 py-0.5 text-xs font-medium text-sb-text">
             {activity.category === "contest" ? "공모전" : "대외활동"}
           </span>
           {!!activity.matchScore && activity.matchScore > 0 && (
@@ -63,16 +63,16 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
           href={activity.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 text-xs font-medium text-gray-600 hover:text-gray-900"
+          className="shrink-0 text-xs font-medium text-sb-mute hover:text-sb-text"
         >
           자세히 보기
         </a>
       </div>
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-sb-mute">
         {activity.organizer || "주최기관 미상"}
         {activity.deadlineText && ` · ${activity.deadlineText}`}
       </p>
-      {activity.targetInfo && <p className="mt-2 text-xs text-gray-600">{activity.targetInfo}</p>}
+      {activity.targetInfo && <p className="mt-2 text-xs text-sb-mute">{activity.targetInfo}</p>}
 
       <div className="mt-3 flex items-center gap-2">
         {activity.deadlineDate ? (
@@ -80,16 +80,16 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
             type="button"
             onClick={handleRegister}
             disabled={registering || registered}
-            className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:opacity-60"
+            className="rounded-md border border-white/15 px-2.5 py-1 text-xs font-medium text-sb-text hover:bg-white/5 disabled:cursor-default disabled:opacity-60"
           >
             {registered ? "✓ 캘린더에 등록됨" : registering ? "등록 중..." : "📅 캘린더에 마감일 등록"}
           </button>
         ) : (
-          <span className="text-xs text-gray-400" title="마감일을 정확한 날짜로 인식하지 못해 등록할 수 없어요.">
+          <span className="text-xs text-sb-mute/70" title="마감일을 정확한 날짜로 인식하지 못해 등록할 수 없어요.">
             마감일 미인식 · 캘린더 등록 불가
           </span>
         )}
-        {error && <span className="text-xs text-red-600">{error}</span>}
+        {error && <span className="text-xs text-[#ff8a8a]">{error}</span>}
       </div>
     </li>
   );

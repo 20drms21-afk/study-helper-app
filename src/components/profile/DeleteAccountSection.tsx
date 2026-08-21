@@ -30,9 +30,9 @@ export function DeleteAccountSection({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <div className="rounded-md border border-red-200 bg-red-50 p-4">
-      <h3 className="text-sm font-semibold text-red-700">회원 탈퇴</h3>
-      <p className="mt-1 text-xs text-red-600">
+    <div className="rounded-md border border-[rgba(255,138,138,0.3)] bg-[rgba(255,138,138,0.1)] p-4">
+      <h3 className="text-sm font-semibold text-[#ff8a8a]">회원 탈퇴</h3>
+      <p className="mt-1 text-xs text-[#ff8a8a]">
         탈퇴 시 노트, 시험 기록, 업로드한 파일 등 모든 데이터가 영구적으로 삭제되며 되돌릴 수
         없습니다.
       </p>
@@ -41,23 +41,23 @@ export function DeleteAccountSection({ userEmail }: { userEmail: string }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="mt-3 rounded-md border border-red-300 bg-white px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100"
+          className="mt-3 rounded-md border border-[rgba(255,138,138,0.4)] px-3 py-1.5 text-xs font-medium text-[#ff8a8a] hover:bg-[rgba(255,138,138,0.1)]"
         >
           회원 탈퇴
         </button>
       ) : (
         <div className="mt-3 space-y-2">
-          <label className="block text-xs font-medium text-red-700">
+          <label className="block text-xs font-medium text-[#ff8a8a]">
             확인을 위해 이메일({userEmail})을 입력해주세요
           </label>
           <input
             type="text"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            className="w-full rounded-md border border-red-300 px-3 py-2 text-sm focus:border-red-500 focus:outline-none"
+            className="w-full rounded-md border border-[rgba(255,138,138,0.4)] px-3 py-2 text-sm focus:border-[#ff8a8a] focus:outline-none"
             placeholder={userEmail}
           />
-          {error && <p className="text-xs text-red-700">{error}</p>}
+          {error && <p className="text-xs text-[#ff8a8a]">{error}</p>}
           <div className="flex gap-2">
             <button
               type="button"
@@ -74,7 +74,7 @@ export function DeleteAccountSection({ userEmail }: { userEmail: string }) {
                 setConfirmText("");
                 setError(null);
               }}
-              className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium text-sb-mute hover:bg-white/5"
             >
               취소
             </button>

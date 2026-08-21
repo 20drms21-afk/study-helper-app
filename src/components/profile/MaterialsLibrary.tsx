@@ -130,7 +130,7 @@ export function MaterialsLibrary({
     <div className="space-y-4">
       <form
         onSubmit={handleUpload}
-        className="space-y-3 rounded-md border border-gray-200 p-4"
+        className="space-y-3 rounded-md border border-white/10 p-4"
       >
         <SubjectPicker
           subjects={subjects}
@@ -145,21 +145,21 @@ export function MaterialsLibrary({
             type="file"
             accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
             onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-            className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
+            className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
           />
           <button
             type="submit"
             disabled={uploading || !uploadFile}
-            className="shrink-0 rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+            className="shrink-0 rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
           >
             {uploading ? "업로드 중..." : "업로드"}
           </button>
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
       </form>
 
       {folders.length === 0 ? (
-        <p className="text-sm text-gray-600">아직 업로드한 자료가 없습니다.</p>
+        <p className="text-sm text-sb-mute">아직 업로드한 자료가 없습니다.</p>
       ) : !openFolder ? (
         // 폴더 그리드 화면
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -168,15 +168,15 @@ export function MaterialsLibrary({
               key={folder.id}
               type="button"
               onClick={() => openFolderAndPreselect(folder.id)}
-              className="relative flex flex-col items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-4 text-center hover:border-gray-300 hover:bg-gray-50"
+              className="relative flex flex-col items-center gap-1.5 rounded-lg border border-white/10 px-3 py-4 text-center hover:border-white/15 hover:bg-white/5"
             >
               <span
                 className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: folder.color }}
               />
               <span className="text-3xl">📁</span>
-              <span className="truncate text-sm font-medium text-gray-900">{folder.name}</span>
-              <span className="text-xs text-gray-500">{folder.count}개</span>
+              <span className="truncate text-sm font-medium text-sb-text">{folder.name}</span>
+              <span className="text-xs text-sb-mute">{folder.count}개</span>
             </button>
           ))}
         </div>
@@ -187,11 +187,11 @@ export function MaterialsLibrary({
             <button
               type="button"
               onClick={() => setOpenFolderId(null)}
-              className="text-sm text-gray-600 hover:text-gray-900"
+              className="text-sm text-sb-mute hover:text-sb-text"
             >
               ← 뒤로
             </button>
-            <h3 className="flex items-center gap-2 text-sm font-medium text-gray-900">
+            <h3 className="flex items-center gap-2 text-sm font-medium text-sb-text">
               <span
                 className="inline-block h-2.5 w-2.5 rounded-full"
                 style={{ backgroundColor: openFolder.color }}
@@ -199,22 +199,22 @@ export function MaterialsLibrary({
               📁 {openFolder.name} ({openFolder.count}개)
             </h3>
           </div>
-          <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
+          <ul className="divide-y divide-white/10 rounded-md border border-white/10">
             {openFolderFiles.map((file) => (
               <li key={file.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex min-w-0 items-start gap-2">
                   <span className="mt-0.5 shrink-0 text-lg">{fileKindIcon(file.fileKind)}</span>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{file.originalName}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-sb-mute">
                       {formatSize(file.sizeBytes)} ·{" "}
                       {new Date(file.createdAt).toLocaleDateString("ko-KR")}
                     </p>
                     <div className="mt-1 flex gap-3 text-xs">
-                      <Link href={`/notes/${file.id}`} className="text-gray-600 underline">
+                      <Link href={`/notes/${file.id}`} className="text-sb-mute underline">
                         노트에서 열기
                       </Link>
-                      <Link href={`/tutor/${file.id}`} className="text-gray-600 underline">
+                      <Link href={`/tutor/${file.id}`} className="text-sb-mute underline">
                         AI선생님에게 질문
                       </Link>
                     </div>
@@ -224,7 +224,7 @@ export function MaterialsLibrary({
                   <select
                     value={file.subjectId ?? ""}
                     onChange={(e) => handleReassign(file.id, e.target.value || null)}
-                    className="rounded-md border border-gray-300 px-2 py-1 text-xs"
+                    className="rounded-md border border-white/15 px-2 py-1 text-xs"
                   >
                     <option value="">미분류</option>
                     {subjects.map((s) => (
@@ -236,7 +236,7 @@ export function MaterialsLibrary({
                   <button
                     type="button"
                     onClick={() => handleDelete(file.id)}
-                    className="text-xs font-medium text-red-600 hover:text-red-700"
+                    className="text-xs font-medium text-[#ff8a8a] hover:text-[#ff8a8a]"
                   >
                     삭제
                   </button>

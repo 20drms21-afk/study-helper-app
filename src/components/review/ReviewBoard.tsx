@@ -57,19 +57,19 @@ export function ReviewBoard({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600">복습할 문제가 없습니다. 예상문제를 풀어보세요!</p>
+          <p className="text-sm text-sb-mute">복습할 문제가 없습니다. 예상문제를 풀어보세요!</p>
         )}
       </section>
 
       <section>
         <h2 className="mb-3 text-lg font-bold">전체 복습 큐</h2>
-        <div className="mb-4 flex gap-1 border-b border-gray-200">
+        <div className="mb-4 flex gap-1 border-b border-white/10">
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-2 text-sm font-medium ${
               activeTab === "all"
-                ? "border-b-2 border-gray-900 text-gray-900"
-                : "text-gray-500 hover:text-gray-900"
+                ? "border-b-2 border-sb-accent text-sb-text"
+                : "text-sb-mute hover:text-sb-text"
             }`}
           >
             전체
@@ -80,8 +80,8 @@ export function ReviewBoard({
               onClick={() => setActiveTab(g.subjectId)}
               className={`px-4 py-2 text-sm font-medium ${
                 activeTab === g.subjectId
-                  ? "border-b-2 border-gray-900 text-gray-900"
-                  : "text-gray-500 hover:text-gray-900"
+                  ? "border-b-2 border-sb-accent text-sb-text"
+                  : "text-sb-mute hover:text-sb-text"
               }`}
             >
               {g.subjectName} ({g.items.length})
@@ -101,7 +101,7 @@ export function ReviewBoard({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600">복습할 문제가 없습니다.</p>
+          <p className="text-sm text-sb-mute">복습할 문제가 없습니다.</p>
         )}
       </section>
     </div>

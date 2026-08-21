@@ -16,7 +16,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-sb-bg-soft font-body-kr text-sb-text">
       <DashboardNav
         userName={session.user.name ?? session.user.email ?? ""}
         isAdmin={isAdmin(session.user.email)}

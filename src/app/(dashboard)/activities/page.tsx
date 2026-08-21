@@ -30,7 +30,7 @@ export default async function ActivitiesPage() {
       />
 
       {profileComplete && activities.length > 0 && (
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm text-sb-mute">
           {matchedCount > 0
             ? `관심분야와 일치하는 ${matchedCount}개 항목을 위쪽에 먼저 보여드려요.`
             : "아직 관심분야와 일치하는 항목이 없어요. 관심분야를 더 넓게 적어보세요."}
@@ -38,7 +38,7 @@ export default async function ActivitiesPage() {
       )}
 
       {activities.length === 0 ? (
-        <p className="mt-8 text-sm text-gray-600">
+        <p className="mt-8 text-sm text-sb-mute">
           아직 등록된 대외활동/공모전이 없습니다. 매일 자동으로 새로운 정보가 업데이트됩니다.
         </p>
       ) : (

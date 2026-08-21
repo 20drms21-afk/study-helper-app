@@ -45,13 +45,13 @@ export function DayCell({
       type="button"
       onClick={onClick}
       className={`flex min-h-24 w-full flex-col items-start gap-1 rounded-md border p-1.5 text-left ${
-        isSelected ? "border-gray-900" : "border-transparent"
+        isSelected ? "border-sb-accent" : "border-transparent"
       } ${inCurrentMonth ? "" : "opacity-40"}`}
-      style={{ backgroundColor: inCurrentMonth ? bg : "#f9fafb" }}
+      style={{ backgroundColor: inCurrentMonth ? bg : "#171a10" }}
     >
       <span
         className={`text-xs font-medium ${
-          isToday ? "flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-white" : "text-gray-700"
+          isToday ? "flex h-5 w-5 items-center justify-center rounded-full bg-sb-accent text-sb-accent-ink" : "text-sb-text"
         }`}
       >
         {dayNumber}
@@ -68,7 +68,7 @@ export function DayCell({
               {e.title}
             </span>
           ))}
-          {hiddenCount > 0 && <span className="text-[10px] text-gray-600">+{hiddenCount}개 더보기</span>}
+          {hiddenCount > 0 && <span className="text-[10px] text-sb-mute">+{hiddenCount}개 더보기</span>}
         </div>
       )}
     </button>

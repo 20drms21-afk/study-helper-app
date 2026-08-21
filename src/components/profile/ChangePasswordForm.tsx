@@ -51,7 +51,7 @@ export function ChangePasswordForm() {
           required
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
       <div>
@@ -62,7 +62,7 @@ export function ChangePasswordForm() {
           minLength={8}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
       <div>
@@ -73,15 +73,15 @@ export function ChangePasswordForm() {
           minLength={8}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-green-700">비밀번호가 변경되었습니다.</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
+      {success && <p className="text-sm text-sb-accent-deep">비밀번호가 변경되었습니다.</p>}
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {loading ? "변경 중..." : "비밀번호 변경"}
       </button>

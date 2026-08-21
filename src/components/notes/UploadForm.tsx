@@ -57,20 +57,20 @@ export function UploadForm({ subjects: initialSubjects }: { subjects: SubjectRef
           type="file"
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-gray-200"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
           required
         />
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-sb-mute">
           업로드 후 상세 페이지에서 요약, 설명, 질문하기 중 원하는 걸 만들 수 있어요.
         </p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
 
       <button
         type="submit"
         disabled={loading || !file}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {loading ? "업로드 중..." : "업로드"}
       </button>

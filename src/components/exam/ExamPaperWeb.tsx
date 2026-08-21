@@ -45,7 +45,10 @@ export function ExamPaperWeb({ paper }: { paper: ExamPaperPublic }) {
   }
 
   return (
-    <div>
+    // 실제 시험지처럼 인쇄된 종이 느낌을 내려고 앱 전체가 다크 테마여도 이 카드만 의도적으로
+    // 흰 종이 그대로 둠(노트 요약 뷰 SummaryView.tsx와 같은 패턴) — 안의 회색 톤(gray-900/600/
+    // 200/300)은 전부 이 흰 배경을 전제로 한 값이라 다크 테마 일괄 치환에서 이 파일만 제외함.
+    <div className="mx-auto w-full max-w-[794px] rounded-sm bg-white p-12 text-black shadow-md ring-1 ring-gray-200">
       <div className="mb-6 border-b-2 border-gray-900 pb-4 text-center">
         <h1 className="text-2xl font-bold">{paper.title}</h1>
         <p className="mt-2 text-sm text-gray-600">

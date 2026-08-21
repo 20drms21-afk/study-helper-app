@@ -25,12 +25,12 @@ export function WeakAreaChart({ topics }: { topics: TopicBreakdown[] }) {
             <div key={topic.topicTag}>
               <div className="mb-1 flex items-center justify-between text-sm">
                 <span className="font-medium">{topic.topicTag}</span>
-                <span className="text-gray-600">
+                <span className="text-sb-mute">
                   {topic.score}/{topic.possible}점 ({topic.percentage}%) ·{" "}
                   <span style={{ color: status.color }}>{status.label}</span>
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
                 <div
                   className="h-full rounded-full"
                   style={{

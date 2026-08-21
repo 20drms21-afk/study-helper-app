@@ -61,25 +61,25 @@ export default async function ExamResultPage({
 
   return (
     <div>
-      <Link href={`/exams/${id}`} className="text-sm text-gray-500 hover:text-gray-900">
+      <Link href={`/exams/${id}`} className="text-sm text-sb-mute hover:text-sb-text">
         ← 시험으로 돌아가기
       </Link>
 
-      <div className="mt-4 mb-8 rounded-md border border-gray-200 p-6 text-center">
+      <div className="mt-4 mb-8 rounded-md border border-white/10 p-6 text-center">
         <h1 className="text-xl font-bold">{attempt.examPaper.title} - 채점 결과</h1>
         <p className="mt-2 text-3xl font-bold">
           {totalScore} / {totalPossible}점 ({totalPercentage}%)
         </p>
       </div>
 
-      <div className="mb-8 rounded-md border border-gray-200 p-4">
+      <div className="mb-8 rounded-md border border-white/10 p-4">
         <WeakAreaChart topics={topicBreakdown} />
       </div>
 
       <div className="space-y-6">
         <h2 className="text-lg font-bold">문항별 결과</h2>
         {questions.map((q, i) => (
-          <div key={q.id} className="rounded-md border border-gray-200 p-4">
+          <div key={q.id} className="rounded-md border border-white/10 p-4">
             <div className="mb-2 flex items-start justify-between gap-4">
               <p className="text-sm font-semibold">
                 {i + 1}. {q.prompt}
@@ -87,10 +87,10 @@ export default async function ExamResultPage({
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                   q.score >= q.maxScore
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-sb-accent/15 text-sb-accent-deep"
                     : q.score > 0
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
+                      ? "bg-[rgba(232,182,77,0.15)] text-[#e8b64d]"
+                      : "bg-[rgba(255,138,138,0.15)] text-[#ff8a8a]"
                 }`}
               >
                 {q.score}/{q.maxScore}점
@@ -98,7 +98,7 @@ export default async function ExamResultPage({
             </div>
 
             {q.choices && (
-              <ul className="mb-2 space-y-1 pl-4 text-sm text-gray-600">
+              <ul className="mb-2 space-y-1 pl-4 text-sm text-sb-mute">
                 {q.choices.map((choice, ci) => (
                   <li key={ci}>
                     {choiceLabel(ci)}. {choice}
@@ -108,33 +108,33 @@ export default async function ExamResultPage({
             )}
 
             <p className="text-sm">
-              <span className="font-medium text-gray-600">내 답안: </span>
-              {q.studentAnswer || <span className="text-gray-400">(답안 없음)</span>}
+              <span className="font-medium text-sb-mute">내 답안: </span>
+              {q.studentAnswer || <span className="text-sb-mute/70">(답안 없음)</span>}
             </p>
 
             {q.type !== "essay" && q.correctAnswer && (
               <p className="mt-1 text-sm">
-                <span className="font-medium text-gray-600">정답: </span>
+                <span className="font-medium text-sb-mute">정답: </span>
                 {q.correctAnswer}
               </p>
             )}
             {q.type === "essay" && q.modelAnswer && (
               <p className="mt-1 text-sm">
-                <span className="font-medium text-gray-600">모범답안: </span>
+                <span className="font-medium text-sb-mute">모범답안: </span>
                 {q.modelAnswer}
               </p>
             )}
 
             {q.feedback && (
-              <p className="mt-2 rounded-md bg-gray-50 p-2 text-sm text-gray-700">
+              <p className="mt-2 rounded-md bg-sb-card p-2 text-sm text-sb-text">
                 {q.feedback}
               </p>
             )}
             {q.explanation && (
-              <p className="mt-2 text-sm text-gray-500">해설: {q.explanation}</p>
+              <p className="mt-2 text-sm text-sb-mute">해설: {q.explanation}</p>
             )}
             {q.score < q.maxScore && q.sourceLocation && (
-              <p className="mt-2 text-sm text-blue-700">
+              <p className="mt-2 text-sm text-[#7db8ff]">
                 📍 관련 개념 위치: {q.sourceLocation}
               </p>
             )}

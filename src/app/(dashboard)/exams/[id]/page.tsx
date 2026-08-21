@@ -47,13 +47,13 @@ export default async function ExamDetailPage({ params }: PageProps<"/exams/[id]"
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <Link href="/exams" className="text-sm text-gray-500 hover:text-gray-900">
+        <Link href="/exams" className="text-sm text-sb-mute hover:text-sb-text">
           ← 목록으로
         </Link>
         <div className="flex items-center gap-4">
           <a
             href={`/api/exams/${paper.id}/pdf`}
-            className="text-sm font-medium text-gray-600 hover:text-gray-900"
+            className="text-sm font-medium text-sb-mute hover:text-sb-text"
           >
             PDF 다운로드
           </a>
@@ -62,14 +62,14 @@ export default async function ExamDetailPage({ params }: PageProps<"/exams/[id]"
       </div>
 
       {paper.attempts.length > 0 && (
-        <div className="mb-6 rounded-md border border-gray-200 bg-gray-50 p-4">
+        <div className="mb-6 rounded-md border border-white/10 bg-sb-card p-4">
           <p className="mb-2 text-sm font-medium">이전 응시 기록</p>
           <ul className="space-y-1">
             {paper.attempts.map((attempt) => (
               <li key={attempt.id}>
                 <Link
                   href={`/exams/${paper.id}/result/${attempt.id}`}
-                  className="text-sm text-gray-700 underline"
+                  className="text-sm text-sb-text underline"
                 >
                   {new Date(attempt.startedAt).toLocaleString("ko-KR")} - {attempt.totalScore}/
                   {attempt.totalPossible}점

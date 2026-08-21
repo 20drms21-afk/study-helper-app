@@ -22,18 +22,18 @@ export default async function TranslateDetailPage({
     <div>
       <div className="mb-4">
         <h1 className="text-xl font-bold">{translation.originalFileName}</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-sm text-sb-mute">
           {translation.subjectName} · {translation.translatedPageCount}/{translation.pageCount}페이지
         </p>
       </div>
 
       {translation.status === "processing" && (
-        <p className="rounded-md border border-gray-200 p-4 text-sm text-gray-600">
+        <p className="rounded-md border border-white/10 p-4 text-sm text-sb-mute">
           아직 변환 중입니다. 잠시 후 새로고침해주세요.
         </p>
       )}
       {translation.status === "failed" && (
-        <p className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <p className="rounded-md border border-[rgba(255,138,138,0.3)] bg-[rgba(255,138,138,0.1)] p-4 text-sm text-[#ff8a8a]">
           변환에 실패했습니다: {translation.errorMessage ?? "알 수 없는 오류"}
         </p>
       )}

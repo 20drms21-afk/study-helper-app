@@ -28,14 +28,14 @@ export default async function TutorChatPage({
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <Link href="/tutor" className="text-sm text-gray-500 hover:text-gray-900">
+          <Link href="/tutor" className="text-sm text-sb-mute hover:text-sb-text">
             ← AI선생님 목록으로
           </Link>
           <h1 className="mt-1 text-xl font-bold">{file.originalName}</h1>
         </div>
         <Link
           href={`/notes/${file.id}`}
-          className="text-sm font-medium text-gray-600 hover:text-gray-900"
+          className="text-sm font-medium text-sb-mute hover:text-sb-text"
         >
           노트 보기 →
         </Link>

@@ -43,7 +43,7 @@ export function InquiryForm({ onSuccess }: { onSuccess?: () => void }) {
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           required
         />
       </div>
@@ -53,17 +53,17 @@ export function InquiryForm({ onSuccess }: { onSuccess?: () => void }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={5}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
           required
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
+        className="rounded-full bg-sb-accent px-4 py-2 text-sm font-medium text-sb-accent-ink hover:-translate-y-0.5 disabled:opacity-50"
       >
         {loading ? "등록 중..." : "문의 등록"}
       </button>
