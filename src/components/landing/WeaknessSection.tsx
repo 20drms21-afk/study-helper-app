@@ -49,9 +49,9 @@ function GradingCard() {
       </div>
       <p className="mt-4.5 font-body-kr text-base font-bold text-sb-text">채점 및 학습 피드백</p>
       <p className="mt-2 font-body-kr text-[13.5px] leading-relaxed text-sb-mute">
-        예상 시험문제를 풀면 문항마다 자동으로 채점돼요. 각 문제가 어떤 개념을 다루는지, 그
-        개념이 자료의 몇 페이지에 나오는지도 함께 짚어드려요. 어느 파트를 잘하고 있는지, 어느
-        파트가 부족한지 정리해서 앞으로 더 공부해야 할 부분을 알려드려요.
+        문제를 풀면, 내 정답률과 부족한 개념을 바로 확인할 수 있습니다.
+        <br />
+        각 문항이 어떤 개념인지, 어디서 틀렸는지, 무엇을 다시 공부해야 하는지까지 알려드립니다.
       </p>
     </div>
   );
