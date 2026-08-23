@@ -30,7 +30,7 @@ export function WeakAreaChart({ topics }: { topics: TopicBreakdown[] }) {
                   <span style={{ color: status.color }}>{status.label}</span>
                 </span>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-sb-card">
                 <div
                   className="h-full rounded-full"
                   style={{

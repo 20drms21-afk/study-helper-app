@@ -77,7 +77,7 @@ export function ReviewCard({
 
   return (
     <div
-      className={`rounded-md border border-white/10 ${large ? "p-4" : "p-3"}`}
+      className={`rounded-md border border-sb-border ${large ? "p-4" : "p-3"}`}
     >
       <div className="mb-2 flex items-center justify-between">
         <span
@@ -125,7 +125,7 @@ export function ReviewCard({
               value={studentAnswer}
               onChange={(e) => setStudentAnswer(e.target.value)}
               placeholder="답을 입력하세요"
-              className="w-full rounded-md border border-white/15 px-3 py-1.5 text-xs"
+              className="w-full rounded-md border border-sb-border px-3 py-1.5 text-xs"
             />
           )}
           {item.question.type === "essay" && (
@@ -139,7 +139,7 @@ export function ReviewCard({
               <button
                 onClick={() => submitRetry({ reveal: true })}
                 disabled={submitting}
-                className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5 disabled:opacity-50"
+                className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover disabled:opacity-50"
               >
                 모범답안 보기
               </button>
@@ -154,7 +154,7 @@ export function ReviewCard({
             )}
             <button
               onClick={() => setOpen(false)}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
             >
               취소
             </button>
@@ -173,13 +173,13 @@ export function ReviewCard({
           <div className="flex gap-2">
             <button
               onClick={() => submitRetry({ selfReport: "correct" })}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
             >
               맞았어요
             </button>
             <button
               onClick={() => submitRetry({ selfReport: "incorrect" })}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
             >
               틀렸어요
             </button>
@@ -211,7 +211,7 @@ export function ReviewCard({
                 </button>
                 <button
                   onClick={() => handleResolve(false)}
-                  className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+                  className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
                 >
                   유지
                 </button>
@@ -223,7 +223,7 @@ export function ReviewCard({
                 setResult(null);
                 setStudentAnswer("");
               }}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
             >
               닫기
             </button>

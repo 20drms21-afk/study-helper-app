@@ -71,7 +71,7 @@ export function SubjectPicker({
               }
             }}
             placeholder="새 과목 이름"
-            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
           />
           <button
             type="button"
@@ -88,7 +88,7 @@ export function SubjectPicker({
               setNewName("");
               setError(null);
             }}
-            className="shrink-0 rounded-md border border-white/15 px-3 py-2 text-sm font-medium hover:bg-white/5"
+            className="shrink-0 rounded-md border border-sb-border px-3 py-2 text-sm font-medium hover:bg-sb-hover"
           >
             취소
           </button>
@@ -105,7 +105,7 @@ export function SubjectPicker({
         <select
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value || null)}
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
         >
           {allowNone && <option value="">선택 안 함</option>}
           {!allowNone && <option value="" disabled>과목을 선택하세요</option>}
@@ -118,7 +118,7 @@ export function SubjectPicker({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="shrink-0 rounded-md border border-white/15 px-3 py-2 text-sm font-medium hover:bg-white/5"
+          className="shrink-0 rounded-md border border-sb-border px-3 py-2 text-sm font-medium hover:bg-sb-hover"
         >
           새 과목...
         </button>

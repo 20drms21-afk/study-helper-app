@@ -28,7 +28,7 @@ export default async function TranslateDetailPage({
       </div>
 
       {translation.status === "processing" && (
-        <p className="rounded-md border border-white/10 p-4 text-sm text-sb-mute">
+        <p className="rounded-md border border-sb-border p-4 text-sm text-sb-mute">
           아직 변환 중입니다. 잠시 후 새로고침해주세요.
         </p>
       )}

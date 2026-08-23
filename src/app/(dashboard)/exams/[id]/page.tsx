@@ -62,7 +62,7 @@ export default async function ExamDetailPage({ params }: PageProps<"/exams/[id]"
       </div>
 
       {paper.attempts.length > 0 && (
-        <div className="mb-6 rounded-md border border-white/10 bg-sb-card p-4">
+        <div className="mb-6 rounded-md border border-sb-border bg-sb-card p-4">
           <p className="mb-2 text-sm font-medium">이전 응시 기록</p>
           <ul className="space-y-1">
             {paper.attempts.map((attempt) => (

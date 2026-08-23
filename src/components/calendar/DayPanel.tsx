@@ -75,7 +75,7 @@ export function DayPanel({
   const maxSeconds = Math.max(1, ...(day?.bySubject.map((s) => s.seconds) ?? [0]));
 
   return (
-    <div className="rounded-md border border-white/10 p-4">
+    <div className="rounded-md border border-sb-border p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-bold">{date}</h3>
         <button onClick={onClose} className="text-xs text-sb-mute hover:text-sb-text">
@@ -93,7 +93,7 @@ export function DayPanel({
                   <span className="font-medium">{s.name}</span>
                   <span className="text-sb-mute">{formatDuration(s.seconds)}</span>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-sb-card">
                   <div
                     className="h-full rounded-full"
                     style={{ width: `${(s.seconds / maxSeconds) * 100}%`, backgroundColor: s.color }}
@@ -148,7 +148,7 @@ export function DayPanel({
         )}
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-md border border-white/10 p-3">
+          <form onSubmit={handleSubmit} className="mt-3 space-y-3 rounded-md border border-sb-border p-3">
             <div>
               <label className="mb-1 block text-xs font-medium">종류</label>
               <div className="flex gap-3 text-sm">
@@ -166,7 +166,7 @@ export function DayPanel({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="예: 중간고사"
-                className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+                className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
               />
             </div>
             {error && <p className="text-xs text-[#ff8a8a]">{error}</p>}

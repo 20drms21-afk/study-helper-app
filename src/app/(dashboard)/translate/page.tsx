@@ -37,15 +37,15 @@ export default async function TranslatePage() {
       {translations.length === 0 ? (
         <p className="mt-8 text-sm text-sb-mute">아직 변환한 자료가 없습니다.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
+        <ul className="mt-6 divide-y divide-sb-border rounded-md border border-sb-border">
           {translations.map((t) => (
             <li key={t.id}>
               <Link
                 href={`/translate/${t.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-white/5"
+                className="flex items-center justify-between px-4 py-3 hover:bg-sb-hover"
               >
                 <div>
-                  <p className="text-sm font-medium">{t.originalFileName}</p>
+                  <p className="text-sm font-medium text-sb-body">{t.originalFileName}</p>
                   <p className="text-xs text-sb-mute">
                     {t.subjectName} · {t.translatedPageCount}/{t.pageCount}페이지 ·{" "}
                     {new Date(t.createdAt).toLocaleString("ko-KR")}

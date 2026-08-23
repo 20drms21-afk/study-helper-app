@@ -31,7 +31,7 @@ export function NoteTabs({
 
   return (
     <div>
-      <div className="mb-6 flex gap-1 border-b border-white/10">
+      <div className="mb-6 flex gap-1 border-b border-sb-border">
         {tabs.map((tab) => (
           <button
             key={tab.key}

@@ -180,7 +180,7 @@ export function ExamConfigForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="예: 중간고사 대비 예상문제"
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
         />
       </div>
 
@@ -193,7 +193,7 @@ export function ExamConfigForm({
             max={30}
             value={mcqCount}
             onChange={(e) => setMcqCount(Number(e.target.value))}
-            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -204,7 +204,7 @@ export function ExamConfigForm({
             max={30}
             value={shortCount}
             onChange={(e) => setShortCount(Number(e.target.value))}
-            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -215,7 +215,7 @@ export function ExamConfigForm({
             max={15}
             value={essayCount}
             onChange={(e) => setEssayCount(Number(e.target.value))}
-            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
           />
         </div>
         <div>
@@ -226,7 +226,7 @@ export function ExamConfigForm({
             max={300}
             value={timeLimitMinutes}
             onChange={(e) => setTimeLimitMinutes(Number(e.target.value))}
-            className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
           />
         </div>
       </div>
@@ -269,7 +269,7 @@ export function ExamConfigForm({
           onChange={(e) => setProfessorNotes(e.target.value)}
           rows={4}
           placeholder="예: 암기보다는 개념 이해를 묻는 문제 위주. 계산 문제 비중이 높았음."
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
         />
       </div>
 
@@ -280,11 +280,11 @@ export function ExamConfigForm({
             아직 업로드한 자료가 없습니다. 아래에서 새로 업로드해주세요.
           </p>
         ) : (
-          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-white/10 p-2">
+          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-sb-border p-2">
             {sortedFiles.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-sb-hover"
               >
                 <input
                   type="checkbox"
@@ -302,7 +302,7 @@ export function ExamConfigForm({
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handleReferenceFilesChange}
           disabled={referenceUploading}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-sb-card file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-sb-hover"
         />
         {referenceUploading && <p className="mt-2 text-xs text-sb-mute">업로드 중...</p>}
       </div>
@@ -310,8 +310,8 @@ export function ExamConfigForm({
       <div>
         <label className="mb-2 block text-sm font-medium">기출문제 (족보, 선택)</label>
         {sortedFiles.length > 0 && (
-          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-white/10 p-2">
-            <label className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5">
+          <div className="mb-2 max-h-56 space-y-1 overflow-y-auto rounded-md border border-sb-border p-2">
+            <label className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-sb-hover">
               <input
                 type="radio"
                 name="pastExamFile"
@@ -323,7 +323,7 @@ export function ExamConfigForm({
             {sortedFiles.map((f) => (
               <label
                 key={f.id}
-                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-white/5"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-sb-hover"
               >
                 <input
                   type="radio"
@@ -341,7 +341,7 @@ export function ExamConfigForm({
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={handlePastExamFileChange}
           disabled={pastExamUploading}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-sb-card file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-sb-hover"
         />
         {pastExamUploading && <p className="mt-2 text-xs text-sb-mute">업로드 중...</p>}
 

@@ -26,13 +26,13 @@ export default async function AdminActivitiesPage() {
       {activities.length === 0 ? (
         <p className="mt-8 text-sm text-sb-mute">등록된 항목이 없습니다.</p>
       ) : (
-        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
+        <ul className="mt-6 divide-y divide-sb-border rounded-md border border-sb-border">
           {activities.map((a) => (
             <li key={a.id} className="px-4 py-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">
-                    <span className="mr-2 rounded bg-white/5 px-2 py-0.5 text-xs font-medium text-sb-text">
+                    <span className="mr-2 rounded bg-sb-card px-2 py-0.5 text-xs font-medium text-sb-text">
                       {a.category === "contest" ? "공모전" : "대외활동"}
                     </span>
                     {a.title}

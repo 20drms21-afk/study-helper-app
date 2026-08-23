@@ -29,9 +29,11 @@ const adminLinks = [
 export function DashboardNav({
   userName,
   isAdmin,
+  quotaPercent = null,
 }: {
   userName: string;
   isAdmin: boolean;
+  quotaPercent?: number | null;
 }) {
   const pathname = usePathname();
 
@@ -40,7 +42,7 @@ export function DashboardNav({
     pathname === "/inquiries" || pathname.startsWith("/inquiries/");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-sb-bg-soft/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-sb-border bg-sb-bg-soft/85 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 text-lg font-bold text-sb-text">
@@ -69,7 +71,7 @@ export function DashboardNav({
             {isAdmin && <NavDropdown dark label="관리자" items={adminLinks} />}
           </nav>
         </div>
-        <UserMenu userName={userName} dark />
+        <UserMenu userName={userName} dark quotaPercent={quotaPercent} />
       </div>
     </header>
   );

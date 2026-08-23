@@ -60,9 +60,9 @@ export function ScholarshipResults() {
       {configured === true && matches && matches.length > 0 && (
         <ul className="mt-4 space-y-3">
           {matches.map((m) => (
-            <li key={m.listingId} className="rounded-md border border-white/10 p-4">
+            <li key={m.listingId} className="rounded-md border border-sb-border p-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">{m.name}</p>
+                <p className="text-sm font-medium text-sb-body">{m.name}</p>
                 {m.applyUrl && (
                   <a
                     href={m.applyUrl}

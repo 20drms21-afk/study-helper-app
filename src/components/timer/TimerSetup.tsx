@@ -239,7 +239,7 @@ export function TimerSetup({
           <button
             onClick={() => setMode("simple")}
             className={`rounded-md border p-4 text-left ${
-              mode === "simple" ? "border-sb-accent" : "border-white/10"
+              mode === "simple" ? "border-sb-accent" : "border-sb-border"
             }`}
           >
             <p className="text-sm font-medium">심플 모드</p>
@@ -248,7 +248,7 @@ export function TimerSetup({
           <button
             onClick={() => setMode("immersive")}
             className={`rounded-md border p-4 text-left ${
-              mode === "immersive" ? "border-sb-accent" : "border-white/10"
+              mode === "immersive" ? "border-sb-accent" : "border-sb-border"
             }`}
           >
             <p className="text-sm font-medium">몰입 모드</p>
@@ -279,13 +279,13 @@ export function TimerSetup({
         </button>
         <button
           onClick={handleCreateRoom}
-          className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5"
+          className="rounded-md border border-sb-border px-4 py-2 text-sm font-medium hover:bg-sb-hover"
         >
           친구 초대
         </button>
         <button
           onClick={() => setShowJoin((v) => !v)}
-          className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5"
+          className="rounded-md border border-sb-border px-4 py-2 text-sm font-medium hover:bg-sb-hover"
         >
           코드로 참가
         </button>
@@ -297,7 +297,7 @@ export function TimerSetup({
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
             placeholder="초대 코드 입력"
-            className="rounded-md border border-white/15 px-3 py-2 text-sm uppercase"
+            className="rounded-md border border-sb-border px-3 py-2 text-sm uppercase"
           />
           <button
             onClick={handleJoin}

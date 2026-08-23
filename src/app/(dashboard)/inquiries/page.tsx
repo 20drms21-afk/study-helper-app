@@ -32,11 +32,11 @@ export default async function InquiriesPage() {
         {inquiries.length === 0 ? (
           <p className="text-sm text-sb-mute">아직 등록된 문의가 없습니다.</p>
         ) : (
-          <ul className="divide-y divide-white/10 rounded-md border border-white/10">
+          <ul className="divide-y divide-sb-border rounded-md border border-sb-border">
             {inquiries.map((inquiry) => (
               <li key={inquiry.id} className="px-4 py-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">{inquiry.subject}</p>
+                  <p className="text-sm font-medium text-sb-body">{inquiry.subject}</p>
                   <span className="text-xs text-sb-mute">
                     {STATUS_LABEL[inquiry.status] ?? inquiry.status}
                   </span>

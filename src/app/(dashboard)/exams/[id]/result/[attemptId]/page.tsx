@@ -65,21 +65,21 @@ export default async function ExamResultPage({
         ← 시험으로 돌아가기
       </Link>
 
-      <div className="mt-4 mb-8 rounded-md border border-white/10 p-6 text-center">
+      <div className="mt-4 mb-8 rounded-md border border-sb-border p-6 text-center">
         <h1 className="text-xl font-bold">{attempt.examPaper.title} - 채점 결과</h1>
         <p className="mt-2 text-3xl font-bold">
           {totalScore} / {totalPossible}점 ({totalPercentage}%)
         </p>
       </div>
 
-      <div className="mb-8 rounded-md border border-white/10 p-4">
+      <div className="mb-8 rounded-md border border-sb-border p-4">
         <WeakAreaChart topics={topicBreakdown} />
       </div>
 
       <div className="space-y-6">
         <h2 className="text-lg font-bold">문항별 결과</h2>
         {questions.map((q, i) => (
-          <div key={q.id} className="rounded-md border border-white/10 p-4">
+          <div key={q.id} className="rounded-md border border-sb-border p-4">
             <div className="mb-2 flex items-start justify-between gap-4">
               <p className="text-sm font-semibold">
                 {i + 1}. {q.prompt}

@@ -59,7 +59,7 @@ export function InquiryStatusControl({ id, status }: { id: string; status: strin
         defaultValue={status}
         onChange={handleChange}
         disabled={loading}
-        className="rounded-md border border-white/15 px-2 py-1 text-xs"
+        className="rounded-md border border-sb-border px-2 py-1 text-xs"
       >
         {STATUS_OPTIONS.map((opt) => (
           <option key={opt.value} value={opt.value}>

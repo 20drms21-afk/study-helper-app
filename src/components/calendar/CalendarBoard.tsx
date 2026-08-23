@@ -73,7 +73,7 @@ export function CalendarBoard() {
 
   return (
     <div>
-      <div className="mb-4 grid grid-cols-3 gap-4 rounded-md border border-white/10 p-4">
+      <div className="mb-4 grid grid-cols-3 gap-4 rounded-md border border-sb-border p-4">
         <div>
           <p className="text-xs text-sb-mute">이번 달 총 학습시간</p>
           <p className="text-lg font-bold">{formatHours(data?.summary.monthTotalSeconds ?? 0)}</p>
@@ -103,7 +103,7 @@ export function CalendarBoard() {
           <div className="mb-3 flex items-center justify-between">
             <button
               onClick={() => goMonth(-1)}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-sm hover:bg-sb-hover"
             >
               이전
             </button>
@@ -112,7 +112,7 @@ export function CalendarBoard() {
             </h2>
             <button
               onClick={() => goMonth(1)}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-sm hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-sm hover:bg-sb-hover"
             >
               다음
             </button>
@@ -162,7 +162,7 @@ export function CalendarBoard() {
               onClose={() => setSelectedDate(null)}
             />
           ) : (
-            <div className="rounded-md border border-dashed border-white/10 p-4 text-center text-sm text-sb-mute">
+            <div className="rounded-md border border-dashed border-sb-border p-4 text-center text-sm text-sb-mute">
               날짜를 클릭하면 학습 기록과 일정을 여기서 확인·등록할 수 있어요.
             </div>
           )}

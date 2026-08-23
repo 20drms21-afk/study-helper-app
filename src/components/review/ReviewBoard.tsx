@@ -63,7 +63,7 @@ export function ReviewBoard({
 
       <section>
         <h2 className="mb-3 text-lg font-bold">전체 복습 큐</h2>
-        <div className="mb-4 flex gap-1 border-b border-white/10">
+        <div className="mb-4 flex gap-1 border-b border-sb-border">
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 py-2 text-sm font-medium ${

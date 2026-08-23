@@ -46,7 +46,7 @@ export function TranslateUploadForm() {
           onChange={(e) => setSubjectName(e.target.value)}
           placeholder="예: 유기화학, 거시경제학"
           required
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
         />
         <p className="mt-1 text-xs text-sb-mute">
           입력한 과목명은 전공 용어를 더 정확히 번역하는 데 참고자료로 쓰여요.
@@ -59,7 +59,7 @@ export function TranslateUploadForm() {
           type="file"
           accept=".pdf"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-sb-card file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-sb-hover"
           required
         />
       </div>

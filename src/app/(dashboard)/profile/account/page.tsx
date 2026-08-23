@@ -30,7 +30,7 @@ export default async function AccountPage() {
 
       <section>
         <h2 className="mb-2 text-sm font-semibold text-sb-text">계정 정보</h2>
-        <div className="rounded-md border border-white/10 p-4 text-sm">
+        <div className="rounded-md border border-sb-border p-4 text-sm">
           <p>이메일: {user?.email}</p>
           <p className="mt-1 text-sb-mute">
             로그인 방식: {hasPassword ? "이메일/비밀번호" : "소셜 로그인 (Google/카카오)"}
@@ -43,7 +43,7 @@ export default async function AccountPage() {
         {hasPassword ? (
           <ChangePasswordForm />
         ) : (
-          <p className="rounded-md border border-white/10 p-4 text-sm text-sb-mute">
+          <p className="rounded-md border border-sb-border p-4 text-sm text-sb-mute">
             소셜 로그인으로 가입된 계정입니다. 비밀번호를 설정하지 않았어요.
           </p>
         )}
@@ -51,7 +51,7 @@ export default async function AccountPage() {
 
       <section>
         <h2 className="mb-2 text-sm font-semibold text-sb-text">구독/결제</h2>
-        <div className="space-y-2 rounded-md border border-white/10 p-4 text-sm">
+        <div className="space-y-2 rounded-md border border-sb-border p-4 text-sm">
           <p>
             현재 플랜: <strong>{quota.plan === "free" ? "무료" : planLabel(quota.plan)}</strong>
           </p>

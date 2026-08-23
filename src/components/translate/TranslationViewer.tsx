@@ -17,7 +17,7 @@ function PageNav({
         type="button"
         onClick={() => onChange(page - 1)}
         disabled={page <= 1}
-        className="rounded-md border border-white/15 px-2 py-1 text-xs font-medium hover:bg-white/5 disabled:opacity-40"
+        className="rounded-md border border-sb-border px-2 py-1 text-xs font-medium hover:bg-sb-hover disabled:opacity-40"
       >
         이전
       </button>
@@ -28,7 +28,7 @@ function PageNav({
         type="button"
         onClick={() => onChange(page + 1)}
         disabled={page >= maxPage}
-        className="rounded-md border border-white/15 px-2 py-1 text-xs font-medium hover:bg-white/5 disabled:opacity-40"
+        className="rounded-md border border-sb-border px-2 py-1 text-xs font-medium hover:bg-sb-hover disabled:opacity-40"
       >
         다음
       </button>
@@ -65,14 +65,14 @@ export function TranslationViewer({
       <div className="mb-3 flex justify-end gap-2">
         <a
           href={`/api/translate/${translationId}/download`}
-          className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+          className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
         >
           번역본 PDF 다운로드
         </a>
         <button
           type="button"
           onClick={() => setSingleView((v) => !v)}
-          className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/5"
+          className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium hover:bg-sb-hover"
         >
           {singleView ? "듀얼뷰로 보기" : "번역본만 보기"}
         </button>
@@ -80,12 +80,12 @@ export function TranslationViewer({
 
       <div className={`grid gap-4 ${singleView ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
         {!singleView && (
-          <div className="rounded-md border border-white/10 p-2">
+          <div className="rounded-md border border-sb-border p-2">
             <p className="mb-1 text-center text-xs font-medium text-sb-mute">원본</p>
             <img
               src={`/api/translate/${translationId}/page/${originalPage}?variant=original`}
               alt={`원본 ${originalPage}페이지`}
-              className="w-full rounded-sm border border-white/10"
+              className="w-full rounded-sm border border-sb-border"
             />
             <PageNav
               page={originalPage}
@@ -95,12 +95,12 @@ export function TranslationViewer({
           </div>
         )}
 
-        <div className="rounded-md border border-white/10 p-2">
+        <div className="rounded-md border border-sb-border p-2">
           <p className="mb-1 text-center text-xs font-medium text-sb-mute">번역본</p>
           <img
             src={`/api/translate/${translationId}/page/${translatedPage}?variant=translated`}
             alt={`번역본 ${translatedPage}페이지`}
-            className="w-full rounded-sm border border-white/10"
+            className="w-full rounded-sm border border-sb-border"
           />
           <PageNav
             page={translatedPage}

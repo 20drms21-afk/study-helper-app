@@ -11,7 +11,10 @@ function formatClock(seconds: number): string {
 
 // 완료 세트 수 기준 낮 -> 노을 -> 밤 배경 전환 (누적 공부 시간이 늘수록 어두워짐).
 function backgroundFor(completedSets: number): string {
-  if (completedSets === 0) return "linear-gradient(180deg, #aee1f9 0%, #eaf6ff 100%)";
+  // 랜딩페이지 히어로와 동일한 배경(src/app/page.tsx) — 어두운 sb-bg(#171a10) 위에
+  // 라임그린 radial-gradient 글로우를 얹는 조합을 그대로 가져옴.
+  if (completedSets === 0)
+    return "radial-gradient(circle at 50% 35%, rgba(194,255,61,0.08), transparent 40%), #171a10";
   if (completedSets === 1) return "linear-gradient(180deg, #f7b267 0%, #f4845f 60%, #6a4c93 100%)";
   return "linear-gradient(180deg, #0f1035 0%, #1a1a4a 60%, #2b2b5e 100%)";
 }
@@ -95,7 +98,7 @@ export function ImmersiveTimerView({
         {allowPause && (
           <button
             onClick={engine.togglePause}
-            className="rounded-md border border-white/15 px-3 py-1.5 text-sm font-medium hover:bg-white/5"
+            className="rounded-md border border-sb-border px-3 py-1.5 text-sm font-medium hover:bg-sb-hover"
           >
             {engine.paused ? "재개" : "일시정지"}
           </button>
@@ -105,14 +108,14 @@ export function ImmersiveTimerView({
             engine.stop();
             onExit();
           }}
-          className="rounded-md border border-white/15 px-3 py-1.5 text-sm font-medium hover:bg-white/5"
+          className="rounded-md border border-sb-border px-3 py-1.5 text-sm font-medium hover:bg-sb-hover"
         >
           종료
         </button>
       </div>
 
       {code && (
-        <div className="w-full max-w-xs rounded-md border border-white/10 p-3">
+        <div className="w-full max-w-xs rounded-md border border-sb-border p-3">
           <p className="mb-2 text-xs font-medium text-sb-mute">참가자</p>
           <ul className="space-y-1 text-sm">
             {participants.map((p) => (

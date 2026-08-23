@@ -130,7 +130,7 @@ export function MaterialsLibrary({
     <div className="space-y-4">
       <form
         onSubmit={handleUpload}
-        className="space-y-3 rounded-md border border-white/10 p-4"
+        className="space-y-3 rounded-md border border-sb-border p-4"
       >
         <SubjectPicker
           subjects={subjects}
@@ -145,7 +145,7 @@ export function MaterialsLibrary({
             type="file"
             accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
             onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)}
-            className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
+            className="block flex-1 text-sm file:mr-4 file:rounded-md file:border-0 file:bg-sb-card file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-sb-hover"
           />
           <button
             type="submit"
@@ -168,7 +168,7 @@ export function MaterialsLibrary({
               key={folder.id}
               type="button"
               onClick={() => openFolderAndPreselect(folder.id)}
-              className="relative flex flex-col items-center gap-1.5 rounded-lg border border-white/10 px-3 py-4 text-center hover:border-white/15 hover:bg-white/5"
+              className="relative flex flex-col items-center gap-1.5 rounded-lg border border-sb-border px-3 py-4 text-center hover:bg-sb-hover"
             >
               <span
                 className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full"
@@ -199,13 +199,13 @@ export function MaterialsLibrary({
               📁 {openFolder.name} ({openFolder.count}개)
             </h3>
           </div>
-          <ul className="divide-y divide-white/10 rounded-md border border-white/10">
+          <ul className="divide-y divide-sb-border rounded-md border border-sb-border">
             {openFolderFiles.map((file) => (
               <li key={file.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex min-w-0 items-start gap-2">
                   <span className="mt-0.5 shrink-0 text-lg">{fileKindIcon(file.fileKind)}</span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{file.originalName}</p>
+                    <p className="truncate text-sm font-medium text-sb-body">{file.originalName}</p>
                     <p className="text-xs text-sb-mute">
                       {formatSize(file.sizeBytes)} ·{" "}
                       {new Date(file.createdAt).toLocaleDateString("ko-KR")}
@@ -224,7 +224,7 @@ export function MaterialsLibrary({
                   <select
                     value={file.subjectId ?? ""}
                     onChange={(e) => handleReassign(file.id, e.target.value || null)}
-                    className="rounded-md border border-white/15 px-2 py-1 text-xs"
+                    className="rounded-md border border-sb-border px-2 py-1 text-xs"
                   >
                     <option value="">미분류</option>
                     {subjects.map((s) => (

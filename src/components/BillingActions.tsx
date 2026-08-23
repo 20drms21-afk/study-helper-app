@@ -80,7 +80,7 @@ export function BillingActions({
           <button
             onClick={() => requestCardAuth("card-update")}
             disabled={loading}
-            className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium hover:bg-white/5 disabled:opacity-50"
+            className="rounded-md border border-sb-border px-4 py-2 text-sm font-medium hover:bg-sb-hover disabled:opacity-50"
           >
             카드 변경
           </button>
@@ -125,7 +125,7 @@ export function BillingActions({
           <button
             onClick={handleCancel}
             disabled={loading}
-            className="rounded-md border border-white/15 px-4 py-2 text-sm font-medium text-sb-mute hover:bg-white/5 disabled:opacity-50"
+            className="rounded-md border border-sb-border px-4 py-2 text-sm font-medium text-sb-mute hover:bg-sb-hover disabled:opacity-50"
           >
             구독 취소
           </button>

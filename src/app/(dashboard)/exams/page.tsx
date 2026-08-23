@@ -35,17 +35,17 @@ export default async function ExamsPage() {
           아직 생성한 예상시험문제가 없습니다. 먼저 노트를 업로드하고 요약을 만든 뒤 시험을 생성해보세요.
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
+        <ul className="mt-6 divide-y divide-sb-border rounded-md border border-sb-border">
           {papers.map((paper) => {
             const lastAttempt = paper.attempts[0];
             return (
               <li key={paper.id}>
                 <Link
                   href={`/exams/${paper.id}`}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-white/5"
+                  className="flex items-center justify-between px-4 py-3 hover:bg-sb-hover"
                 >
                   <div>
-                    <p className="text-sm font-medium">{paper.title}</p>
+                    <p className="text-sm font-medium text-sb-body">{paper.title}</p>
                     <p className="text-xs text-sb-mute">
                       {new Date(paper.createdAt).toLocaleString("ko-KR")} · 총점 {paper.totalPoints}점
                     </p>

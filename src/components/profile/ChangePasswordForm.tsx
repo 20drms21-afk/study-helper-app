@@ -51,7 +51,7 @@ export function ChangePasswordForm() {
           required
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
       <div>
@@ -62,7 +62,7 @@ export function ChangePasswordForm() {
           minLength={8}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
       <div>
@@ -73,7 +73,7 @@ export function ChangePasswordForm() {
           minLength={8}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full rounded-md border border-white/15 px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
+          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm focus:border-sb-accent focus:outline-none"
         />
       </div>
       {error && <p className="text-sm text-[#ff8a8a]">{error}</p>}

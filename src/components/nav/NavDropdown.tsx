@@ -75,7 +75,7 @@ export function NavDropdown({
             align === "right" ? "right-0" : "left-0"
           } ${
             dark
-              ? "glass"
+              ? "glass-menu"
               : "border border-gray-200 bg-white shadow-lg"
           }`}
         >

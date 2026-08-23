@@ -57,7 +57,7 @@ export function UploadForm({ subjects: initialSubjects }: { subjects: SubjectRef
           type="file"
           accept=".pdf,.docx,.pptx,image/png,image/jpeg,image/webp,image/gif"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-white/5 file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-white/10"
+          className="block w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-sb-card file:px-4 file:py-2 file:text-sm file:font-medium hover:file:bg-sb-hover"
           required
         />
         <p className="mt-2 text-xs text-sb-mute">

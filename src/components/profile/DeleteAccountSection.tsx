@@ -74,7 +74,7 @@ export function DeleteAccountSection({ userEmail }: { userEmail: string }) {
                 setConfirmText("");
                 setError(null);
               }}
-              className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-medium text-sb-mute hover:bg-white/5"
+              className="rounded-md border border-sb-border px-3 py-1.5 text-xs font-medium text-sb-mute hover:bg-sb-hover"
             >
               취소
             </button>

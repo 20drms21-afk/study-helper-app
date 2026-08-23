@@ -62,7 +62,7 @@ export default async function BillingPage({
         </p>
       )}
 
-      <div className="space-y-2 rounded-md border border-white/15 p-4">
+      <div className="space-y-2 rounded-md border border-sb-border p-4">
         <p className="text-sm">
           현재 플랜: <strong>{quota.plan === "free" ? "무료" : planLabel(quota.plan)}</strong>
         </p>

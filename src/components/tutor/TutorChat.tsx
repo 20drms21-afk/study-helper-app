@@ -64,7 +64,7 @@ export function TutorChat({
   }
 
   return (
-    <div className="flex h-[600px] flex-col rounded-md border border-white/10">
+    <div className="flex h-[600px] flex-col rounded-md border border-sb-border">
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {messages.length === 0 && (
           <p className="text-sm text-sb-mute">이 자료에 대해 무엇이든 물어보세요.</p>
@@ -75,7 +75,7 @@ export function TutorChat({
               className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
                 m.role === "user"
                   ? "bg-sb-accent text-sb-accent-ink"
-                  : "bg-white/5 text-sb-text"
+                  : "bg-sb-card text-sb-text"
               }`}
             >
               {m.content}
@@ -84,7 +84,7 @@ export function TutorChat({
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-lg bg-white/5 px-3 py-2 text-sm text-sb-mute">
+            <div className="max-w-[80%] rounded-lg bg-sb-card px-3 py-2 text-sm text-sb-mute">
               답변 작성 중...
             </div>
           </div>
@@ -94,13 +94,13 @@ export function TutorChat({
 
       {error && <p className="px-4 text-sm text-[#ff8a8a]">{error}</p>}
 
-      <form onSubmit={handleSend} className="flex gap-2 border-t border-white/10 p-3">
+      <form onSubmit={handleSend} className="flex gap-2 border-t border-sb-border p-3">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="질문을 입력하세요"
-          className="flex-1 rounded-md border border-white/15 px-3 py-2 text-sm"
+          className="flex-1 rounded-md border border-sb-border px-3 py-2 text-sm"
           disabled={loading}
         />
         <button

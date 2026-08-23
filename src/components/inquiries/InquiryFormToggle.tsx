@@ -16,7 +16,7 @@ export function InquiryFormToggle() {
       </button>
 
       {open && (
-        <div className="mt-4 rounded-md border border-white/10 p-4">
+        <div className="mt-4 rounded-md border border-sb-border p-4">
           <InquiryForm onSuccess={() => setOpen(false)} />
         </div>
       )}

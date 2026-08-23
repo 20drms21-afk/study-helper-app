@@ -38,15 +38,15 @@ export default async function TutorPage() {
           아직 업로드한 파일이 없습니다. 위에서 파일을 올려 바로 질문을 시작해보세요.
         </p>
       ) : (
-        <ul className="mt-6 divide-y divide-white/10 rounded-md border border-white/10">
+        <ul className="mt-6 divide-y divide-sb-border rounded-md border border-sb-border">
           {files.map((file) => (
             <li key={file.id}>
               <Link
                 href={`/tutor/${file.id}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-white/5"
+                className="flex items-center justify-between px-4 py-3 hover:bg-sb-hover"
               >
                 <div>
-                  <p className="text-sm font-medium">{file.originalName}</p>
+                  <p className="text-sm font-medium text-sb-body">{file.originalName}</p>
                   <p className="text-xs text-sb-mute">
                     {new Date(file.createdAt).toLocaleString("ko-KR")}
                   </p>

@@ -30,6 +30,29 @@
   --color-sb-accent-ink: #12100c;
   --font-display: var(--font-pretendard);
   --font-body-kr: var(--font-pretendard);
+
+  /* 기능 페이지(.app-shell) 전용 추가 톤 — 랜딩페이지는 쓰지 않는 새 토큰이라 기본값
+     자체를 바로 기능 페이지 목표값으로 둔다(스코프 오버라이드 불필요). 카드 리스트 행의
+     hover 배경(sb-hover), 파일명 등 "본문" 텍스트(sb-body, sb-text보다는 낮고
+     sb-mute보다는 진한 중간 톤), 비활성 텍스트(sb-faint) 3종. */
+  --color-sb-hover: #273024;
+  --color-sb-body: #d6dccf;
+  --color-sb-faint: #7e8a77;
+}
+
+/* 기능 페이지(로그인 후 대시보드 전 영역, DashboardLayout 최상단 div에 붙는 클래스) 전용
+   팔레트 — 랜딩페이지 히어로의 짙은 네온 그린 무드는 그대로 두고, 기능 화면만 1~2단계
+   밝혀서 콘텐츠 가독성을 우선한다(Notion/Linear류 생산성 툴의 차분한 다크모드 참고).
+   위 @theme 토큰을 그대로 재사용하는 컴포넌트(text-sb-text, bg-sb-card, border-sb-border 등)는
+   이 스코프 안에서 자동으로 새 값을 받는다 — 컴포넌트 코드를 건드릴 필요 없이 CSS 변수
+   캐스케이딩만으로 랜딩과 분리됨. */
+.app-shell {
+  --color-sb-bg: #151b13;
+  --color-sb-bg-soft: #1b2218;
+  --color-sb-card: #222a1f;
+  --color-sb-border: rgba(255, 255, 255, 0.08);
+  --color-sb-text: #f3f5ef;
+  --color-sb-mute: #98a38f;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,6 +97,32 @@ body {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.16),
     0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* 네비게이션 드롭다운(NavDropdown/UserMenu) 전용 — 위 .glass(8% 불투명도)는 배경이
+   화려한 랜딩페이지(히어로 오브젝트 등) 위에서 뒤 콘텐츠에 묻혀 메뉴 글자가 잘 안 읽히는
+   문제가 있었다. hero-card처럼 배경 자체를 sb-bg에 가까운 톤으로 훨씬 불투명하게 올려서
+   드롭다운이 항상 또렷하게 뜨도록 한다. */
+/* 완전 불투명한 솔리드 배경 — backdrop-filter(blur+saturate)는 뒤 배경이 4%만 비쳐도
+   saturate(150%)가 그 미세한 색을 크게 증폭시켜서, 밝은 라임 글로우나 흰 텍스트 가장자리가
+   뒤에 있을 때 드롭다운 가장자리가 의도치 않게 청록빛으로 보이는 문제가 있었다(신고받음).
+   필터를 아예 빼고 브랜드 다크그린(sb-bg-soft와 동일 톤) 솔리드 컬러로 바꿔 이 문제 자체를
+   없앤다. */
+.glass-menu {
+  background: rgba(20, 22, 14, 0.96);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid var(--color-sb-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 20px 60px rgba(0, 0, 0, 0.45);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-menu {
+    background: #14160e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 /* 투명도 최소화 접근성 설정에서는 블러 대신 불투명한 서피스로 대체 */

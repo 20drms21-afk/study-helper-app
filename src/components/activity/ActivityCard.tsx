@@ -46,10 +46,10 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
   }
 
   return (
-    <li className="rounded-md border border-white/10 p-4">
+    <li className="rounded-md border border-sb-border p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="rounded bg-white/5 px-2 py-0.5 text-xs font-medium text-sb-text">
+          <span className="rounded bg-sb-card px-2 py-0.5 text-xs font-medium text-sb-text">
             {activity.category === "contest" ? "공모전" : "대외활동"}
           </span>
           {!!activity.matchScore && activity.matchScore > 0 && (
@@ -57,7 +57,7 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
               🎯 관심분야 일치
             </span>
           )}
-          <p className="text-sm font-medium">{activity.title}</p>
+          <p className="text-sm font-medium text-sb-body">{activity.title}</p>
         </div>
         <a
           href={activity.sourceUrl}
@@ -80,7 +80,7 @@ export function ActivityCard({ activity }: { activity: ActivityListingView }) {
             type="button"
             onClick={handleRegister}
             disabled={registering || registered}
-            className="rounded-md border border-white/15 px-2.5 py-1 text-xs font-medium text-sb-text hover:bg-white/5 disabled:cursor-default disabled:opacity-60"
+            className="rounded-md border border-sb-border px-2.5 py-1 text-xs font-medium text-sb-text hover:bg-sb-hover disabled:cursor-default disabled:opacity-60"
           >
             {registered ? "✓ 캘린더에 등록됨" : registering ? "등록 중..." : "📅 캘린더에 마감일 등록"}
           </button>
