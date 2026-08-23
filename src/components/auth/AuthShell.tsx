@@ -21,7 +21,21 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           <Logo size={28} className="text-sb-accent" />
           <span className="font-display text-lg font-extrabold leading-none">공부한입</span>
         </Link>
-        <div className="w-full max-w-[420px] rounded-3xl border border-sb-accent/10 bg-[rgba(13,14,9,0.95)] p-9 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+        <div className="relative w-full max-w-[420px] rounded-3xl border border-sb-accent/10 bg-[rgba(13,14,9,0.95)] p-9 shadow-[0_16px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+          <Link
+            href="/"
+            aria-label="닫기"
+            className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full text-sb-mute transition-colors hover:bg-sb-accent/10 hover:text-sb-text"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 6L18 18M18 6L6 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Link>
           {children}
         </div>
       </div>

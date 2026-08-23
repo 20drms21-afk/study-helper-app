@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { getQuotaStatus, quotaRemainingPercent } from "@/lib/usage";
 import { AmbientBackground } from "@/components/landing/AmbientBackground";
 import { LandingHeader } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
@@ -18,6 +19,8 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
   const loggedIn = !!session?.user;
   const userName = session?.user?.name ?? session?.user?.email ?? "";
+  const quota = loggedIn ? await getQuotaStatus(session!.user.id) : null;
+  const quotaPercent = quota ? quotaRemainingPercent(quota) : null;
 
   return (
     <div
@@ -29,7 +32,7 @@ export default async function Home() {
     >
       <AmbientBackground />
       <div className="relative z-10">
-        <LandingHeader loggedIn={loggedIn} userName={userName} />
+        <LandingHeader loggedIn={loggedIn} userName={userName} quotaPercent={quotaPercent} />
         <main>
           <Hero loggedIn={loggedIn} />
           <Features />

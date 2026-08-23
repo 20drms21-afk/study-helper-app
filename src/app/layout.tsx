@@ -31,8 +31,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  authModal,
 }: Readonly<{
   children: React.ReactNode;
+  authModal: React.ReactNode;
 }>) {
   return (
     <html
@@ -40,7 +42,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${pretendard.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          {authModal}
+        </Providers>
       </body>
     </html>
   );

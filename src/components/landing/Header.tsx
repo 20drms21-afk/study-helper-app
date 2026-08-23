@@ -25,9 +25,11 @@ const infoLinks = [
 export function LandingHeader({
   loggedIn,
   userName,
+  quotaPercent = null,
 }: {
   loggedIn: boolean;
   userName: string;
+  quotaPercent?: number | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -58,7 +60,7 @@ export function LandingHeader({
 
         <div className="hidden min-w-[230px] items-center justify-end gap-4 md:flex">
           {loggedIn ? (
-            <UserMenu userName={userName} dark />
+            <UserMenu userName={userName} dark quotaPercent={quotaPercent} />
           ) : (
             <>
               <Link
