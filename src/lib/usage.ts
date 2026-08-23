@@ -16,34 +16,30 @@ import { CLAUDE_PRICING, isPricedClaudeModel } from "@/lib/ai/pricing";
 // 캐시읽기는 0.1배 비싸므로(src/lib/ai/pricing.ts), 가중치 없이 그냥 더하면 "한도를 전부
 // 출력 토큰으로 채우는" 최악의 경우 실제 원가가 구독료를 넘어버리는 문제가 있다. 가중합산을
 // 쓰면 한도를 다 채웠을 때의 실제 원가가 토큰 종류와 무관하게 `한도 × 현재 입력단가`로
-// 고정되므로, Pro 기본값(55만)은 **원가율(최악의 경우 원가 ÷ 구독료) 30%를 목표로 역산**했다
-// — 2026-08-31 이후 정가(입력 $3/M, 인트로가보다 비쌈)로 계산해야 그 이후에도 안전하다:
-//   Pro: 한도 × $3/M = 목표원가($7,800÷1,380환율×30%≈$1.70) → 약 55만 토큰
-// (Pro 요금은 접근성을 높이려고 ₩9,900→₩7,800으로 낮췄고, 한도도 낮아진 매출에 맞춰
-// 70만→55만으로 같이 줄여서 원가율 30%를 유지함 — 가격만 낮추고 한도를 그대로 뒀다면
-// 원가율이 37%로 올라갔을 것)
-//
-// Master(120만)는 같은 30% 원가율 산식(≈100만)을 그대로 쓰지 않았다 — 100만으로 두면
-// 원당 토큰이 Pro(55만÷7,800≈70.5토큰/원)보다 오히려 낮아져서 "더 비싼데 원당 가치는
-// 더 낮은" 역전이 생기고, 업그레이드 명분이 약해진다. 그래서 Master는 Pro보다 원당 토큰이
-// 더 후하도록(볼륨 할인) 역산했다 — 120만÷13,800≈87토큰/원. 그 결과 원가율은
-// 36%(120만×$3/M÷($13,800÷1,380환율)≈36%)로 Pro(30%)보다 조금 높지만 여전히 마진
-// 64% 이상 남는 선. (Master 요금은 처음 ₩14,800이었다가 Pro/Master 가격 배수를
-// 완화하려고 ₩13,800으로 낮춘 이력이 있다 — 원가는 요금과 무관하게 고정이라 토큰 한도는
-// 그대로 두고 요금만 조정했다.)
+// 고정되므로, Pro/Master 한도는 **원가율(최악의 경우 원가 ÷ 구독료) 50%를 목표로 역산**했다
+// — 2026-08-31 이후 정가(입력 $3/M, 인트로가보다 비쌈)로 계산해야 그 이후에도 안전하다.
+// 환율은 1,380원/$ 근사치를 씀:
+//   Pro:    한도 × $3/M = 목표원가(₩8,800÷1,380×50%≈$3.19)  → 약 106만 토큰
+//   Master: 한도 × $3/M = 목표원가(₩14,800÷1,380×50%≈$5.36) → 약 179만 토큰
+// (2026-08-22, 실사용 중 마스터 플랜 유저가 기존 120만 한도를 초과하는 사례가 나와서
+// 세 플랜 모두 한도를 올리는 김에 원가율도 30%/36%→50%로 같이 올렸다. 이전엔 Master가
+// Pro보다 원당 토큰을 더 후하게 줘서(볼륨 할인) 업그레이드 명분을 만들려고 원가율을
+// 36%로 Pro(30%)보다 일부러 높게 잡았었는데, 이번엔 두 플랜 다 50%로 통일했다 — 그
+// 결과 원당 토큰(한도÷요금)이 두 플랜 다 약 121토큰/원으로 동일해져서 그 볼륨 할인
+// 효과는 없어진 상태다. 나중에 Master를 다시 차별화하고 싶으면 Master 원가율만 50%보다
+// 더 높게(예: 55~60%) 잡을 것.)
 // (환율은 근사치라 정확한 %가 아니라 근사값 — 정확한 원가율이 중요하면 실제 청구 시점
 // 환율로 재계산할 것). 문서 위주 사용자(이 앱의 실제 주 사용 패턴 — 긴 PDF/PPTX를 입력으로,
 // 짧은 JSON을 출력으로)는 입력 토큰이 압도적으로 많아서 가중치의 영향을 거의 안 받고 체감
 // 한도는 숫자 그대로다. 무료 플랜은 구독료가 없어 이 원가율 로직이 적용되지 않고, 대신
-// "무료 체험 1인당 감당 가능한 절대 비용"으로 따로 정함 — 처음엔 30만이었다가(정가 기준
-// 최악 $0.9) 절감 효과 자체보다(30만→20만로 줄여도 유저 1명당 최대 절감액은 월 ₩400
-// 수준) 무료 유저 규모가 커질 때의 총비용을 보수적으로 관리하고 싶어서 20만으로 낮춤
-// (정가 기준 최악 $0.6≈₩830, 인트로가 기준 $0.4≈₩550). 너무 낮추면 체험판이 "제대로
-// 써보기도 전에 막히는" 문제가 생겨 전환 퍼널을 해치므로, 이보다 더 낮출 땐 실사용
-// 데이터(노트/시험 생성 1회가 실제로 토큰을 얼마나 쓰는지)를 먼저 확인하고 판단할 것.
-export const FREE_MONTHLY_TOKEN_LIMIT = Number(process.env.FREE_PLAN_MONTHLY_TOKEN_LIMIT ?? 200_000);
-export const PRO_MONTHLY_TOKEN_LIMIT = Number(process.env.PRO_PLAN_MONTHLY_TOKEN_LIMIT ?? 550_000);
-export const MASTER_MONTHLY_TOKEN_LIMIT = Number(process.env.MASTER_PLAN_MONTHLY_TOKEN_LIMIT ?? 1_200_000);
+// "무료 체험 1인당 감당 가능한 절대 비용"으로 따로 정함 — 20만이었다가(정가 기준 최악
+// $0.6≈₩830) 2026-08-22에 30만으로 올림(정가 기준 최악 $0.9≈₩1,240). 너무 낮추면
+// 체험판이 "제대로 써보기도 전에 막히는" 문제가 생겨 전환 퍼널을 해치므로, 이보다 더
+// 낮출 땐 실사용 데이터(노트/시험 생성 1회가 실제로 토큰을 얼마나 쓰는지)를 먼저 확인하고
+// 판단할 것.
+export const FREE_MONTHLY_TOKEN_LIMIT = Number(process.env.FREE_PLAN_MONTHLY_TOKEN_LIMIT ?? 300_000);
+export const PRO_MONTHLY_TOKEN_LIMIT = Number(process.env.PRO_PLAN_MONTHLY_TOKEN_LIMIT ?? 1_060_000);
+export const MASTER_MONTHLY_TOKEN_LIMIT = Number(process.env.MASTER_PLAN_MONTHLY_TOKEN_LIMIT ?? 1_790_000);
 
 export interface QuotaStatus {
   plan: "free" | "pro" | "master";
@@ -123,6 +119,17 @@ export async function getQuotaStatus(userId: string): Promise<QuotaStatus> {
 
   const limit = tokenLimitFor(plan);
   return { plan, limit, used, allowed: used < limit };
+}
+
+/**
+ * QuotaStatus를 "이번 달 남은 토큰 비율"(0~100)로 바꾼다 — 헤더 아바타의 사용량 링
+ * (`UserMenu`의 `quotaPercent`)이 이 값을 그대로 쓴다. limit이 null(관리자, 무제한)이면
+ * 비율 자체가 의미 없으므로 null을 그대로 돌려줘서 호출부가 링을 안 그리게 한다.
+ */
+export function quotaRemainingPercent(quota: QuotaStatus): number | null {
+  if (quota.limit === null) return null;
+  if (quota.limit <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round(((quota.limit - quota.used) / quota.limit) * 100)));
 }
 
 export function quotaExceededMessage(limit: number, plan: "free" | "pro" | "master" = "free"): string {

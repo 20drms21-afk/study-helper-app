@@ -99,15 +99,15 @@ npm run dev
 | `NEXTAUTH_SECRET` | NextAuth 세션 암호화 키 |
 | `NEXTAUTH_URL` | 앱 URL (로컬: `http://localhost:3000`) |
 | `STORAGE_DIR` | 업로드 파일 저장 경로 (기본값: `./storage`) |
-| `FREE_PLAN_MONTHLY_TOKEN_LIMIT` | 무료 플랜 월간 AI 토큰 한도, 입력 토큰 기준(출력/캐시 토큰은 실제 단가 비율로 가중 환산 후 합산) (기본값: 200000) |
-| `PRO_PLAN_MONTHLY_TOKEN_LIMIT` | Pro 플랜 월간 AI 토큰 한도 (기본값: 550000) |
-| `MASTER_PLAN_MONTHLY_TOKEN_LIMIT` | Master 플랜 월간 AI 토큰 한도 (기본값: 1200000) |
+| `FREE_PLAN_MONTHLY_TOKEN_LIMIT` | 무료 플랜 월간 AI 토큰 한도, 입력 토큰 기준(출력/캐시 토큰은 실제 단가 비율로 가중 환산 후 합산) (기본값: 300000) |
+| `PRO_PLAN_MONTHLY_TOKEN_LIMIT` | Pro 플랜 월간 AI 토큰 한도 (기본값: 1060000) |
+| `MASTER_PLAN_MONTHLY_TOKEN_LIMIT` | Master 플랜 월간 AI 토큰 한도 (기본값: 1790000) |
 | `ADMIN_EMAIL` | 관리자 페이지(`/admin`) 접근을 허용할 이메일 |
 | `NEXT_PUBLIC_TOSS_CLIENT_KEY` | 토스페이먼츠 클라이언트 키 (브라우저에 노출됨) — 결제 기능 사용 시 필요 |
 | `TOSS_SECRET_KEY` | 토스페이먼츠 서버 전용 시크릿 키 — 결제 기능 사용 시 필요 |
 | `TOSS_WEBHOOK_SECRET_KEY` | 웹훅 서명 검증용 키 — 결제 기능 사용 시 필요 |
-| `TOSS_PRO_PLAN_AMOUNT` | Pro 플랜 월 요금(원, 정수). 기본값: 7800 |
-| `TOSS_MASTER_PLAN_AMOUNT` | Master 플랜 월 요금(원, 정수). 기본값: 13800 |
+| `TOSS_PRO_PLAN_AMOUNT` | Pro 플랜 월 요금(원, 정수). 기본값: 8800 |
+| `TOSS_MASTER_PLAN_AMOUNT` | Master 플랜 월 요금(원, 정수). 기본값: 14800 |
 | `CRON_SECRET` | `charge-due`(정기 청구)/`activities/sync`(대외활동 수집)/`scholarships/sync`(장학금 수집) 라우트 보호용 임의의 랜덤 문자열 |
 | `GMAIL_USER` | 비밀번호 재설정 이메일을 발송할 Gmail 주소 |
 | `GMAIL_APP_PASSWORD` | 위 Gmail 계정의 앱 비밀번호(일반 로그인 비밀번호 아님) — 발급 방법은 위 "2-2" 참고. 없으면 비밀번호 찾기는 500 반환, 나머지 기능은 정상 동작 |
