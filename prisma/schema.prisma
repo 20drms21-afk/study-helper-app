@@ -2,8 +2,12 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
+  // "native"는 로컬 개발(Windows) 엔진, "rhel-openssl-3.0.x"는 Vercel 서버리스(Amazon Linux
+  // 기반 Lambda) 런타임용 엔진 — 이걸 명시 안 하면 기본값이 native 하나뿐이라 배포 후
+  // 로그인(Prisma 쿼리가 걸리는 모든 경로)에서 "Query Engine을 못 찾음" 에러가 남.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
