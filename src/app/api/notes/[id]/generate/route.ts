@@ -17,7 +17,7 @@ import { getQuotaStatus, quotaExceededMessage } from "@/lib/usage";
 import { recordAiUsage, AiUsageFeature, AiUsageStatus, newOperationId, summarizeAiError } from "@/lib/ai/aiUsage";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const bodySchema = z.object({
   type: z.enum(NOTE_CONTENT_TYPES),
@@ -67,11 +67,19 @@ export async function POST(
   const feature = isSummary ? AiUsageFeature.NOTE_SUMMARY : AiUsageFeature.NOTE_EXPLANATION;
   const operationId = newOperationId("note");
 
+  // "AI 설명"(explanation) 생성이 원문 분량이 많은 파일에서 문장 중간에 뚝 끊기는 문제가
+  // 실사용 중 재현됨 — exams/route.ts에서 이미 겪은 것과 동일한 원인: max_tokens가 부족해서
+  // 구조화 출력(JSON) 생성이 중간에 잘리는 것(explanation은 "여러 문단의 서술형 글"을 요구해서
+  // summary보다 훨씬 길어짐). exams 쪽 해법을 그대로 따름 — max_tokens를 넉넉히 올리고
+  // (다 안 쓰면 그만큼 과금되지 않으므로 상한을 크게 잡아도 비용 부담 없음), Anthropic SDK가
+  // "10분 넘게 걸릴 수 있는 요청은 스트리밍 필수"라며 비스트리밍 호출(.parse)을 막는 지점을
+  // 넘지 않도록 스트리밍(.stream + finalMessage)으로 전환함 — 최종 결과(usage/parsed_output)는
+  // .parse()와 동일하게 받아짐.
   let parsedOutput;
   try {
-    const message = await anthropic.messages.parse({
+    const genStream = anthropic.messages.stream({
       model: CLAUDE_MODEL,
-      max_tokens: isSummary ? 8192 : 16000,
+      max_tokens: isSummary ? 8192 : 64000,
       system: [
         {
           type: "text",
@@ -84,6 +92,7 @@ export async function POST(
         format: zodOutputFormat(isSummary ? summarySchema : explanationSchema),
       },
     });
+    const message = await genStream.finalMessage();
     await recordAiUsage({
       userId: session.user.id,
       plan: quota.plan,
