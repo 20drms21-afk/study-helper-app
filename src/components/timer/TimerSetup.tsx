@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { SubjectPicker, type SubjectRef } from "@/components/SubjectPicker";
-import { SimpleTimerView } from "@/components/timer/SimpleTimerView";
-import { ImmersiveTimerView } from "@/components/timer/ImmersiveTimerView";
+import { SimpleTimerView, SimpleTimerGraphic } from "@/components/timer/SimpleTimerView";
+import { ImmersiveTimerView, ImmersiveTimerGraphic, Desk } from "@/components/timer/ImmersiveTimerView";
 import { HEARTBEAT_INTERVAL_MS } from "@/lib/timer";
 
 type Mode = "simple" | "immersive";
@@ -233,26 +233,45 @@ export function TimerSetup({
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="mb-2 text-sm font-medium">모드 선택</p>
-        <div className="grid grid-cols-2 gap-3">
+      {/* 모드를 고르기 전에도 그 모드가 실제로 어떻게 보이는지 먼저 보여주기 위해, 실행
+          화면과 동일한 그래픽(SimpleTimerGraphic/ImmersiveTimerGraphic)을 정적인 값으로
+          미리보기만 한다 — 진짜 타이머는 시작하지 않음. */}
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex w-full max-w-lg items-center justify-center rounded-2xl border border-sb-border bg-sb-card p-6">
+          {mode === "simple" ? (
+            <SimpleTimerGraphic
+              progress={0.35}
+              phase="study"
+              timeLabel={`${STUDY_MINUTES}:00`}
+              subLabel={`${STUDY_MINUTES}min / ${BREAK_MINUTES}min`}
+            />
+          ) : (
+            <ImmersiveTimerGraphic completedSets={0} statusLabel={`공부 중 · ${STUDY_MINUTES}:00`}>
+              <Desk dark={false} />
+            </ImmersiveTimerGraphic>
+          )}
+        </div>
+
+        <div className="grid w-full max-w-xs grid-cols-2 gap-3">
           <button
             onClick={() => setMode("simple")}
-            className={`rounded-md border p-4 text-left ${
-              mode === "simple" ? "border-sb-accent" : "border-sb-border"
+            className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
+              mode === "simple"
+                ? "bg-sb-accent text-sb-accent-ink"
+                : "border border-sb-border bg-sb-bg-soft text-sb-mute hover:text-sb-text"
             }`}
           >
-            <p className="text-sm font-medium">심플 모드</p>
-            <p className="mt-1 text-xs text-sb-mute">원형 타이머로 집중 시간을 확인</p>
+            심플 모드
           </button>
           <button
             onClick={() => setMode("immersive")}
-            className={`rounded-md border p-4 text-left ${
-              mode === "immersive" ? "border-sb-accent" : "border-sb-border"
+            className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
+              mode === "immersive"
+                ? "bg-sb-accent text-sb-accent-ink"
+                : "border border-sb-border bg-sb-bg-soft text-sb-mute hover:text-sb-text"
             }`}
           >
-            <p className="text-sm font-medium">몰입 모드</p>
-            <p className="mt-1 text-xs text-sb-mute">책상 일러스트와 함께 공부</p>
+            몰입 모드
           </button>
         </div>
       </div>

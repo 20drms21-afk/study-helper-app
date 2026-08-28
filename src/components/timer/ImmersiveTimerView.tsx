@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTimerEngine } from "@/hooks/useTimerEngine";
 import { useRoomPolling } from "@/hooks/useRoomPolling";
 
@@ -10,7 +11,8 @@ function formatClock(seconds: number): string {
 }
 
 // 완료 세트 수 기준 낮 -> 노을 -> 밤 배경 전환 (누적 공부 시간이 늘수록 어두워짐).
-function backgroundFor(completedSets: number): string {
+// /timer 설정 화면의 모드 미리보기에서도 재사용하기 위해 export.
+export function backgroundFor(completedSets: number): string {
   // 랜딩페이지 히어로와 동일한 배경(src/app/page.tsx) — 어두운 sb-bg(#171a10) 위에
   // 라임그린 radial-gradient 글로우를 얹는 조합을 그대로 가져옴.
   if (completedSets === 0)
@@ -19,7 +21,7 @@ function backgroundFor(completedSets: number): string {
   return "linear-gradient(180deg, #0f1035 0%, #1a1a4a 60%, #2b2b5e 100%)";
 }
 
-function Desk({ dark }: { dark: boolean }) {
+export function Desk({ dark }: { dark: boolean }) {
   const wallColor = dark ? "#1c1c3a" : "#f5ede1";
   const deskColor = dark ? "#5a4632" : "#c8a375";
   const skinColor = "#eab892";
@@ -36,6 +38,26 @@ function Desk({ dark }: { dark: boolean }) {
       {/* 책 */}
       <rect x={120} y={150} width={60} height={10} rx={2} fill="#e2725b" />
     </svg>
+  );
+}
+
+// 배경 그라디언트 + 상태 텍스트 래퍼도 실행 화면과 /timer 설정 화면의 모드 미리보기가
+// 공유한다. 참가자 수만큼 Desk를 몇 개 그릴지는 화면마다 달라서(실행 화면은 참가자 목록을
+// 알아야 함, 미리보기는 항상 1명) children으로 위임한다.
+export function ImmersiveTimerGraphic({
+  completedSets,
+  statusLabel,
+  children,
+}: {
+  completedSets: number;
+  statusLabel: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="w-full max-w-lg rounded-md p-6" style={{ background: backgroundFor(completedSets) }}>
+      <div className="flex flex-wrap items-center justify-center gap-2">{children}</div>
+      <div className="mt-2 text-center text-sm font-medium text-white drop-shadow">{statusLabel}</div>
+    </div>
   );
 }
 
@@ -74,24 +96,19 @@ export function ImmersiveTimerView({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div
-        className="w-full max-w-lg rounded-md p-6"
-        style={{ background: backgroundFor(engine.completedSets) }}
+      <ImmersiveTimerGraphic
+        completedSets={engine.completedSets}
+        statusLabel={`${engine.phase === "study" ? "공부 중" : "휴식 중"} · ${formatClock(engine.remainingInPhaseSeconds)}`}
       >
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <Desk dark={dark} />
-          {participants
-            .filter((p) => p.status === "active" && p.userId !== currentUserId)
-            .map((p) => (
-              <div key={p.userId} className="scale-75 opacity-90">
-                <Desk dark={dark} />
-              </div>
-            ))}
-        </div>
-        <div className="mt-2 text-center text-sm font-medium text-white drop-shadow">
-          {engine.phase === "study" ? "공부 중" : "휴식 중"} · {formatClock(engine.remainingInPhaseSeconds)}
-        </div>
-      </div>
+        <Desk dark={dark} />
+        {participants
+          .filter((p) => p.status === "active" && p.userId !== currentUserId)
+          .map((p) => (
+            <div key={p.userId} className="scale-75 opacity-90">
+              <Desk dark={dark} />
+            </div>
+          ))}
+      </ImmersiveTimerGraphic>
 
       <div className="flex items-center gap-4 text-sm">
         <span>완료 세트: {engine.completedSets}</span>

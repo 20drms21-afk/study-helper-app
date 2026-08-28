@@ -9,6 +9,51 @@ function formatClock(seconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+// 실제 실행 중 화면과, /timer 설정 화면의 모드 미리보기가 같은 원형 타이머 그래픽을 써야
+// 해서(둘이 갈라지면 미리보기만 안 고치고 지나치기 쉬움) SVG 그리기 로직을 분리해뒀다.
+export function SimpleTimerGraphic({
+  progress,
+  phase,
+  timeLabel,
+  subLabel,
+}: {
+  progress: number;
+  phase: "study" | "break";
+  timeLabel: string;
+  subLabel: string;
+}) {
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+
+  return (
+    <div className="relative">
+      <svg width={220} height={220} viewBox="0 0 220 220">
+        {/* 다크 배경 위에서 보여야 해서 트랙은 옅은 흰색 반투명, 진행 스트로크는 브랜드
+            라임(공부)/보조 블루(휴식)로 구분한다 — 예전엔 라이트 테마 전제 색(#e5e7eb 등)이라
+            어두운 페이지 위에서 진행 스트로크가 거의 안 보였다. */}
+        <circle cx={110} cy={110} r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={12} />
+        <circle
+          cx={110}
+          cy={110}
+          r={radius}
+          fill="none"
+          stroke={phase === "study" ? "#c2ff3d" : "#7db8ff"}
+          strokeWidth={12}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * (1 - progress)}
+          transform="rotate(-90 110 110)"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-xs text-sb-mute">{phase === "study" ? "공부 중" : "휴식 중"}</span>
+        <span className="text-2xl font-bold text-sb-text">{timeLabel}</span>
+        <span className="text-xs text-sb-mute">{subLabel}</span>
+      </div>
+    </div>
+  );
+}
+
 export function SimpleTimerView({
   startedAt,
   studyMinutes,
@@ -40,33 +85,15 @@ export function SimpleTimerView({
   const participants = useRoomPolling(code, engine.getElapsedForHeartbeat);
 
   const progress = 1 - engine.remainingInPhaseSeconds / engine.phaseTotalSeconds;
-  const radius = 90;
-  const circumference = 2 * Math.PI * radius;
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative">
-        <svg width={220} height={220} viewBox="0 0 220 220">
-          <circle cx={110} cy={110} r={radius} fill="none" stroke="#e5e7eb" strokeWidth={12} />
-          <circle
-            cx={110}
-            cy={110}
-            r={radius}
-            fill="none"
-            stroke={engine.phase === "study" ? "#111827" : "#16a34a"}
-            strokeWidth={12}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * (1 - progress)}
-            transform="rotate(-90 110 110)"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-xs text-sb-mute">{engine.phase === "study" ? "공부 중" : "휴식 중"}</span>
-          <span className="text-2xl font-bold">{formatClock(engine.remainingInPhaseSeconds)}</span>
-          <span className="text-xs text-sb-mute">{studyMinutes}min / {breakMinutes}min</span>
-        </div>
-      </div>
+      <SimpleTimerGraphic
+        progress={progress}
+        phase={engine.phase}
+        timeLabel={formatClock(engine.remainingInPhaseSeconds)}
+        subLabel={`${studyMinutes}min / ${breakMinutes}min`}
+      />
 
       <div className="flex items-center gap-4 text-sm">
         <span>완료 세트: {engine.completedSets}</span>

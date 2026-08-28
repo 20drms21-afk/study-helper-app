@@ -100,44 +100,50 @@ export function CalendarBoard() {
 
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1">
-          <div className="mb-3 flex items-center justify-between">
-            <button
-              onClick={() => goMonth(-1)}
-              className="rounded-md border border-sb-border px-3 py-1.5 text-sm hover:bg-sb-hover"
-            >
-              이전
-            </button>
-            <h2 className="text-lg font-bold">
-              {year}년 {month}월
-            </h2>
-            <button
-              onClick={() => goMonth(1)}
-              className="rounded-md border border-sb-border px-3 py-1.5 text-sm hover:bg-sb-hover"
-            >
-              다음
-            </button>
-          </div>
+          {/* 페이지는 다크 브랜드톤을 유지하되, 이전/월/다음 내비게이션·요일·달력 그리드
+              전체를 담는 이 카드만 흰 종이 톤(ExamPaperWeb과 같은 패턴)으로 분리한다 —
+              올리브 계열 dark card 위에 얹은 어두운 날짜 칸은 페이지와 잘 구분이 안 됐다.
+              카드 안은 다크테마 토큰(sb-text 등) 대신 회색 계열을 직접 쓴다. */}
+          <div className="rounded-xl border border-[rgba(45,60,40,0.10)] bg-[#E9ECE4] p-4 text-[#1F281C]">
+            <div className="mb-3 flex items-center justify-between">
+              <button
+                onClick={() => goMonth(-1)}
+                className="rounded-md border border-[rgba(45,60,40,0.10)] px-3 py-1.5 text-sm text-[#1F281C] hover:bg-[#D8DED1]"
+              >
+                이전
+              </button>
+              <h2 className="text-lg font-bold text-[#1F281C]">
+                {year}년 {month}월
+              </h2>
+              <button
+                onClick={() => goMonth(1)}
+                className="rounded-md border border-[rgba(45,60,40,0.10)] px-3 py-1.5 text-sm text-[#1F281C] hover:bg-[#D8DED1]"
+              >
+                다음
+              </button>
+            </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs text-sb-mute">
-            {WEEKDAY_LABELS.map((w) => (
-              <div key={w} className="pb-1">
-                {w}
-              </div>
-            ))}
-          </div>
-          <div className={`grid grid-cols-7 gap-1 ${loading ? "opacity-50" : ""}`}>
-            {grid.map((date) => (
-              <DayCell
-                key={date}
-                date={date}
-                inCurrentMonth={date.startsWith(`${year}-${String(month).padStart(2, "0")}`)}
-                isToday={date === today}
-                isSelected={date === selectedDate}
-                day={dayByDate.get(date)}
-                events={eventsByDate.get(date) ?? []}
-                onClick={() => setSelectedDate(date)}
-              />
-            ))}
+            <div className="grid grid-cols-7 gap-1 text-center text-xs text-[#9AA393]">
+              {WEEKDAY_LABELS.map((w) => (
+                <div key={w} className="pb-1">
+                  {w}
+                </div>
+              ))}
+            </div>
+            <div className={`grid grid-cols-7 gap-1 ${loading ? "opacity-50" : ""}`}>
+              {grid.map((date) => (
+                <DayCell
+                  key={date}
+                  date={date}
+                  inCurrentMonth={date.startsWith(`${year}-${String(month).padStart(2, "0")}`)}
+                  isToday={date === today}
+                  isSelected={date === selectedDate}
+                  day={dayByDate.get(date)}
+                  events={eventsByDate.get(date) ?? []}
+                  onClick={() => setSelectedDate(date)}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
