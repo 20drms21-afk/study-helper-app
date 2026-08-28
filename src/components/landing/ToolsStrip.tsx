@@ -124,7 +124,7 @@ export function ToolsStrip() {
             </Card>
           </Reveal>
           <Reveal delay={300}>
-            <Card href="/timer" title="포모도로" body="집중 시간을 기록하고 공부 흐름을 유지">
+            <Card href="/timer" title="집중 타이머" body="집중 시간을 기록하고 공부 흐름을 유지">
               <TimerPreview />
             </Card>
           </Reveal>

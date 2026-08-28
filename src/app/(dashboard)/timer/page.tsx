@@ -14,7 +14,7 @@ export default async function TimerPage() {
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="mb-6 text-xl font-bold">포모도로 타이머</h1>
+      <h1 className="mb-6 text-xl font-bold">집중 타이머</h1>
       <TimerSetup subjects={subjects} currentUserId={session!.user.id} />
     </div>
   );

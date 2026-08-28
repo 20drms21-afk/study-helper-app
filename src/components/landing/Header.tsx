@@ -14,7 +14,7 @@ const studyLinks = [
   { href: "/tutor", label: "AI선생님" },
   { href: "/translate", label: "PDF 영어자료 변환" },
   { href: "/calendar", label: "캘린더" },
-  { href: "/timer", label: "포모도로" },
+  { href: "/timer", label: "집중 타이머" },
 ];
 
 const infoLinks = [
