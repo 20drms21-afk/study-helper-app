@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Select, SELECT_NONE_VALUE as NONE } from "@/components/ui/Select";
 
 const REGIONS = [
   "서울특별시",
@@ -112,18 +113,14 @@ export function StudentProfileForm({
         {show("region") && (
           <div>
             <label className="mb-1 block text-sm font-medium">거주 지역</label>
-            <select
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
-            >
-              <option value="">선택 안 함</option>
-              {REGIONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
+            <Select
+              value={region || NONE}
+              onValueChange={(v) => setRegion(v === NONE ? "" : v)}
+              options={[
+                { value: NONE, label: "선택 안 함" },
+                ...REGIONS.map((r) => ({ value: r, label: r })),
+              ]}
+            />
           </div>
         )}
         {show("major") && (
@@ -140,35 +137,30 @@ export function StudentProfileForm({
         {show("gradeLevel") && (
           <div>
             <label className="mb-1 block text-sm font-medium">학년</label>
-            <select
-              value={gradeLevel}
-              onChange={(e) => setGradeLevel(Number(e.target.value))}
-              className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
-            >
-              <option value={0}>선택 안 함</option>
-              {[1, 2, 3, 4, 5, 6].map((g) => (
-                <option key={g} value={g}>
-                  {g}학년
-                </option>
-              ))}
-            </select>
+            <Select
+              value={String(gradeLevel)}
+              onValueChange={(v) => setGradeLevel(Number(v))}
+              options={[
+                { value: "0", label: "선택 안 함" },
+                ...[1, 2, 3, 4, 5, 6].map((g) => ({ value: String(g), label: `${g}학년` })),
+              ]}
+            />
           </div>
         )}
         {show("incomeBracket") && (
           <div>
             <label className="mb-1 block text-sm font-medium">소득분위</label>
-            <select
-              value={incomeBracket}
-              onChange={(e) => setIncomeBracket(Number(e.target.value))}
-              className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
-            >
-              <option value={0}>해당없음/모름</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((b) => (
-                <option key={b} value={b}>
-                  {b}구간
-                </option>
-              ))}
-            </select>
+            <Select
+              value={String(incomeBracket)}
+              onValueChange={(v) => setIncomeBracket(Number(v))}
+              options={[
+                { value: "0", label: "해당없음/모름" },
+                ...[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((b) => ({
+                  value: String(b),
+                  label: `${b}구간`,
+                })),
+              ]}
+            />
           </div>
         )}
         {show("gpa") && (

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SubjectPicker, type SubjectRef } from "@/components/SubjectPicker";
+import { Select, SELECT_NONE_VALUE as UNCLASSIFIED_VALUE } from "@/components/ui/Select";
 
 interface LibraryFile {
   id: string;
@@ -221,18 +222,18 @@ export function MaterialsLibrary({
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <select
-                    value={file.subjectId ?? ""}
-                    onChange={(e) => handleReassign(file.id, e.target.value || null)}
-                    className="rounded-md border border-sb-border px-2 py-1 text-xs"
-                  >
-                    <option value="">미분류</option>
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    value={file.subjectId ?? UNCLASSIFIED_VALUE}
+                    onValueChange={(v) =>
+                      handleReassign(file.id, v === UNCLASSIFIED_VALUE ? null : v)
+                    }
+                    size="sm"
+                    className="w-auto min-w-[6.5rem]"
+                    options={[
+                      { value: UNCLASSIFIED_VALUE, label: "미분류" },
+                      ...subjects.map((s) => ({ value: s.id, label: s.name })),
+                    ]}
+                  />
                   <button
                     type="button"
                     onClick={() => handleDelete(file.id)}

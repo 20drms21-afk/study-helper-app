@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Select, SELECT_NONE_VALUE as NONE } from "@/components/ui/Select";
 
 export interface SubjectRef {
   id: string;
@@ -102,19 +103,15 @@ export function SubjectPicker({
     <div>
       <label className="mb-1 block text-sm font-medium">{label}</label>
       <div className="flex gap-2">
-        <select
-          value={value ?? ""}
-          onChange={(e) => onChange(e.target.value || null)}
-          className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
-        >
-          {allowNone && <option value="">선택 안 함</option>}
-          {!allowNone && <option value="" disabled>과목을 선택하세요</option>}
-          {subjects.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <Select
+          value={value ?? (allowNone ? NONE : "")}
+          onValueChange={(v) => onChange(v === NONE ? null : v)}
+          placeholder={allowNone ? undefined : "과목을 선택하세요"}
+          options={[
+            ...(allowNone ? [{ value: NONE, label: "선택 안 함" }] : []),
+            ...subjects.map((s) => ({ value: s.id, label: s.name })),
+          ]}
+        />
         <button
           type="button"
           onClick={() => setCreating(true)}
