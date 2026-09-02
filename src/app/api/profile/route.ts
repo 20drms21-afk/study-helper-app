@@ -9,6 +9,7 @@ import { classifyActivityFieldTags } from "@/lib/activity/classify";
 const profileSchema = z.object({
   region: z.string().max(50).optional(),
   major: z.string().max(100).optional(),
+  departmentField: z.string().max(20).optional(),
   gradeLevel: z.number().int().min(1).max(6).optional(),
   incomeBracket: z.number().int().min(0).max(10).optional(),
   gpa: z.number().min(0).max(4.5).optional(),

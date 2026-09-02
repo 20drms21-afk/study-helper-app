@@ -23,9 +23,22 @@ const REGIONS = [
   "제주특별자치도",
 ];
 
+// 장학금 학과구분 매칭용 — KOSAF 원본 데이터의 학과계열 분류가 이 8개(제한없음 제외 7개)뿐이라
+// 자유 텍스트 major와 별개로 이 고정된 값 중에서 고르게 한다(src/lib/scholarship/match.ts 참고).
+const DEPARTMENT_FIELDS = [
+  "인문계열",
+  "사회계열",
+  "교육계열",
+  "공학계열",
+  "자연계열",
+  "의약계열",
+  "예체능계열",
+];
+
 export interface StudentProfileValue {
   region: string | null;
   major: string | null;
+  departmentField: string | null;
   gradeLevel: number | null;
   incomeBracket: number | null;
   gpa: number | null;
@@ -35,6 +48,7 @@ export interface StudentProfileValue {
 export type StudentProfileField =
   | "region"
   | "major"
+  | "departmentField"
   | "gradeLevel"
   | "incomeBracket"
   | "gpa"
@@ -43,6 +57,7 @@ export type StudentProfileField =
 const ALL_FIELDS: StudentProfileField[] = [
   "region",
   "major",
+  "departmentField",
   "gradeLevel",
   "incomeBracket",
   "gpa",
@@ -62,6 +77,7 @@ export function StudentProfileForm({
 }) {
   const [region, setRegion] = useState(initialValue.region ?? "");
   const [major, setMajor] = useState(initialValue.major ?? "");
+  const [departmentField, setDepartmentField] = useState(initialValue.departmentField ?? "");
   const [gradeLevel, setGradeLevel] = useState(initialValue.gradeLevel ?? 0);
   const [incomeBracket, setIncomeBracket] = useState(initialValue.incomeBracket ?? 0);
   const [gpa, setGpa] = useState(initialValue.gpa != null ? String(initialValue.gpa) : "");
@@ -81,6 +97,7 @@ export function StudentProfileForm({
       const payload: Record<string, unknown> = {};
       if (show("region")) payload.region = region || undefined;
       if (show("major")) payload.major = major || undefined;
+      if (show("departmentField")) payload.departmentField = departmentField || undefined;
       if (show("gradeLevel")) payload.gradeLevel = gradeLevel || undefined;
       if (show("incomeBracket")) payload.incomeBracket = incomeBracket || 0;
       if (show("gpa")) payload.gpa = gpa === "" ? undefined : Number(gpa);
@@ -131,6 +148,19 @@ export function StudentProfileForm({
               onChange={(e) => setMajor(e.target.value)}
               placeholder="예: 경영학과"
               className="w-full rounded-md border border-sb-border px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+        {show("departmentField") && (
+          <div>
+            <label className="mb-1 block text-sm font-medium">학과 계열 (장학금 매칭용)</label>
+            <Select
+              value={departmentField || NONE}
+              onValueChange={(v) => setDepartmentField(v === NONE ? "" : v)}
+              options={[
+                { value: NONE, label: "선택 안 함" },
+                ...DEPARTMENT_FIELDS.map((d) => ({ value: d, label: d })),
+              ]}
             />
           </div>
         )}

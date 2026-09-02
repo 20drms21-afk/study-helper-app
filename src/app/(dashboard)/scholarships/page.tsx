@@ -18,12 +18,13 @@ export default async function ScholarshipsPage() {
         initialValue={{
           region: profile?.region ?? null,
           major: profile?.major ?? null,
+          departmentField: profile?.departmentField ?? null,
           gradeLevel: profile?.gradeLevel ?? null,
           incomeBracket: profile?.incomeBracket ?? null,
           gpa: profile?.gpa ?? null,
           interests: profile?.interests ?? null,
         }}
-        fields={["region", "major", "gradeLevel", "incomeBracket", "gpa"]}
+        fields={["region", "major", "departmentField", "gradeLevel", "incomeBracket", "gpa"]}
         title="장학금 매칭 정보"
       />
       <ScholarshipResults />
