@@ -14,6 +14,15 @@ export default async function TimerPage() {
 
   return (
     <div className="mx-auto max-w-xl">
+      <video
+        className="mb-6 w-full rounded-2xl border border-sb-border"
+        src="/timer/simple-mode-hero.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden
+      />
       <h1 className="mb-6 text-xl font-bold">집중 타이머</h1>
       <TimerSetup subjects={subjects} currentUserId={session!.user.id} />
     </div>
