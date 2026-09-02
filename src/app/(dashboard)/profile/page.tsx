@@ -39,6 +39,7 @@ export default async function ProfilePage() {
           initialValue={{
             region: studentProfile?.region ?? null,
             major: studentProfile?.major ?? null,
+            departmentField: studentProfile?.departmentField ?? null,
             gradeLevel: studentProfile?.gradeLevel ?? null,
             incomeBracket: studentProfile?.incomeBracket ?? null,
             gpa: studentProfile?.gpa ?? null,

@@ -43,7 +43,18 @@ export interface RawScholarshipListing {
   name: string;
   kind?: string;
   amountText?: string;
-  eligibilityText: string;
+  eligibilityText: string; // 레거시 — main 배포 코드 호환용, prisma.ts 주석 참고
+  departmentTags?: string;
+  universityTags?: string;
+  gradOnly: boolean;
+  maxIncomeBracket?: number;
+  minGpa?: number;
+  gradeCriteriaText?: string;
+  incomeCriteriaText?: string;
+  residencyText?: string;
+  qualificationText?: string;
+  restrictionText?: string;
+  recommendationText?: string;
   applyPeriodText?: string;
   applyUrl?: string;
   applyStartDate?: string; // "YYYY-MM-DD"
@@ -189,6 +200,135 @@ function cleanUrl(value: string | undefined): string | undefined {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 }
 
+// KOSAF CSV의 "학과구분"/"대학구분"/"학년구분" 컬럼은 자유서술이 아니라 체크박스 다중선택
+// 값이 구분자 없이 그냥 이어붙어 내려온다(실제 값 예: "공학계열교육계열사회계열예체능계열
+// 의약계열인문계열자연계열제한없음" = 8개 값 전부 선택됨 = 사실상 "제한없음"과 동치).
+// 알려진 어휘 목록으로 앞에서부터 그리디하게 잘라낸다 — 끝까지 다 잘리면 성공, 어느 지점에서
+// 알려진 토큰으로 시작하지 않는 나머지가 남으면(=우리가 모르는 값이 섞여있으면) 실패로 보고
+// null을 반환한다. 호출부는 null을 "조건 불명 → 필터링하지 않고 통과"로 처리한다 — 잘못
+// 잘라서 일부 토큰을 놓치고 조건을 오판하는 것보다, 모르면 그냥 보여주는 쪽이 안전하다.
+function tokenizeConcatenated(text: string, vocabulary: readonly string[]): string[] | null {
+  const sorted = [...vocabulary].sort((a, b) => b.length - a.length); // 겹치는 접두어(예: "전문대(2~3년제)" vs "전문대학원") 대비 긴 것부터 매칭
+  const tokens: string[] = [];
+  let remaining = text;
+  while (remaining.length > 0) {
+    const match = sorted.find((v) => remaining.startsWith(v));
+    if (!match) return null;
+    tokens.push(match);
+    remaining = remaining.slice(match.length);
+  }
+  return tokens;
+}
+
+const DEPARTMENT_VOCAB = [
+  "공학계열",
+  "교육계열",
+  "사회계열",
+  "예체능계열",
+  "의약계열",
+  "인문계열",
+  "자연계열",
+  "제한없음",
+] as const;
+
+const UNIVERSITY_VOCAB = [
+  "4년제(5~6년제포함)",
+  "기술대학",
+  "원격대학",
+  "일반대학원",
+  "전문대(2~3년제)",
+  "전문대학원",
+  "학점은행제 대학",
+  "해외대학",
+  "특정대학",
+  "제한없음",
+] as const;
+
+const GRADE_VOCAB = [
+  "대학신입생",
+  "대학2학기",
+  "대학3학기",
+  "대학4학기",
+  "대학5학기",
+  "대학6학기",
+  "대학7학기",
+  "대학8학기이상",
+  "석사신입생(1학기)",
+  "석사2학기이상",
+  "박사과정",
+  "연령제한",
+  "제한없음",
+] as const;
+
+const UNDERGRAD_GRADE_TOKENS = new Set([
+  "대학신입생",
+  "대학2학기",
+  "대학3학기",
+  "대학4학기",
+  "대학5학기",
+  "대학6학기",
+  "대학7학기",
+  "대학8학기이상",
+  "연령제한",
+  "제한없음",
+]);
+
+// 필터링에 실제로 쓰는 학과구분만 토큰화한다 — "제한없음"이 포함되어 있거나(=전부 선택),
+// 토큰화 자체에 실패하면 null(학과 무관, 필터링 안 함).
+function parseDepartmentTags(text: string): string[] | null {
+  if (!text) return null;
+  const tokens = tokenizeConcatenated(text, DEPARTMENT_VOCAB);
+  if (!tokens || tokens.length === 0 || tokens.includes("제한없음")) return null;
+  return tokens;
+}
+
+// 표시용 대학구분 태그 — 매칭 필터엔 안 쓰므로 토큰화 실패해도 null만 반환(에러 아님).
+function parseUniversityTags(text: string): string[] | null {
+  if (!text) return null;
+  const tokens = tokenizeConcatenated(text, UNIVERSITY_VOCAB);
+  if (!tokens || tokens.length === 0 || tokens.includes("제한없음")) return null;
+  return tokens;
+}
+
+// 학년구분 토큰 중 학부(대학) 단위가 하나도 없고 대학원(석사/박사) 단위만 있으면 "대학원
+// 전용"으로 본다 — 이 앱은 학부생만 대상이라 이런 장학금은 필터링해서 뺀다. 그 외의 세밀한
+// 학기 단위 매칭(1학년이 몇 학기에 해당하는지 등)은 학년↔학기 환산이 모호해서 안 한다.
+function parseGradOnly(text: string): boolean {
+  if (!text) return false;
+  const tokens = tokenizeConcatenated(text, GRADE_VOCAB);
+  if (!tokens || tokens.length === 0) return false;
+  const hasUndergrad = tokens.some((t) => UNDERGRAD_GRADE_TOKENS.has(t));
+  const hasGradOnlyToken = tokens.some((t) => t === "석사신입생(1학기)" || t === "석사2학기이상" || t === "박사과정");
+  return hasGradOnlyToken && !hasUndergrad;
+}
+
+// "2.5/ 4.5점 이상" 패턴
+const GPA_SLASH_RE = /(\d(?:\.\d+)?)\s*\/\s*4\.5\s*점?\s*이상/;
+// "3.0이상(4.5점 만점 기준)" 패턴
+const GPA_PAREN_RE = /(\d(?:\.\d+)?)\s*점?\s*이상\s*\(?\s*4\.5\s*점?\s*만점/;
+
+// "4.5 만점" 언급이 근처에 명시된 경우만 학점으로 인정한다 — IELTS 점수("Overall 5.5 이상")나
+// 수능 등급 합("8 이내") 같은 다른 척도까지 학점으로 잘못 파싱하는 걸 막기 위함. 못 찾으면
+// null(필터링 안 함, 원문만 표시).
+function parseMinGpa(text: string): number | undefined {
+  const m = text.match(GPA_SLASH_RE) ?? text.match(GPA_PAREN_RE);
+  if (!m) return undefined;
+  const value = Number(m[1]);
+  return Number.isFinite(value) && value >= 0 && value <= 4.5 ? value : undefined;
+}
+
+// "3구간 이내", "6구간(중위소득 130%)" 같은 "N구간" 패턴에서 상한을 뽑는다. 이 도메인에서
+// "N구간"은 거의 항상 "N구간 이내"(그 이하 전부 해당)라는 뜻으로 쓰인다 — "이내"가 명시돼
+//있지 않아도 첫 번째 숫자를 상한으로 취급한다. 못 찾으면 undefined(필터링 안 함).
+const INCOME_BRACKET_RE = /(\d{1,2})\s*구간/;
+
+function parseMaxIncomeBracket(text: string): number | undefined {
+  const m = text.match(INCOME_BRACKET_RE);
+  if (!m) return undefined;
+  const value = Number(m[1]);
+  return Number.isFinite(value) && value >= 0 && value <= 10 ? value : undefined;
+}
+
 function rowsToListings(rows: string[][]): RawScholarshipListing[] {
   if (rows.length === 0) return [];
   const header = rows[0];
@@ -240,6 +380,12 @@ function rowsToListings(rows: string[][]): RawScholarshipListing[] {
     ].filter(([, v]) => v);
     const eligibilityText = eligibilityParts.map(([label, v]) => `[${label}] ${v}`).join("\n");
 
+    const departmentText = cleanText(r[col.department]);
+    const universityText = cleanText(r[col.university]);
+    const gradeText = cleanText(r[col.grade]);
+    const gradeCriteriaText = cleanText(r[col.gradeCriteria]);
+    const incomeCriteriaText = cleanText(r[col.incomeCriteria]);
+
     listings.push({
       externalId: `${provider}::${name}::${applyStartDate ?? ""}`,
       provider,
@@ -247,6 +393,17 @@ function rowsToListings(rows: string[][]): RawScholarshipListing[] {
       kind: kind || undefined,
       amountText: cleanText(r[col.support]) || undefined,
       eligibilityText: eligibilityText || "상세 내용 없음",
+      departmentTags: parseDepartmentTags(departmentText)?.join(",") || undefined,
+      universityTags: parseUniversityTags(universityText)?.join(",") || undefined,
+      gradOnly: parseGradOnly(gradeText),
+      maxIncomeBracket: parseMaxIncomeBracket(incomeCriteriaText),
+      minGpa: parseMinGpa(gradeCriteriaText),
+      gradeCriteriaText: gradeCriteriaText || undefined,
+      incomeCriteriaText: incomeCriteriaText || undefined,
+      residencyText: cleanText(r[col.residency]) || undefined,
+      qualificationText: cleanText(r[col.qualification]) || undefined,
+      restrictionText: cleanText(r[col.restriction]) || undefined,
+      recommendationText: cleanText(r[col.recommendation]) || undefined,
       applyPeriodText:
         applyStartDate && applyEndDate
           ? `${applyStartDate} ~ ${applyEndDate}`
@@ -268,7 +425,7 @@ export async function fetchScholarshipListings(): Promise<RawScholarshipListing[
 // 행마다 prisma.scholarshipListing.upsert()를 호출하면(=DB 왕복 1,850번) 실측 97초가
 // 걸려서 라우트의 maxDuration(60초, Vercel Hobby 상한)을 넘겨버림 — 매달 이 배치 자체가
 // 타임아웃으로 실패하게 됨. ON CONFLICT DO UPDATE 기반 다건 INSERT로 왕복 횟수를
-// 배치 개수(10개 안팎)로 줄인다. 배치당 12개 컬럼 × 200행 = 2,400개 파라미터로
+// 배치 개수(10개 안팎)로 줄인다. 배치당 23개 컬럼 × 200행 = 4,600개 파라미터로
 // Postgres 파라미터 상한(65,535)에 여유 있게 못 미침.
 const UPSERT_BATCH_SIZE = 200;
 
@@ -279,14 +436,23 @@ async function upsertListingsBatch(listings: RawScholarshipListing[]): Promise<v
     (l) =>
       Prisma.sql`(${randomUUID()}, ${l.externalId}, ${l.provider}, ${l.name}, ${l.kind ?? null}, ${
         l.amountText ?? null
-      }, ${l.eligibilityText}, ${l.applyPeriodText ?? null}, ${l.applyUrl ?? null}, ${
-        l.applyStartDate ?? null
-      }, ${l.applyEndDate ?? null}, ${now})`
+      }, ${l.eligibilityText}, ${l.departmentTags ?? null}, ${l.universityTags ?? null}, ${
+        l.gradOnly
+      }, ${l.maxIncomeBracket ?? null}, ${l.minGpa ?? null}, ${l.gradeCriteriaText ?? null}, ${
+        l.incomeCriteriaText ?? null
+      }, ${l.residencyText ?? null}, ${l.qualificationText ?? null}, ${l.restrictionText ?? null}, ${
+        l.recommendationText ?? null
+      }, ${l.applyPeriodText ?? null}, ${l.applyUrl ?? null}, ${l.applyStartDate ?? null}, ${
+        l.applyEndDate ?? null
+      }, ${now})`
   );
 
   await prisma.$executeRaw`
     INSERT INTO "ScholarshipListing"
       ("id", "externalId", "provider", "name", "kind", "amountText", "eligibilityText",
+       "departmentTags", "universityTags", "gradOnly", "maxIncomeBracket", "minGpa",
+       "gradeCriteriaText", "incomeCriteriaText", "residencyText", "qualificationText",
+       "restrictionText", "recommendationText",
        "applyPeriodText", "applyUrl", "applyStartDate", "applyEndDate", "fetchedAt")
     VALUES ${Prisma.join(rows)}
     ON CONFLICT ("externalId") DO UPDATE SET
@@ -295,6 +461,17 @@ async function upsertListingsBatch(listings: RawScholarshipListing[]): Promise<v
       "kind" = EXCLUDED."kind",
       "amountText" = EXCLUDED."amountText",
       "eligibilityText" = EXCLUDED."eligibilityText",
+      "departmentTags" = EXCLUDED."departmentTags",
+      "universityTags" = EXCLUDED."universityTags",
+      "gradOnly" = EXCLUDED."gradOnly",
+      "maxIncomeBracket" = EXCLUDED."maxIncomeBracket",
+      "minGpa" = EXCLUDED."minGpa",
+      "gradeCriteriaText" = EXCLUDED."gradeCriteriaText",
+      "incomeCriteriaText" = EXCLUDED."incomeCriteriaText",
+      "residencyText" = EXCLUDED."residencyText",
+      "qualificationText" = EXCLUDED."qualificationText",
+      "restrictionText" = EXCLUDED."restrictionText",
+      "recommendationText" = EXCLUDED."recommendationText",
       "applyPeriodText" = EXCLUDED."applyPeriodText",
       "applyUrl" = EXCLUDED."applyUrl",
       "applyStartDate" = EXCLUDED."applyStartDate",

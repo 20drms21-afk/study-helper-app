@@ -22,6 +22,7 @@ export default async function ActivitiesPage() {
         initialValue={{
           region: profile?.region ?? null,
           major: profile?.major ?? null,
+          departmentField: profile?.departmentField ?? null,
           gradeLevel: profile?.gradeLevel ?? null,
           incomeBracket: profile?.incomeBracket ?? null,
           gpa: profile?.gpa ?? null,
