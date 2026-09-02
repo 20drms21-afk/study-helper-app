@@ -30,44 +30,55 @@ export function SummaryView({
   content: SummaryContent | ExplanationContent;
   type: NoteContentType;
 }) {
-  return (
-    <div className="mx-auto w-full max-w-[794px] rounded-sm bg-white p-12 shadow-md ring-1 ring-gray-200">
-      <h2 className="mb-6 text-lg font-bold">{content.title}</h2>
-
-      {type === "summary" ? (
-        (() => {
-          const { left, right } = splitSectionsForWeb((content as SummaryContent).sections);
-          return (
+  // 요약(2단): PDF와 동일하게 A4 페이지 여러 장에 신문 단 흐름으로 배치.
+  // 페이지 카드는 항상 A4 크기(sm:min-h-[1123px])로 고정하고, 여백(p-8)만 좁게 둔다.
+  if (type === "summary") {
+    const pages = splitSectionsForWeb((content as SummaryContent).sections);
+    return (
+      <div className="mx-auto flex w-full max-w-[794px] flex-col gap-8">
+        {pages.map((page, pageIndex) => (
+          <div
+            key={pageIndex}
+            className="rounded-sm bg-white p-8 shadow-md ring-1 ring-gray-200 sm:min-h-[1123px]"
+          >
+            {pageIndex === 0 && (
+              <h2 className="mb-6 text-lg font-bold">{content.title}</h2>
+            )}
             <div className="flex flex-col gap-6 sm:flex-row">
               <div className="min-w-0 flex-1">
-                {left.map((section, i) => (
+                {page.left.map((section, i) => (
                   <SectionCard key={i} section={section} />
                 ))}
               </div>
-              {right.length > 0 && (
+              {page.right.length > 0 && (
                 <div className="min-w-0 flex-1">
-                  {right.map((section, i) => (
+                  {page.right.map((section, i) => (
                     <SectionCard key={i} section={section} />
                   ))}
                 </div>
               )}
             </div>
-          );
-        })()
-      ) : (
-        <div className="space-y-8">
-          {(content as ExplanationContent).sections.map((section, i) => (
-            <div key={i}>
-              <h3 className="mb-2 text-base font-semibold">{section.heading}</h3>
-              {section.body.split(/\n{2,}/).map((paragraph, j) => (
-                <p key={j} className="mb-3 text-[15px] leading-8 text-gray-800">
-                  {paragraph.trim()}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[794px] rounded-sm bg-white p-8 shadow-md ring-1 ring-gray-200">
+      <h2 className="mb-6 text-lg font-bold">{content.title}</h2>
+      <div className="space-y-8">
+        {(content as ExplanationContent).sections.map((section, i) => (
+          <div key={i}>
+            <h3 className="mb-2 text-base font-semibold">{section.heading}</h3>
+            {section.body.split(/\n{2,}/).map((paragraph, j) => (
+              <p key={j} className="mb-3 text-[15px] leading-8 text-gray-800">
+                {paragraph.trim()}
+              </p>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

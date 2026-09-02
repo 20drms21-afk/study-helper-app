@@ -5,7 +5,8 @@ import type { SummaryContent } from "@/lib/prompts/summarize";
 // SummaryNotePdf.tsx의 2단 레이아웃 치수와 반드시 맞춰야 함(styles 변경 시 이 상수들도 갱신할 것).
 const PAGE_WIDTH = 595.28; // A4, pt
 const PAGE_HEIGHT = 841.89;
-const PAGE_PADDING = 40;
+// 페이지 상하좌우 여백 — 좁게(구 40). 페이지 크기는 항상 A4로 고정하고 이 여백만 줄인다.
+const PAGE_PADDING = 24;
 const TITLE_HEIGHT = 18 * 1.3 + 20; // fontSize 18 + marginBottom 20의 대략치
 const COLUMN_GAP = 16;
 const BOX_PADDING = 10;
@@ -15,7 +16,15 @@ const CONTENT_WIDTH = PAGE_WIDTH - PAGE_PADDING * 2;
 const COLUMN_WIDTH = (CONTENT_WIDTH - COLUMN_GAP) / 2;
 const INNER_WIDTH = COLUMN_WIDTH - BOX_PADDING * 2;
 const BULLET_TEXT_WIDTH = INNER_WIDTH - BULLET_DOT_WIDTH;
-const COLUMN_HEIGHT_BUDGET = PAGE_HEIGHT - PAGE_PADDING * 2 - TITLE_HEIGHT;
+
+// 높이 추정 오차로 단이 실제로 넘쳐서 react-pdf가 "왼쪽 단이 빈" 페이지를 새로
+// 만들어버리지 않도록 두는 여유분.
+const COLUMN_HEIGHT_SAFETY = 24;
+// 1페이지는 상단 제목이 두 단 위를 차지하므로 단 높이 예산이 그만큼 작다.
+const FIRST_PAGE_COLUMN_BUDGET =
+  PAGE_HEIGHT - PAGE_PADDING * 2 - TITLE_HEIGHT - COLUMN_HEIGHT_SAFETY;
+// 2페이지부터는 제목이 없어 예산이 더 크다.
+const REST_PAGE_COLUMN_BUDGET = PAGE_HEIGHT - PAGE_PADDING * 2 - COLUMN_HEIGHT_SAFETY;
 
 type FontWeight = "normal" | "bold";
 
@@ -111,27 +120,47 @@ function estimateSectionHeight(section: SummaryContent["sections"][number]): num
   return height;
 }
 
+export type SummaryColumnPage = {
+  left: SummaryContent["sections"];
+  right: SummaryContent["sections"];
+};
+
 /**
- * 왼쪽 단을 실제 페이지 높이만큼 위→아래로 꽉 채우고, 거기서 넘치는 섹션만 오른쪽
- * 단으로 보낸다(균등 반으로 자르지 않음). 전체 내용이 왼쪽 단 하나에 다 들어가면
- * 오른쪽 단은 비워둔 채로 끝 — 억지로 두 단에 나눠 채우지 않는다.
+ * 섹션을 A4 페이지들에 신문 단 흐름으로 배치한다:
+ * 1페이지 왼쪽 단을 페이지 높이만큼 채움 → 1페이지 오른쪽 단 → 2페이지 왼쪽 단 →
+ * 2페이지 오른쪽 단 → … 섹션이 떨어질 때까지 반복. 페이지 크기(A4)는 절대 줄이지
+ * 않고, 한 단이 차면 항상 다음 단/다음 페이지로 넘긴다(균등 반으로 자르지 않음).
+ * 내용이 1페이지 왼쪽 단에 다 들어가면 페이지 하나에 오른쪽 단이 빈 채로 끝난다.
  */
-export function splitSectionsIntoColumns(sections: SummaryContent["sections"]) {
-  const left: SummaryContent["sections"] = [];
-  const right: SummaryContent["sections"] = [];
-  let leftHeight = 0;
-  let overflowed = false;
+export function splitSectionsIntoColumns(
+  sections: SummaryContent["sections"]
+): SummaryColumnPage[] {
+  const pages: SummaryColumnPage[] = [{ left: [], right: [] }];
+  let col: "left" | "right" = "left";
+  let colHeight = 0;
 
   for (const section of sections) {
     const height = estimateSectionHeight(section);
-    if (!overflowed && (left.length === 0 || leftHeight + height <= COLUMN_HEIGHT_BUDGET)) {
-      left.push(section);
-      leftHeight += height;
-    } else {
-      overflowed = true;
-      right.push(section);
+    let page = pages[pages.length - 1];
+    const budget =
+      pages.length === 1 ? FIRST_PAGE_COLUMN_BUDGET : REST_PAGE_COLUMN_BUDGET;
+
+    // 빈 단에는 (한 섹션이 예산보다 커도) 무조건 하나는 넣는다 — 안 그러면 무한 루프.
+    const fits = page[col].length === 0 || colHeight + height <= budget;
+    if (!fits) {
+      if (col === "left") {
+        col = "right";
+      } else {
+        pages.push({ left: [], right: [] });
+        page = pages[pages.length - 1];
+        col = "left";
+      }
+      colHeight = 0;
     }
+
+    page[col].push(section);
+    colHeight += height;
   }
 
-  return { left, right };
+  return pages;
 }

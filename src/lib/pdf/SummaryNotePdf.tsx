@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: KOREAN_FONT_FAMILY,
     fontSize: 10,
-    padding: 40,
+    padding: 24,
     color: "#111111",
   },
   title: {
@@ -92,25 +92,27 @@ export function SummaryNotePdf({
 }) {
   if (type === "summary") {
     const sections = (content as SummaryContent).sections;
-    const { left, right } = splitSectionsIntoColumns(sections);
+    const pages = splitSectionsIntoColumns(sections);
 
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
-          <Text style={styles.title}>{title}</Text>
-          <View style={styles.columns}>
-            <View style={styles.column}>
-              {left.map((section, i) => (
-                <SummarySectionBox key={i} section={section} />
-              ))}
+        {pages.map((page, pageIndex) => (
+          <Page key={pageIndex} size="A4" style={styles.page}>
+            {pageIndex === 0 && <Text style={styles.title}>{title}</Text>}
+            <View style={styles.columns}>
+              <View style={styles.column}>
+                {page.left.map((section, i) => (
+                  <SummarySectionBox key={i} section={section} />
+                ))}
+              </View>
+              <View style={styles.column}>
+                {page.right.map((section, i) => (
+                  <SummarySectionBox key={i} section={section} />
+                ))}
+              </View>
             </View>
-            <View style={styles.column}>
-              {right.map((section, i) => (
-                <SummarySectionBox key={i} section={section} />
-              ))}
-            </View>
-          </View>
-        </Page>
+          </Page>
+        ))}
       </Document>
     );
   }
